@@ -1,0 +1,18 @@
+name: Quality Gate Action
+description: "This action will check the quality gate of the project"
+inputs:
+  github_token:
+    description: "The GitHub token for the repository"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Check Repository Configs"
+      shell: bash
+      env:
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+      run: |
+        cd ${{github.action_path}}
+        ./src/main.sh
