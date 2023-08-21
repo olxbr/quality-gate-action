@@ -1,8 +1,7 @@
 #!/bin/bash
 
-source src/utils.sh
+source ${ACTION_PATH}/src/utils.sh
 
-REPOSITORY=${REPOSITORY}
 DEFAULT_BRANCH=main
 
 function _set_default_branch(){

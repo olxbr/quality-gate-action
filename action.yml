@@ -8,11 +8,28 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: "Check Unit Test Pass"
+      shell: bash
+      env:
+        ACTION_PATH: ${{github.action_path}}
+      run: |
+        source ${{ env.ACTION_PATH }}/src/unit_test.sh
+        _check_unit_test
+
     - name: "Check Repository Configs"
       shell: bash
       env:
         GITHUB_REPOSITORY: ${{ github.repository }}
         GITHUB_TOKEN: ${{ inputs.github_token }}
+        ACTION_PATH: ${{github.action_path}}
       run: |
-        cd ${{github.action_path}}
-        ./src/main.sh
+        source ${{ env.ACTION_PATH }}/src/repo_configs.sh
+        _check_repo_configs
+
+    - name: "Write Results"
+      shell: bash
+      env:
+        ACTION_PATH: ${{github.action_path}}
+      run: |
+        source ${{ env.ACTION_PATH }}/src/write_results.sh
+        _log_results
