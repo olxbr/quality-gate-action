@@ -33,9 +33,10 @@ function _check_repo_configs() {
     if [[ $(jq 'length > 0' <<<"$rules") == true ]]; then
         is_required_code_review_approval=$(jq -r 'any(.[]; .required_approving_review_count > 0)' <<<"$rules")
         is_required_code_owner_approval=$(jq -r 'any(.[]; .require_code_owner_review == true)' <<<"$rules")
+        is_codeowners_file_exists=$(_validate_codeowners)
 
         if [[ $is_required_code_owner_approval == true ]]; then
-            if [[ $(_validate_codeowners) == false ]]; then
+            if [[ $is_codeowners_file_exists == false ]]; then
                 _log warn "${C_YEL}CODEOWNERS file not found!${C_END}"
                 is_required_code_owner_approval=false
             fi
@@ -45,6 +46,7 @@ function _check_repo_configs() {
 
         _log "${C_WHT}Required Code Review Approval:${C_END} ${is_required_code_review_approval}"
         _log "${C_WHT}Required Code Owner Approval:${C_END} ${is_required_code_owner_approval}"
+        _log "${C_WHT}CODEOWNERS file exists:${C_END} $is_codeowners_file_exists"
     else
         _log warn "${C_YEL}No rules found for repository!${C_END}"
     fi
