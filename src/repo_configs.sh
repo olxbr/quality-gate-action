@@ -6,6 +6,15 @@ source ${ACTION_PATH}/src/github_client.sh
 export GH_TOKEN=${GITHUB_TOKEN}
 export REPOSITORY=${GITHUB_REPOSITORY}
 
+# Function to validate if CODEOWNERS file exists
+function _validate_codeowners() {
+    if [ -f "CODEOWNERS" ] || [ -f "docs/CODEOWNERS" ] || [ -f ".github/CODEOWNERS" ]; then
+        echo true
+    else
+        echo false
+    fi
+}
+
 # Function to check repo configs
 function _check_repo_configs() {
     _log "${C_WHT}Checking Repository Configurations...${C_END}"
@@ -23,10 +32,23 @@ function _check_repo_configs() {
 
     if [[ $(jq 'length > 0' <<<"$rules") == true ]]; then
         is_required_code_review_approval=$(jq -r 'any(.[]; .required_approving_review_count > 0)' <<<"$rules")
-        is_required_code_owner_approval=$(jq -r 'any(.[]; .require_code_owner_review == true)' <<<"$rules")
+        is_required_code_owner_review=$(jq -r 'any(.[]; .require_code_owner_review == true)' <<<"$rules")
+        is_codeowners_file_exists=$(_validate_codeowners)
+
+        if [[ $is_required_code_owner_review == true ]] && [[ $is_codeowners_file_exists == true ]]; then
+            is_required_code_owner_approval=true
+        else
+            if [[ $is_required_code_owner_review == false ]]; then
+                _log warn "${C_YEL}[Require Code Owner Review] rule is disabled!${C_END}"
+            fi
+            if [[ $is_codeowners_file_exists == false ]]; then
+                _log warn "${C_YEL}CODEOWNERS file not found!${C_END}"
+            fi
+        fi
 
         _log "${C_WHT}Required Code Review Approval:${C_END} ${is_required_code_review_approval}"
         _log "${C_WHT}Required Code Owner Approval:${C_END} ${is_required_code_owner_approval}"
+        _log "${C_WHT}CODEOWNERS file exists:${C_END} $is_codeowners_file_exists"
     else
         _log warn "${C_YEL}No rules found for repository!${C_END}"
     fi
