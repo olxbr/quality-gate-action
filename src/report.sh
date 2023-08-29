@@ -6,6 +6,7 @@ source "${ACTION_PATH}"/src/github_client.sh
 export GH_TOKEN=${GITHUB_TOKEN}
 export REPOSITORY=${GITHUB_REPOSITORY}
 export PR_NUMBER=${GITHUB_PR_NUMBER}
+export DOCS_URL=${DOCS_URL:-""}
 
 # Function to return status badge configuration
 function _get_status_badge() {

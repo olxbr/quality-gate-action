@@ -4,6 +4,10 @@ inputs:
   github_token:
     description: "The GitHub token for the repository"
     required: true
+  docs_url:
+    description: "The URL of the documentation"
+    required: false
+    default: ""
 
 runs:
   using: "composite"
@@ -33,6 +37,7 @@ runs:
         GITHUB_PR_NUMBER: ${{ github.event.number }}
         GITHUB_TOKEN: ${{ inputs.github_token }}
         ACTION_PATH: ${{ github.action_path }}
+        DOCS_URL: ${{ inputs.docs_url }}
       run: |
         source ${{ env.ACTION_PATH }}/src/report.sh
         _send_report

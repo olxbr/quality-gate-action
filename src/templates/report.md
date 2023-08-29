@@ -6,4 +6,4 @@
 | Code Review    | ${QUALITY_GATE__CODE_REVIEW_EMOJI}    | ${QUALITY_GATE__CODE_REVIEW_DESCRIPTION}   |
 | Owner Approval | ${QUALITY_GATE__OWNER_APPROVAL_EMOJI} | ${QUALITY_GATE__OWNER_APPROVAL_DESCRIPTION}|
 
-**To comply with the Quality Gates, consult this [documentation](url).**
+**To comply with the Quality Gates, consult this [documentation](${DOCS_URL}).**
