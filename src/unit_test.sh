@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ${ACTION_PATH}/src/utils.sh
+source "${ACTION_PATH}"/src/utils.sh
 
 # Function to validate if Makefile exists
 function _validate_makefile() {
@@ -25,6 +25,8 @@ function _check_unit_test() {
     _log "${C_WHT}Checking Unit Test...${C_END}"
     is_unit_tests_pass=false
 
+    unit_tests_warn_msg=""
+
     has_makefile=$(_validate_makefile)
 
     if [[ $has_makefile == true ]]; then
@@ -34,11 +36,20 @@ function _check_unit_test() {
             _log "${C_WHT}Running Unit Test...${C_END}"
 
             make unit-test && is_unit_tests_pass=true || true
+            if [[ $is_unit_tests_pass == false ]]; then
+                message="Unit Test Failed!"
+                _log warn "${C_YEL}${message}${C_END}"
+                _insert_warning_message unit_tests_warn_msg "⚠️ ${message}"
+            fi
         else
-            _log warn "${C_YEL}No unit-test target found in Makefile!${C_END}"
+            message="Unit-test target not found in Makefile!"
+            _log warn "${C_YEL}${message}${C_END}"
+            _insert_warning_message unit_tests_warn_msg "⚠️ ${message}"
         fi
     else
-        _log warn "${C_YEL}No Makefile found!${C_END}"
+        message="Makefile not found!"
+        _log warn "${C_YEL}${message}${C_END}"
+        _insert_warning_message unit_tests_warn_msg "⚠️ ${message}"
     fi
 
     _log "${C_WHT}Makefile exists:${C_END} ${has_makefile}"
@@ -46,4 +57,6 @@ function _check_unit_test() {
     _log "${C_WHT}Unit Test Pass:${C_END} ${is_unit_tests_pass}"
 
     echo "QUALITY_GATE__UNIT_TEST_PASS=$is_unit_tests_pass" >>"$GITHUB_ENV"
+
+    echo "QUALITY_GATE__UNIT_TEST_WARN_MSGS=$unit_tests_warn_msg" >>"$GITHUB_ENV"
 }
