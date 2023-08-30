@@ -18,7 +18,7 @@ This action collects repository and code information to validate if they are com
 The Github token is used to collect repository configuration data via the Github API and to add comments to Pull Requests. You can use PAT from github context `${{ secrets.GITHUB_TOKEN }}`, no need to generate a new one.
 
 #### `docs_url` (default: "")
-The url os docs to link in the report.
+Documentation URL to use in the report.
 
 ## Results
 
