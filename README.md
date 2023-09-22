@@ -11,6 +11,7 @@ This action collects repository and code information to validate if they are com
   with:
     github_token: ${{ secrets.GITHUB_TOKEN }}
     sonar_token: ${{ secrets.SONAR_TOKEN }}
+    sonar_check_timeout: ${{ vars.SONAR_CHECK_TIMEOUT }}
     docs_url: "your_docs_url"
 ```
 ## Inputs
@@ -20,6 +21,9 @@ The Github token is used to collect repository configuration data via the Github
 
 #### `sonar_token`
 The Sonar token is used to collect code quality data via the Sonar API. You can generate a new token in your Sonar account.
+
+#### `sonar_check_timeout` (default: 60)
+Sonar check timeout in minutes. If the timeout is reached, the action will not fail, but the result will be shown as a warning.
 
 #### `docs_url` (default: "")
 Documentation URL to use in the report.
