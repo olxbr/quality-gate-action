@@ -1,7 +1,5 @@
 #!/bin/bash
 
-source "${ACTION_PATH}"/src/utils.sh
-
 DEFAULT_BRANCH=main
 
 function _set_default_branch() {
