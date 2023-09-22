@@ -10,12 +10,16 @@ This action collects repository and code information to validate if they are com
   uses: olxbr/quality-gate-action@v0
   with:
     github_token: ${{ secrets.GITHUB_TOKEN }}
+    sonar_token: ${{ secrets.SONAR_TOKEN }}
     docs_url: "your_docs_url"
 ```
 ## Inputs
 
 #### `github_token`
 The Github token is used to collect repository configuration data via the Github API and to add comments to Pull Requests. You can use PAT from github context `${{ secrets.GITHUB_TOKEN }}`, no need to generate a new one.
+
+#### `sonar_token`
+The Sonar token is used to collect code quality data via the Sonar API. You can generate a new token in your Sonar account.
 
 #### `docs_url` (default: "")
 Documentation URL to use in the report.
@@ -24,8 +28,6 @@ Documentation URL to use in the report.
 
 The result will be shown as a log of the action execution, as a summary in action tab and as a comment in the Pull Request.
 
-![image](https://github.com/olxbr/quality-gate-action/assets/4138825/0eabc8a5-6676-40d2-894c-4616a1fa1a1b)
+![image](https://github.com/olxbr/quality-gate-action/assets/4138825/32b030b9-a8ba-41f4-96da-df7e5a031bdc)
 
-![image](https://github.com/olxbr/quality-gate-action/assets/4138825/5ecc858f-7c60-4e11-afeb-5f0a7697a547)
-
-![image](https://github.com/olxbr/quality-gate-action/assets/4138825/320ab6a3-c15d-4ead-91ac-b4823725395c)
+![image](https://github.com/olxbr/quality-gate-action/assets/4138825/67810ffd-14df-48ae-883e-fbf403c28b19)
