@@ -105,10 +105,11 @@ function _check_sonarcloud_analysis() {
     _check_sonarcloud_configuration
 
     if [[ $SONARCLOUD_CFGS_OK == true ]]; then
-        # The time of SONAR_CHECK_TIMEOUT in hours divide by 10 seconds
+        # The time of SONAR_CHECK_TIMEOUT in minutes divide by 10 seconds
         local sleep=10
         local count=0
         local retries=$(echo "($SONAR_CHECK_TIMEOUT * 60) / $sleep" | bc)
+        _log "${C_WHT}SonarCloud Analysis Timeout:${C_END} ${SONAR_CHECK_TIMEOUT} minutes"
 
         local sonarcloud_analysis_completed=false
 
