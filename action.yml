@@ -11,6 +11,11 @@ inputs:
     description: "The URL of the documentation"
     required: false
     default: ""
+  sonar_check_timeout:
+    description: "The timeout in minutes for the SonarCloud check"
+    type: integer
+    required: false
+    default: 60
 
 runs:
   using: "composite"
@@ -41,6 +46,7 @@ runs:
         PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         SONAR_TOKEN: ${{ inputs.sonar_token }}
         ACTION_PATH: ${{ github.action_path }}
+        SONAR_CHECK_TIMEOUT: ${{ inputs.sonar_check_timeout }}
       run: |
         source ${{ env.ACTION_PATH }}/src/sonarcloud_analysis.sh
         _check_sonarcloud_analysis

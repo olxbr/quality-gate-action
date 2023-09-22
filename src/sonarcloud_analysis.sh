@@ -4,6 +4,7 @@ source "${ACTION_PATH}/src/utils.sh"
 source "${ACTION_PATH}/src/sonarcloud_client.sh"
 
 export SONAR_PROJECT="${REPOSITORY/\//_}"
+export SONAR_CHECK_TIMEOUT="${SONAR_CHECK_TIMEOUT:-60}"
 
 # Function to check SonarCloud Token and Component
 function _check_sonarcloud_configuration() {
@@ -104,10 +105,11 @@ function _check_sonarcloud_analysis() {
     _check_sonarcloud_configuration
 
     if [[ $SONARCLOUD_CFGS_OK == true ]]; then
-        # One hour timeout divided by 10 seconds of sleep
-        local retries=360
+        # The time of SONAR_CHECK_TIMEOUT in minutes divide by 10 seconds
         local sleep=10
         local count=0
+        local retries=$(echo "($SONAR_CHECK_TIMEOUT * 60) / $sleep" | bc)
+        _log "${C_WHT}SonarCloud Analysis Timeout:${C_END} ${SONAR_CHECK_TIMEOUT} minutes"
 
         local sonarcloud_analysis_completed=false
 
