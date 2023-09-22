@@ -4,6 +4,9 @@ inputs:
   github_token:
     description: "The GitHub token for the repository"
     required: true
+  sonar_token:
+    description: "The SonarCloud token for the repository"
+    required: true
   docs_url:
     description: "The URL of the documentation"
     required: false
@@ -29,6 +32,18 @@ runs:
       run: |
         source ${{ env.ACTION_PATH }}/src/repo_configs.sh
         _check_repo_configs
+
+    - name: "Check SonarCloud Analysis Pass"
+      shell: bash
+      env:
+        REPOSITORY: ${{ github.repository }}
+        PR_NUMBER: ${{ github.event.number }}
+        PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        SONAR_TOKEN: ${{ inputs.sonar_token }}
+        ACTION_PATH: ${{ github.action_path }}
+      run: |
+        source ${{ env.ACTION_PATH }}/src/sonarcloud_analysis.sh
+        _check_sonarcloud_analysis
 
     - name: "Report"
       shell: bash
