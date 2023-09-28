@@ -23,6 +23,8 @@ runs:
     - name: "Check Unit Test Pass"
       shell: bash
       env:
+        REPOSITORY: ${{ github.repository }}
+        PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         ACTION_PATH: ${{github.action_path}}
       run: |
         source ${{ env.ACTION_PATH }}/src/unit_test.sh
@@ -45,8 +47,8 @@ runs:
         PR_NUMBER: ${{ github.event.number }}
         PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         SONAR_TOKEN: ${{ inputs.sonar_token }}
-        ACTION_PATH: ${{ github.action_path }}
         SONAR_CHECK_TIMEOUT: ${{ inputs.sonar_check_timeout }}
+        ACTION_PATH: ${{ github.action_path }}
       run: |
         source ${{ env.ACTION_PATH }}/src/sonarcloud_analysis.sh
         _check_sonarcloud_analysis
