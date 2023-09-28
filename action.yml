@@ -25,6 +25,7 @@ runs:
       env:
         REPOSITORY: ${{ github.repository }}
         PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
         ACTION_PATH: ${{github.action_path}}
       run: |
         source ${{ env.ACTION_PATH }}/src/unit_test.sh
