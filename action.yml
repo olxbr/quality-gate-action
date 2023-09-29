@@ -16,6 +16,11 @@ inputs:
     type: integer
     required: false
     default: 60
+  unit_test_check_timeout:
+    description: "The timeout in minutes for the unit test check"
+    type: integer
+    required: false
+    default: 60
 
 runs:
   using: "composite"
@@ -23,7 +28,11 @@ runs:
     - name: "Check Unit Test Pass"
       shell: bash
       env:
-        ACTION_PATH: ${{github.action_path}}
+        REPOSITORY: ${{ github.repository }}
+        PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+        UNIT_TEST_CHECK_TIMEOUT: ${{ inputs.unit_test_check_timeout }}
+        ACTION_PATH: ${{ github.action_path }}
       run: |
         source ${{ env.ACTION_PATH }}/src/unit_test.sh
         _check_unit_test
@@ -45,8 +54,8 @@ runs:
         PR_NUMBER: ${{ github.event.number }}
         PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         SONAR_TOKEN: ${{ inputs.sonar_token }}
-        ACTION_PATH: ${{ github.action_path }}
         SONAR_CHECK_TIMEOUT: ${{ inputs.sonar_check_timeout }}
+        ACTION_PATH: ${{ github.action_path }}
       run: |
         source ${{ env.ACTION_PATH }}/src/sonarcloud_analysis.sh
         _check_sonarcloud_analysis

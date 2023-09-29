@@ -75,3 +75,26 @@ function _update_pr_report_comment() {
             /repos/"$REPOSITORY"/issues/comments/"$comment_id"
     fi
 }
+
+function _get_workflow_run_ids() {
+    workflow_run_ids=$(gh api \
+        -H "Accept: application/vnd.github+json" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        --jq "[.workflow_runs[].id]" \
+        "/repos/$REPOSITORY/actions/runs?per_page=100&head_sha=$PR_HEAD_SHA")
+    echo "$workflow_run_ids"
+}
+
+function _get_quality_gate_unit_test_step() {
+    local workflow_run_id=$1
+
+    if [ -n "$workflow_run_id" ]; then
+        quality_gate_step=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            --jq ".jobs[].steps[] | select(.name == \"$UNIT_TEST_STEP_NAME\")" \
+            "/repos/$REPOSITORY/actions/runs/$workflow_run_id/jobs")
+
+        echo "$quality_gate_step"
+    fi
+}
