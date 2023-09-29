@@ -32,7 +32,7 @@ runs:
         PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         GITHUB_TOKEN: ${{ inputs.github_token }}
         UNIT_TEST_CHECK_TIMEOUT: ${{ inputs.unit_test_check_timeout }}
-        ACTION_PATH: ${{github.action_path}}
+        ACTION_PATH: ${{ github.action_path }}
       run: |
         source ${{ env.ACTION_PATH }}/src/unit_test.sh
         _check_unit_test
