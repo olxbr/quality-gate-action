@@ -21,13 +21,28 @@ inputs:
     type: integer
     required: false
     default: 60
+  gates_to_skip:
+    description: "The gates to skip (code_review, coverage, owner_approval, static_analysis, unit_test)"
+    required: false
+    default: ""
 
 runs:
   using: "composite"
   steps:
+    - name: "Log Skip Gates Configuration"
+      if: ${{ inputs.gates_to_skip != '' }}
+      shell: bash
+      env:
+        GATES_TO_SKIP: ${{ inputs.gates_to_skip }}
+        ACTION_PATH: ${{ github.action_path }}
+      run: |
+        source ${{ env.ACTION_PATH }}/src/utils.sh
+        _log_gates_to_skip_configuration
+
     - name: "Check Unit Test Pass"
       shell: bash
       env:
+        GATES_TO_SKIP: ${{ inputs.gates_to_skip }}
         REPOSITORY: ${{ github.repository }}
         PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         GITHUB_TOKEN: ${{ inputs.github_token }}
@@ -40,6 +55,7 @@ runs:
     - name: "Check Repository Configs"
       shell: bash
       env:
+        GATES_TO_SKIP: ${{ inputs.gates_to_skip }}
         GITHUB_REPOSITORY: ${{ github.repository }}
         GITHUB_TOKEN: ${{ inputs.github_token }}
         ACTION_PATH: ${{ github.action_path }}
@@ -50,6 +66,7 @@ runs:
     - name: "Check SonarCloud Analysis Pass"
       shell: bash
       env:
+        GATES_TO_SKIP: ${{ inputs.gates_to_skip }}
         REPOSITORY: ${{ github.repository }}
         PR_NUMBER: ${{ github.event.number }}
         PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
@@ -63,6 +80,7 @@ runs:
     - name: "Report"
       shell: bash
       env:
+        GATES_TO_SKIP: ${{ inputs.gates_to_skip }}
         GITHUB_REPOSITORY: ${{ github.repository }}
         GITHUB_PR_NUMBER: ${{ github.event.number }}
         GITHUB_TOKEN: ${{ inputs.github_token }}

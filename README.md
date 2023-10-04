@@ -12,6 +12,8 @@ This action collects repository and code information to validate if they are com
     github_token: ${{ secrets.GITHUB_TOKEN }}
     sonar_token: ${{ secrets.SONAR_TOKEN }}
     sonar_check_timeout: ${{ vars.SONAR_CHECK_TIMEOUT }}
+    unit_test_check_timeout: ${{ vars.UNIT_TEST_CHECK_TIMEOUT }}
+    gates_to_skip: ${{ vars.GATES_TO_SKIP }}
     docs_url: "your_docs_url"
 ```
 ## Inputs
@@ -22,11 +24,14 @@ The Github token is used to collect repository configuration data via the Github
 #### `sonar_token`
 The Sonar token is used to collect code quality data via the Sonar API. You can generate a new token in your Sonar account.
 
-#### `sonar_check_timeout` (default: 60)
-Sonar check timeout in minutes. If the timeout is reached, the action will not fail, but the result will be shown as a warning.
+#### `gates_to_skip` (default: "")
+Comma separated list of gates to skip. The available gates are: `code_review`, `coverage`, `owner_approval`, `static_analysis`, `unit_test`.
 
 #### `docs_url` (default: "")
 Documentation URL to use in the report.
+
+#### `sonar_check_timeout`, `unit_test_check_timeout` (default: 60)
+Sonar check timeout in minutes. If the timeout is reached, the action will not fail, but the result will be shown as a warning. The same applies to unit test check timeout.
 
 ## Results
 

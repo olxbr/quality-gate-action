@@ -11,8 +11,8 @@ export DOCS_URL="${DOCS_URL:-}"
 # Function to return status badge configuration
 function _get_status_badge() {
     if [ "$QUALITY_GATE__UNIT_TEST_PASS" = true ] &&
-        [ "$QUALITY_GATE__CODE_REVIEW_APPROVAL" = true ] &&
-        [ "$QUALITY_GATE__CODE_REVIEW_OWNER_APPROVAL" = true ] &&
+        [ "$QUALITY_GATE__CODE_REVIEW" = true ] &&
+        [ "$QUALITY_GATE__OWNER_APPROVAL" = true ] &&
         [ "$QUALITY_GATE__COVERAGE_PASS" == true ] &&
         [ "$QUALITY_GATE__STATIC_ANALYSIS_PASS" == true ]; then
         echo "Passed!-01aa00"
@@ -21,13 +21,19 @@ function _get_status_badge() {
     fi
 }
 
-# Function to convert boolean to emoji
-function _boolean_to_emoji() {
-    if [ "$1" = true ]; then
+# Function to get emoji
+function _get_emoji() {
+    skip=$(_has_gate_to_skip "$2")
+
+    if [ "$skip" = true ]; then
+        echo -e "\xE2\x9A\xA0\xEF\xB8\x8F"
+    elif [ "$1" = true ]; then
         echo -e "\xE2\x9C\x85"
     else
         echo -e "\xE2\x9D\x8C"
     fi
+
+    # "\xE2\x9A\xA0\xEF\xB8\x8F"
 }
 
 # Function to log results
@@ -84,11 +90,11 @@ function _post_pr_comment() {
 
 # Function to send report
 function _send_report() {
-    export QUALITY_GATE__UNIT_TEST_EMOJI=$(_boolean_to_emoji "$QUALITY_GATE__UNIT_TEST_PASS")
-    export QUALITY_GATE__CODE_REVIEW_EMOJI=$(_boolean_to_emoji "$QUALITY_GATE__CODE_REVIEW_APPROVAL")
-    export QUALITY_GATE__OWNER_APPROVAL_EMOJI=$(_boolean_to_emoji "$QUALITY_GATE__CODE_REVIEW_OWNER_APPROVAL")
-    export QUALITY_GATE__COVERAGE_EMOJI=$(_boolean_to_emoji "$QUALITY_GATE__COVERAGE_PASS")
-    export QUALITY_GATE__STATIC_ANALYSIS_EMOJI=$(_boolean_to_emoji "$QUALITY_GATE__STATIC_ANALYSIS_PASS")
+    export QUALITY_GATE__UNIT_TEST_EMOJI=$(_get_emoji "$QUALITY_GATE__UNIT_TEST_PASS" "unit_test")
+    export QUALITY_GATE__CODE_REVIEW_EMOJI=$(_get_emoji "$QUALITY_GATE__CODE_REVIEW" "code_review")
+    export QUALITY_GATE__OWNER_APPROVAL_EMOJI=$(_get_emoji "$QUALITY_GATE__OWNER_APPROVAL" "owner_approval")
+    export QUALITY_GATE__COVERAGE_EMOJI=$(_get_emoji "$QUALITY_GATE__COVERAGE_PASS" "coverage")
+    export QUALITY_GATE__STATIC_ANALYSIS_EMOJI=$(_get_emoji "$QUALITY_GATE__STATIC_ANALYSIS_PASS" "static_analysis")
 
     export QUALITY_GATE__UNIT_TEST_DESCRIPTION=${QUALITY_GATE__UNIT_TEST_WARN_MSGS:-"Passed!"}
     export QUALITY_GATE__CODE_REVIEW_DESCRIPTION=${QUALITY_GATE__CODE_REVIEW_WARN_MSGS:-"Passed!"}

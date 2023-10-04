@@ -48,3 +48,17 @@ function _insert_warning_message() {
         eval "$env_var=\"${!env_var}<br>$warning_message\""
     fi
 }
+
+function _log_gates_to_skip_configuration() {
+    _log warn "${C_YEL}Skipping Gates!${C_END}"
+    _log warn "${C_YEL}$GATES_TO_SKIP${C_END}"
+}
+
+function _has_gate_to_skip() {
+    local gate=$1
+    if [[ $GATES_TO_SKIP == *$gate* ]]; then
+        echo true
+    else
+        echo false
+    fi
+}
