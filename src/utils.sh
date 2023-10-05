@@ -71,7 +71,7 @@ function _retry_with_delay() {
     local initial_retry_delay=3
     local max_retry_delay=60
 
-    _log "${C_BLU}Running command [$retry_command] with retry...${C_END}"
+    _log "${C_BLU}Running command [ $retry_command ] with retry...${C_END}"
 
     for ((i = 1; i <= max_retries; i++)); do
         if $retry_command; then
@@ -86,7 +86,6 @@ function _retry_with_delay() {
                     sleep_seconds=$max_retry_delay
                 fi
                 _log "${C_BLU}Retrying in $sleep_seconds seconds...${C_END}"
-                _log "${C_BLU}------------------------------${C_END}"
                 sleep $sleep_seconds
             else
                 _log warn "${C_YEL}Maximum number of retries reached. Exiting...${C_END}"

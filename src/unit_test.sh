@@ -8,12 +8,14 @@ export UNIT_TEST_CHECK_TIMEOUT="${UNIT_TEST_CHECK_TIMEOUT:-60}"
 
 # Function to get the workflow run ID containing the unit test step
 function _get_workflow_run_id() {
+    _log "${C_WHT}Getting Workflow Run ID...${C_END}"
     local succeeded=false
 
     workflow_run_ids=$(_get_workflow_run_ids)
 
     for id in $(jq -c '.[]' <<<"$workflow_run_ids"); do
         if [[ -n "$(_get_quality_gate_unit_test_step "$id")" ]]; then
+            _log "${C_WHT}Workflow Run ID:${C_END} ${id}"
             workflow_run_id=$id
             succeeded=true
             break
@@ -67,7 +69,6 @@ function _check_unit_test() {
         _retry_with_delay _get_workflow_run_id
 
         if [[ -n "$workflow_run_id" ]]; then
-            _log "${C_WHT}Workflow Run ID:${C_END} ${workflow_run_id}"
             _retry_with_delay _check_unit_test_status
         else
             message="Step ($UNIT_TEST_STEP_NAME) not found!"
