@@ -66,7 +66,7 @@ function _check_unit_test() {
         unit_tests_warn_msg=""
 
         workflow_run_id=""
-        _retry_with_delay _get_workflow_run_id
+        _retry_with_delay _get_workflow_run_id 5
 
         if [[ -n "$workflow_run_id" ]]; then
             _retry_with_delay _check_unit_test_status "$UNIT_TEST_CHECK_TIMEOUT"
