@@ -69,7 +69,7 @@ function _check_unit_test() {
         _retry_with_delay _get_workflow_run_id
 
         if [[ -n "$workflow_run_id" ]]; then
-            _retry_with_delay _check_unit_test_status
+            _retry_with_delay _check_unit_test_status "$UNIT_TEST_CHECK_TIMEOUT"
         else
             message="Step ($UNIT_TEST_STEP_NAME) not found!"
             _log warn "${C_YEL}${message}${C_END}"

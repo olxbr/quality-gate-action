@@ -151,7 +151,7 @@ function _check_sonarcloud_analysis() {
 
         if [[ $SONARCLOUD_CFGS_OK == true ]]; then
             local sonarcloud_analysis_completed=false
-            _retry_with_delay _check_sonarcloud_analysis_status
+            _retry_with_delay _check_sonarcloud_analysis_status "$SONAR_CHECK_TIMEOUT"
 
             # Check results (Coverage and Static Analysis)
             if [[ $sonarcloud_analysis_completed ]]; then

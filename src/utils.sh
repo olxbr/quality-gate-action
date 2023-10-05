@@ -65,13 +65,15 @@ function _has_gate_to_skip() {
 
 function _retry_with_delay() {
     local retry_command="$1"
+    local time_in_minutes="${2:-60}"
 
-    # 71 retries = 3630 seconds = 1 hour
-    local max_retries=71
     local initial_retry_delay=3
     local max_retry_delay=60
 
-    _log "${C_BLU}Running command [ $retry_command ] with retry...${C_END}"
+    # Calculate max_retries based on time_in_minutes
+    local max_retries=$((time_in_minutes * 60 / initial_retry_delay))
+
+    _log "${C_BLU}Running command [ $retry_command ] with retry (timeout: $time_in_minutes minutes)...${C_END}"
 
     for ((i = 1; i <= max_retries; i++)); do
         if $retry_command; then
