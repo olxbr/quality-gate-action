@@ -71,7 +71,7 @@ function _retry_with_delay() {
     local max_retry_delay=60
 
     # Calculate max_retries based on time_in_minutes
-    local max_retries=$((time_in_minutes * 60 / initial_retry_delay))
+    local max_retries=$(_calc_max_retries_by_time_in_minutes "$time_in_minutes" $initial_retry_delay $max_retry_delay)
 
     _log "${C_BLU}Running command [ $retry_command ] with retry (timeout: $time_in_minutes minutes)...${C_END}"
 
@@ -95,4 +95,28 @@ function _retry_with_delay() {
             fi
         fi
     done
+}
+
+function _calc_max_retries_by_time_in_minutes() {
+    local time_in_minutes=$1
+    local initial_retry_delay=$2
+    local max_retry_delay=$3
+    local time_in_seconds=$((time_in_minutes * 60))
+    local retries=0
+    local multiplier=1
+
+    while [ $time_in_seconds -gt 0 ]; do
+        seconds_to_remove=$((initial_retry_delay * multiplier))
+
+        if [ $seconds_to_remove -gt "$max_retry_delay" ]; then
+            seconds_to_remove=$max_retry_delay
+        fi
+
+        time_in_seconds=$((time_in_seconds - seconds_to_remove))
+
+        retries=$((retries + 1))
+        multiplier=$((multiplier + 1))
+    done
+
+    echo $retries
 }
