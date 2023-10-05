@@ -73,7 +73,7 @@ function _retry_with_delay() {
     # Calculate max_retries based on time_in_minutes
     local max_retries=$(_calc_max_retries_by_time_in_minutes "$time_in_minutes" $initial_retry_delay $max_retry_delay)
 
-    _log "${C_BLU}Running command [ $retry_command ] with retry (timeout: $time_in_minutes minutes)...${C_END}"
+    _log "${C_BLU}Running command [ $retry_command ] with retry (timeout: $time_in_minutes minute(s))...${C_END}"
 
     for ((i = 1; i <= max_retries; i++)); do
         if $retry_command; then
