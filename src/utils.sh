@@ -74,6 +74,7 @@ function _retry_with_delay() {
     local retry_command="$1"
 
     for ((i = 1; i <= max_retries; i++)); do
+        _log "${C_BLU}Attempt $i: $retry_command${C_END}"
         if $retry_command; then
             _log "${C_BLU}Command succeeded${C_END}"
             break
