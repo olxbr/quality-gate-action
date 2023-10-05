@@ -62,3 +62,35 @@ function _has_gate_to_skip() {
         echo false
     fi
 }
+
+function _retry_with_delay() {
+    _log "${C_WHT}Running command with retry...${C_END}"
+
+    # 71 retries = 3630 seconds = 1 hour
+    local max_retries=71
+    local initial_retry_delay=3
+    local max_retry_delay=60
+
+    local retry_command="$1"
+
+    for ((i = 1; i <= max_retries; i++)); do
+        if $retry_command; then
+            _log "${C_WHT}Command succeeded${C_END}"
+            break
+        else
+            _log "${C_WHT}Attempt $i failed${C_END}"
+
+            if [ $i -lt $max_retries ]; then
+                sleep_seconds=$((initial_retry_delay * i))
+                if [ $sleep_seconds -gt $max_retry_delay ]; then
+                    sleep_seconds=$max_retry_delay
+                fi
+                _log "${C_WHT}Retrying in $sleep_seconds seconds...${C_END}"
+                sleep $sleep_seconds
+            else
+                _log warn "${C_YEL}Maximum number of retries reached. Exiting...${C_END}"
+                break
+            fi
+        fi
+    done
+}

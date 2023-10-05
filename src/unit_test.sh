@@ -8,16 +8,19 @@ export UNIT_TEST_CHECK_TIMEOUT="${UNIT_TEST_CHECK_TIMEOUT:-60}"
 
 # Function to get the workflow run ID containing the unit test step
 function _get_workflow_run_id() {
+    local succeeded=false
+
     workflow_run_ids=$(_get_workflow_run_ids)
 
     for id in $(jq -c '.[]' <<<"$workflow_run_ids"); do
         if [[ -n "$(_get_quality_gate_unit_test_step "$id")" ]]; then
-            echo "$id"
-            return
+            workflow_run_id=$id
+            succeeded=true
+            break
         fi
     done
 
-    echo ""
+    $succeeded
 }
 
 # Function to check unit tests
@@ -31,10 +34,8 @@ function _check_unit_test() {
         is_unit_tests_pass=false
         unit_tests_warn_msg=""
 
-        _log "${C_WHT}Waiting 5 seconds for Github to trigger workflows...${C_END}"
-        sleep 5
-
-        workflow_run_id=$(_get_workflow_run_id)
+        workflow_run_id=""
+        _retry_with_delay _get_workflow_run_id
 
         if [[ -n "$workflow_run_id" ]]; then
             _log "${C_WHT}Workflow Run ID:${C_END} ${workflow_run_id}"
