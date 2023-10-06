@@ -62,3 +62,61 @@ function _has_gate_to_skip() {
         echo false
     fi
 }
+
+function _calc_max_retries_by_time_in_minutes() {
+    local time_in_minutes=$1
+    local initial_retry_delay=$2
+    local max_retry_delay=$3
+    local time_in_seconds=$((time_in_minutes * 60))
+    local retries=0
+    local multiplier=1
+
+    while [ $time_in_seconds -gt 0 ]; do
+        seconds_to_remove=$((initial_retry_delay * multiplier))
+
+        if [ $seconds_to_remove -gt "$max_retry_delay" ]; then
+            seconds_to_remove=$max_retry_delay
+        fi
+
+        time_in_seconds=$((time_in_seconds - seconds_to_remove))
+
+        retries=$((retries + 1))
+        multiplier=$((multiplier + 1))
+    done
+
+    echo $retries
+}
+
+function _retry_with_delay() {
+    local retry_command="$1"
+    local time_in_minutes="${2:-60}"
+
+    local initial_retry_delay=3
+    local max_retry_delay=60
+
+    # Calculate max_retries based on time_in_minutes
+    local max_retries=$(_calc_max_retries_by_time_in_minutes "$time_in_minutes" $initial_retry_delay $max_retry_delay)
+
+    _log "${C_BLU}Running command [ $retry_command ] with retry (timeout: $time_in_minutes minute(s))...${C_END}"
+
+    for ((i = 1; i <= max_retries; i++)); do
+        if $retry_command; then
+            _log "${C_BLU}Command succeeded${C_END}"
+            break
+        else
+            _log "${C_BLU}Attempt $i failed${C_END}"
+
+            if [ $i -lt $max_retries ]; then
+                sleep_seconds=$((initial_retry_delay * i))
+                if [ $sleep_seconds -gt $max_retry_delay ]; then
+                    sleep_seconds=$max_retry_delay
+                fi
+                _log "${C_BLU}Retrying in $sleep_seconds seconds...${C_END}"
+                sleep $sleep_seconds
+            else
+                _log warn "${C_YEL}Maximum number of retries reached. Exiting...${C_END}"
+                break
+            fi
+        fi
+    done
+}

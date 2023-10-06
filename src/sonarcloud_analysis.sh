@@ -118,6 +118,29 @@ function _check_static_analysis() {
     } >>"$GITHUB_ENV"
 }
 
+# Function to check SonarCloud Analysis status
+function _check_sonarcloud_analysis_status() {
+    _log "${C_WHT}Waiting for SonarCloud Analysis...${C_END}"
+    local succeeded=false
+
+    local pull_request_infos=$(_get_pull_request_infos)
+
+    if [[ -n $pull_request_infos ]]; then
+        local commit_sha=$(jq -r '.commit.sha' <<<"$pull_request_infos")
+
+        if [[ $commit_sha == "$PR_HEAD_SHA" ]]; then
+            _log "${C_WHT}SonarCloud Analysis completed!${C_END}"
+            sonarcloud_analysis_completed=true
+            succeeded=true
+
+        else
+            _log "${C_WHT}SonarCloud Analysis not completed yet!${C_END}"
+        fi
+    fi
+
+    $succeeded
+}
+
 # Main function to check SonarCloud Analysis
 function _check_sonarcloud_analysis() {
     skip_coverage=$(_has_gate_to_skip "coverage")
@@ -127,32 +150,8 @@ function _check_sonarcloud_analysis() {
         _check_sonarcloud_configuration
 
         if [[ $SONARCLOUD_CFGS_OK == true ]]; then
-            # The time of SONAR_CHECK_TIMEOUT in minutes divide by 10 seconds
-            local sleep=10
-            local count=0
-            local retries=$(echo "($SONAR_CHECK_TIMEOUT * 60) / $sleep" | bc)
-            _log "${C_WHT}SonarCloud Analysis Timeout:${C_END} ${SONAR_CHECK_TIMEOUT} minutes"
-
             local sonarcloud_analysis_completed=false
-
-            _log "${C_WHT}Waiting for SonarCloud Analysis...${C_END}"
-            while [[ $count -lt $retries ]]; do
-                local pull_request_infos=$(_get_pull_request_infos)
-
-                if [[ -n $pull_request_infos ]]; then
-                    local commit_sha=$(jq -r '.commit.sha' <<<"$pull_request_infos")
-
-                    if [[ $commit_sha == "$PR_HEAD_SHA" ]]; then
-                        _log "${C_WHT}SonarCloud Analysis completed!${C_END}"
-                        sonarcloud_analysis_completed=true
-                        break
-                    fi
-                fi
-
-                _log "${C_WHT}SonarCloud Analysis not completed yet!${C_END}"
-                count=$((count + 1))
-                sleep $sleep
-            done
+            _retry_with_delay _check_sonarcloud_analysis_status "$SONAR_CHECK_TIMEOUT"
 
             # Check results (Coverage and Static Analysis)
             if [[ $sonarcloud_analysis_completed ]]; then
