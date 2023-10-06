@@ -6,6 +6,19 @@ source "${ACTION_PATH}/src/sonarcloud_client.sh"
 export SONAR_PROJECT="${REPOSITORY/\//_}"
 export SONAR_CHECK_TIMEOUT="${SONAR_CHECK_TIMEOUT:-60}"
 
+# Function to update sonar project key from properties file if exists
+function _update_sonar_project_key() {
+    local config_file="sonar-project.properties"
+
+    if [[ -f $config_file ]]; then
+        local project_key=$(awk -F= '/^sonar.projectKey=/ {print $2}' "$config_file")
+
+        if [ -n "$project_key" ]; then
+            SONAR_PROJECT=$project_key
+        fi
+    fi
+}
+
 # Function to check SonarCloud Token and Component
 function _check_sonarcloud_configuration() {
     _log "${C_WHT}Checking SonarCloud Configuration...${C_END}"
@@ -147,6 +160,7 @@ function _check_sonarcloud_analysis() {
     skip_static_analysis=$(_has_gate_to_skip "static_analysis")
 
     if [[ $skip_coverage == false || $skip_static_analysis == false ]]; then
+        _update_sonar_project_key
         _check_sonarcloud_configuration
 
         if [[ $SONARCLOUD_CFGS_OK == true ]]; then
