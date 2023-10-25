@@ -21,16 +21,19 @@ function _log() {
     case $1 in
     erro) logLevel="${C_RED}[ERRO]${C_END}" ;;
     warn) logLevel="${C_YEL}[WARN]${C_END}" ;;
-    debug) [[ $ACTION_RUNNER_DEBUG == true ]] && logLevel="${C_YEL}[DEBUG]${C_END}" || return 0;;
+    debug)logLevel="${C_YEL}[DEBUG]${C_END}";;
     *) logLevel="${C_WHT}[INFO]${C_END}" ;;
     esac
 
     msg=$( (($# == 2)) && echo "${2}" || echo "${1}")
     msg_complete="$(date +"%d-%b-%Y %H:%M:%S") ${logLevel} - ${msg}${C_END}"
+    output=/dev/stdout
 
-    [[ $logLevel == *"DEBUG"* ]] &&
-        echo -e "${msg_complete}" >&2 ||
-        echo -e "${msg_complete}"
+    [[ $ACTION_RUNNER_DEBUG == true ]] &&
+        output=/dev/stderr ||
+        output=/dev/null
+
+    echo -e "${msg_complete}" > $output
 }
 
 function _insert_warning_message() {
