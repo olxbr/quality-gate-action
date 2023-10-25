@@ -30,7 +30,8 @@ function _log() {
     output=/dev/stdout
 
     if [[ logLevel == *"DEBUG"* ]]; then
-        [[ $ACTION_RUNNER_DEBUG == true ]] &&
+        echo DEBUG-LEVEL
+        [[ -n "$RUNNER_DEBUG" ]] &&
             output=/dev/stderr ||
             output=/dev/null
     fi
