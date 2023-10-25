@@ -21,7 +21,7 @@ function _log() {
     case $1 in
     erro) logLevel="${C_RED}[ERRO]${C_END}" ;;
     warn) logLevel="${C_YEL}[WARN]${C_END}" ;;
-    debug) [[ $ACTION_RUNNER_DEBUG == true ]] && logLevel="${C_YEL}[DEBUG]${C_END}" || return ;;
+    debug) [[ $ACTION_RUNNER_DEBUG == true ]] && logLevel="${C_YEL}[DEBUG]${C_END}" || return 0;;
     *) logLevel="${C_WHT}[INFO]${C_END}" ;;
     esac
 
