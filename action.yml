@@ -29,63 +29,49 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: "Setup default environment for all steps"
+      shell: bash
+      run: |
+        echo "ACTION_PATH=${{ github.action_path }}" >> $GITHUB_ENV
+        echo "DOCS_URL=${{ inputs.docs_url }}" >> $GITHUB_ENV
+        echo "GATES_TO_SKIP=${{ inputs.gates_to_skip }}" >> $GITHUB_ENV
+        echo "GITHUB_DEFAULT_BRANCH=${{ gihub.repository.default_branch }}" >> $GITHUB_ENV
+        echo "GITHUB_REPOSITORY=${{ github.repository }}" >> $GITHUB_ENV
+        echo "GITHUB_PR_NUMBER=${{ github.event.number }}" >> $GITHUB_ENV
+        echo "GITHUB_TOKEN=${{ inputs.github_token }}" >> $GITHUB_ENV
+        echo "PR_HEAD_SHA=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
+        echo "PR_NUMBER=${{ github.event.number }}" >> $GITHUB_ENV
+        echo "SONAR_TOKEN=${{ inputs.sonar_token }}" >> $GITHUB_ENV
+        echo "SONAR_CHECK_TIMEOUT=${{ inputs.sonar_check_timeout }}" >> $GITHUB_ENV
+        echo "UNIT_TEST_CHECK_TIMEOUT=${{ inputs.unit_test_check_timeout }}" >> $GITHUB_ENV
+
     - name: "Log Skip Gates Configuration"
       if: ${{ inputs.gates_to_skip != '' }}
       shell: bash
-      env:
-        GATES_TO_SKIP: ${{ inputs.gates_to_skip }}
-        ACTION_PATH: ${{ github.action_path }}
       run: |
         source ${{ env.ACTION_PATH }}/src/utils.sh
         _log_gates_to_skip_configuration
 
     - name: "Check Unit Test Pass"
       shell: bash
-      env:
-        GATES_TO_SKIP: ${{ inputs.gates_to_skip }}
-        REPOSITORY: ${{ github.repository }}
-        PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        GITHUB_TOKEN: ${{ inputs.github_token }}
-        UNIT_TEST_CHECK_TIMEOUT: ${{ inputs.unit_test_check_timeout }}
-        ACTION_PATH: ${{ github.action_path }}
       run: |
         source ${{ env.ACTION_PATH }}/src/unit_test.sh
         _check_unit_test
 
     - name: "Check Repository Configs"
       shell: bash
-      env:
-        GATES_TO_SKIP: ${{ inputs.gates_to_skip }}
-        GITHUB_REPOSITORY: ${{ github.repository }}
-        GITHUB_TOKEN: ${{ inputs.github_token }}
-        ACTION_PATH: ${{ github.action_path }}
       run: |
         source ${{ env.ACTION_PATH }}/src/repo_configs.sh
         _check_repo_configs
 
     - name: "Check SonarCloud Analysis Pass"
       shell: bash
-      env:
-        GATES_TO_SKIP: ${{ inputs.gates_to_skip }}
-        REPOSITORY: ${{ github.repository }}
-        PR_NUMBER: ${{ github.event.number }}
-        PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-        SONAR_TOKEN: ${{ inputs.sonar_token }}
-        SONAR_CHECK_TIMEOUT: ${{ inputs.sonar_check_timeout }}
-        ACTION_PATH: ${{ github.action_path }}
       run: |
         source ${{ env.ACTION_PATH }}/src/sonarcloud_analysis.sh
         _check_sonarcloud_analysis
 
     - name: "Report"
       shell: bash
-      env:
-        GATES_TO_SKIP: ${{ inputs.gates_to_skip }}
-        GITHUB_REPOSITORY: ${{ github.repository }}
-        GITHUB_PR_NUMBER: ${{ github.event.number }}
-        GITHUB_TOKEN: ${{ inputs.github_token }}
-        ACTION_PATH: ${{ github.action_path }}
-        DOCS_URL: ${{ inputs.docs_url }}
       run: |
         source ${{ env.ACTION_PATH }}/src/report.sh
         _send_report
