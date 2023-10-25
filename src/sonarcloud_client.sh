@@ -37,13 +37,10 @@ function _get_project_status() {
         filter_parameter="branch=$default_branch"
     fi
 
-    _log debug "${C_WHT}Getting Project Status with${C_END} projectKey=${SONAR_PROJECT} with filter ${filter_parameter}..."
-
     project_status=$(curl -s -u "${SONAR_TOKEN}": \
         -d "projectKey=${SONAR_PROJECT}" \
         -d "${filter_parameter}" \
         https://sonarcloud.io/api/qualitygates/project_status)
 
-    _log debug "${C_WHT}Project Status:${C_END} ${project_status}"
     echo "$project_status"
 }
