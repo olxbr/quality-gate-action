@@ -26,7 +26,11 @@ function _log() {
     esac
 
     msg=$( (($# == 2)) && echo "${2}" || echo "${1}")
-    echo -e "$(date +"%d-%b-%Y %H:%M:%S") ${logLevel} - ${msg}${C_END}"
+    msg_complete="$(date +"%d-%b-%Y %H:%M:%S") ${logLevel} - ${msg}${C_END}"
+
+    [[ $logLevel == *"DEBUG"* ]] &&
+        echo -e "${msg_complete}" >&2 ||
+        echo -e "${msg_complete}"
 }
 
 function _insert_warning_message() {
