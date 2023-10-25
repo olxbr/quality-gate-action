@@ -18,27 +18,24 @@ export E_SUM='\xF0\x9F\x85\xA2'
 export E_MET='\xF0\x9F\x85\x9C'
 
 function _log() {
+    output=/dev/stdout
+
     case $1 in
     erro) logLevel="${C_RED}[ERRO]${C_END}" ;;
     warn) logLevel="${C_YEL}[WARN]${C_END}" ;;
-    debug)logLevel="${C_YEL}[DEBUG]${C_END}";;
+    debug)
+        logLevel="${C_YEL}[DEBUG]${C_END}"
+        [[ -n "$RUNNER_DEBUG" ]] &&
+            output=/dev/stderr ||
+            output=/dev/null
+    ;;
     *) logLevel="${C_WHT}[INFO]${C_END}" ;;
     esac
 
     msg=$( (($# == 2)) && echo "${2}" || echo "${1}")
-    msg_complete="$(date +"%d-%b-%Y %H:%M:%S") ${logLevel} - ${msg}${C_END}"
-    output=/dev/stdout
+    echo "LEVEL: $output"
 
-    if [[ logLevel == *"DEBUG"* ]]; then
-        echo DEBUG-LEVEL
-        [[ -n "$RUNNER_DEBUG" ]] &&
-            output=/dev/stderr ||
-            output=/dev/null
-    fi
-
-    echo $output
-
-    echo -e "${msg_complete}" > $output
+    echo -e "$(date +"%d-%b-%Y %H:%M:%S") ${logLevel} - ${msg}${C_END}" > $output
 }
 
 function _insert_warning_message() {
