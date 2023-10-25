@@ -12,6 +12,7 @@ function _get_workflow_run_id() {
     local succeeded=false
 
     workflow_run_ids=$(_get_workflow_run_ids)
+    _log debug "${C_WHT}Found this list of Workflow Run IDs:${C_END} ${workflow_run_ids}"
 
     for id in $(jq -c '.[]' <<<"$workflow_run_ids"); do
         if [[ -n "$(_get_quality_gate_unit_test_step "$id")" ]]; then

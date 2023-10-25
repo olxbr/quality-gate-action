@@ -51,18 +51,21 @@ function _check_coverage() {
     if [[ $skip_coverage == false ]]; then
         _log "${C_WHT}Checking Coverage...${C_END}"
 
-        local coverage_metrics=$(jq -r '.projectStatus.conditions[] | select(.metricKey == "new_coverage")' <<<"$PROJECT_STATUS")
+        local project_status_from=$(grep -q "new_coverage" <<<"$PROJECT_STATUS" && echo "$PROJECT_STATUS" || echo "$PROJECT_STATUS_DEFAULT_BRANCH")
+        local coverage_status_from=$(grep -q "new_coverage" <<<"$PROJECT_STATUS" && echo "(on Pull Request)" || echo "(on Default Branch)")
+
+        local coverage_metrics=$(jq -r '.projectStatus.conditions[] | select(.metricKey == "new_coverage")' <<<"$project_status_from")
         if [[ -n $coverage_metrics ]]; then
             local coverage_status=$(jq -r '.status' <<<"$coverage_metrics")
             local coverage_value=$(jq -r '.actualValue' <<<"$coverage_metrics")
             local coverage_threshold=$(jq -r '.errorThreshold' <<<"$coverage_metrics")
 
-            _log "${C_WHT}Coverage:${C_END} ${coverage_value}%"
-            _log "${C_WHT}Coverage Threshold:${C_END} ${coverage_threshold}%"
+            _log "${C_WHT}Coverage:${C_END} ${coverage_value}% ${coverage_status_from}"
+            _log "${C_WHT}Coverage Threshold:${C_END} ${coverage_threshold}% ${coverage_status_from}"
 
             if [[ $coverage_status == "ERROR" ]]; then
-                _log warn "${C_YEL}Coverage is below threshold!${C_END}"
-                _insert_warning_message coverage_warn_msg "⚠️ Coverage is below threshold!"
+                _log warn "${C_YEL}Coverage is below threshold! ${coverage_status_from}${C_END}"
+                _insert_warning_message coverage_warn_msg "⚠️ Coverage is below threshold! ${coverage_status_from}"
             else
                 coverage_passed=true
             fi
@@ -71,7 +74,7 @@ function _check_coverage() {
             _insert_warning_message coverage_warn_msg "⚠️ Coverage metrics not found!"
         fi
 
-        _log "${C_WHT}Coverage:${C_END} ${coverage_passed}"
+        _log "${C_WHT}Coverage:${C_END} ${coverage_passed} ${coverage_status_from}"
 
     else
         _log warn "${C_YEL}Coverage check skipped!${C_END}"
@@ -170,7 +173,9 @@ function _check_sonarcloud_analysis() {
             # Check results (Coverage and Static Analysis)
             if [[ $sonarcloud_analysis_completed ]]; then
                 local project_status=$(_get_project_status)
+                local project_status_default_branch=$(_get_project_status "$GITHUB_DEFAULT_BRANCH")
                 export PROJECT_STATUS=$project_status
+                export PROJECT_STATUS_DEFAULT_BRANCH=$project_status_default_branch ## Used when coverage is not found in PR branch
                 _check_coverage
                 _check_static_analysis
             else
