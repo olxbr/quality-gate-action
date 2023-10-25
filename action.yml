@@ -50,6 +50,7 @@ runs:
         echo "SONAR_TOKEN=${{ inputs.sonar_token }}" >> $GITHUB_ENV
         echo "SONAR_CHECK_TIMEOUT=${{ inputs.sonar_check_timeout }}" >> $GITHUB_ENV
         echo "UNIT_TEST_CHECK_TIMEOUT=${{ inputs.unit_test_check_timeout }}" >> $GITHUB_ENV
+        echo "UNIT_TEST_INIT_WAIT_TIMEOUT=${{ inputs.unit_test_init_wait_timeout }}" >> $GITHUB_ENV
 
     - name: "Log Skip Gates Configuration"
       if: ${{ inputs.gates_to_skip != '' }}
