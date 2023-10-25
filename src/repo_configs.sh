@@ -97,7 +97,8 @@ function _check_repo_configs() {
         _log "${C_WHT}Default Branch:${C_END} ${DEFAULT_BRANCH}"
         _log "${C_WHT}Pull Request Number:${C_END} ${PR_NUMBER}"
         _log "${C_WHT}Pull Request Head SHA:${C_END} ${PR_HEAD_SHA}"
-        _log debug "${C_WHT}Github default branch:${C_END} ${GITHUB_DEFAULT_BRANCH}"
+        _log debug "${C_WHT}Github default branch:${C_END} ${GITHUB_DEFAULT_BRANCH}" || true
+        _log "Debug ${C_WHT}Github default branch:${C_END} ${GITHUB_DEFAULT_BRANCH}" || true
 
         ruleset_ids=$(_get_ruleset_ids)
         rules=$(_get_rules "$ruleset_ids")
