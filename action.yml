@@ -21,6 +21,11 @@ inputs:
     type: integer
     required: false
     default: 60
+  unit_test_init_wait_timeout:
+    description: "The wait time in minutes for the unit test init"
+    type: integer
+    required: false
+    default: 30
   gates_to_skip:
     description: "The gates to skip (code_review, coverage, owner_approval, static_analysis, unit_test)"
     required: false
