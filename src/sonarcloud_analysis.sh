@@ -54,7 +54,10 @@ function _check_coverage() {
         local project_status_from=$(grep -q "new_coverage" <<<"$PROJECT_STATUS" && echo "$PROJECT_STATUS" || echo "$PROJECT_STATUS_DEFAULT_BRANCH")
         local coverage_status_from=$(grep -q "new_coverage" <<<"$PROJECT_STATUS" && echo "(on Pull Request)" || echo "(on Default Branch)")
 
-        local coverage_metrics=$(jq -r '.projectStatus.conditions[] | select(.metricKey == "new_coverage")' <<<"$project_status_from")
+        _log debug "${C_WHT}Project Status:${C_END} ${project_status_from}"
+        _log debug "${C_WHT}Coverage Status:${C_END} ${coverage_status_from}"
+
+        local coverage_metrics=$(jq -r '.projectStatus.conditions[] | select(.metricKey == "new_coverage")' <<<"$project_status_from" || echo "")
         if [[ -n $coverage_metrics ]]; then
             local coverage_status=$(jq -r '.status' <<<"$coverage_metrics")
             local coverage_value=$(jq -r '.actualValue' <<<"$coverage_metrics")
@@ -74,7 +77,7 @@ function _check_coverage() {
             _insert_warning_message coverage_warn_msg "⚠️ Coverage metrics not found!"
         fi
 
-        _log "${C_WHT}Coverage:${C_END} ${coverage_passed} ${coverage_status_from}"
+        _log "${C_WHT}Coverage:${C_END} ${coverage_passed}"
 
     else
         _log warn "${C_YEL}Coverage check skipped!${C_END}"
