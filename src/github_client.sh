@@ -28,7 +28,7 @@ function _get_rules() {
 function _get_pr_report_comment_id() {
     local comment_title="# Quality Gate"
 
-    comment_id=$(eval _gh_client --jq "[.[] | select(.body | startswith(\"$comment_title\")) | .id][0]" "/repos/$REPOSITORY/issues/$PR_NUMBER/comments?per_page=100")
+    comment_id=$(eval _gh_client "/repos/$REPOSITORY/issues/$PR_NUMBER/comments?per_page=100" | jq "[.[] | select(.body | startswith(\"$comment_title\")) | .id][0]")
 
     echo "$comment_id"
 }
@@ -51,7 +51,8 @@ function _update_pr_report_comment() {
 }
 
 function _get_workflow_run_ids() {
-    workflow_run_ids=$(eval _gh_client --jq "[.workflow_runs[].id]" "/repos/$REPOSITORY/actions/runs?per_page=100&head_sha=$PR_HEAD_SHA")
+    workflow_run_ids=$(
+        _gh_client "/repos/$REPOSITORY/actions/runs?per_page=100&head_sha=$PR_HEAD_SHA" | jq "[.workflow_runs[].id]")
     echo "$workflow_run_ids"
 }
 
@@ -59,7 +60,8 @@ function _get_quality_gate_unit_test_step() {
     local workflow_run_id=$1
 
     if [ -n "$workflow_run_id" ]; then
-        quality_gate_step=$(eval _gh_client --jq ".jobs[].steps[] | select(.name == \"$UNIT_TEST_STEP_NAME\")" "/repos/$REPOSITORY/actions/runs/$workflow_run_id/jobs")
+        quality_gate_step=$(
+            _gh_client "/repos/$REPOSITORY/actions/runs/$workflow_run_id/jobs" | jq ".jobs[].steps[] | select(.name == \"$UNIT_TEST_STEP_NAME\")")
         echo "$quality_gate_step"
     fi
 }
