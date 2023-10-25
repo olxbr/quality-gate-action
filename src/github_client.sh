@@ -3,13 +3,15 @@
 source "${ACTION_PATH}/src/utils.sh"
 
 function _gh_client() {
-    result=$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" $@)
+    result=$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" "$@")
     echo $result
     _log debug "${C_WHT}Executing command: gh api $@${C_END}"
 }
 
 function _get_ruleset_ids() {
-    ruleset_ids=$(eval _gh_client --jq "[.[] | select(.enforcement == \"active\") | .id] | join(\",\")" /repos/"$REPOSITORY"/rulesets)
+    ruleset_ids=$(_gh_client /repos/"$REPOSITORY"/rulesets | \
+        jq '[.[] | select(.enforcement == "active") | .id] | join(",")'
+    )
     echo "$ruleset_ids"
 }
 
@@ -17,7 +19,7 @@ function _get_rules() {
     local ruleset_ids=$1
 
     if [ -n "$ruleset_ids" ]; then
-        rules=$(eval _gh_client --jq ".[] | select(.type == \"pull_request\" and (.ruleset_id == ($ruleset_ids) )) | .parameters" /repos/"$REPOSITORY"/rules/branches/$GITHUB_DEFAULT_BRANCH)
+        rules=$(eval _gh_client /repos/"$REPOSITORY"/rules/branches/$GITHUB_DEFAULT_BRANCH | jq ".[] | select(.type == \"pull_request\" and (.ruleset_id == ($ruleset_ids) )) | .parameters")
 
         echo $rules | jq -s
     fi
