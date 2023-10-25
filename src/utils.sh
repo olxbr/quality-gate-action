@@ -35,6 +35,8 @@ function _log() {
             output=/dev/null
     fi
 
+    echo $output
+
     echo -e "${msg_complete}" > $output
 }
 
