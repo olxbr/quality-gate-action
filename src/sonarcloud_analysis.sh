@@ -52,7 +52,7 @@ function _check_coverage() {
         _log "${C_WHT}Checking Coverage...${C_END}"
 
         local project_status_from=$(grep -q "new_coverage" <<<"$PROJECT_STATUS" && echo "$PROJECT_STATUS" || echo "$PROJECT_STATUS_DEFAULT_BRANCH")
-        local coverage_status_from=$(grep -q "new_coverage" <<<"$PROJECT_STATUS" && echo "(on Pull Request)" || echo "(on Default Branch)")
+        local coverage_status_from=$(grep -q "new_coverage" <<<"$PROJECT_STATUS" && echo "(🟢 metrics from Pull Request)" || echo "(🟡 metrics from Default Branch)")
 
         _log debug "${C_WHT}Project Status:${C_END} ${project_status_from}"
         _log debug "${C_WHT}Coverage Status from:${C_END} ${coverage_status_from}"
