@@ -29,9 +29,11 @@ function _log() {
     msg_complete="$(date +"%d-%b-%Y %H:%M:%S") ${logLevel} - ${msg}${C_END}"
     output=/dev/stdout
 
-    [[ $ACTION_RUNNER_DEBUG == true ]] &&
-        output=/dev/stderr ||
-        output=/dev/null
+    if [[ logLevel == *"DEBUG"* ]]; then
+        [[ $ACTION_RUNNER_DEBUG == true ]] &&
+            output=/dev/stderr ||
+            output=/dev/null
+    fi
 
     echo -e "${msg_complete}" > $output
 }
