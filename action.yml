@@ -35,7 +35,7 @@ runs:
         echo "ACTION_PATH=${{ github.action_path }}" >> $GITHUB_ENV
         echo "DOCS_URL=${{ inputs.docs_url }}" >> $GITHUB_ENV
         echo "GATES_TO_SKIP=${{ inputs.gates_to_skip }}" >> $GITHUB_ENV
-        echo "GITHUB_DEFAULT_BRANCH=${{ gihub.repository.default_branch }}" >> $GITHUB_ENV
+        echo "GITHUB_DEFAULT_BRANCH=${{ github.repository.default_branch }}" >> $GITHUB_ENV
         echo "GITHUB_REPOSITORY=${{ github.repository }}" >> $GITHUB_ENV
         echo "GITHUB_PR_NUMBER=${{ github.event.number }}" >> $GITHUB_ENV
         echo "GITHUB_TOKEN=${{ inputs.github_token }}" >> $GITHUB_ENV
