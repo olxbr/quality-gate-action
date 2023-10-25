@@ -18,7 +18,6 @@ export E_SUM='\xF0\x9F\x85\xA2'
 export E_MET='\xF0\x9F\x85\x9C'
 
 function _log() {
-    echo "DEBUG? $ACTION_RUNNER_DEBUG"
     case $1 in
     erro) logLevel="${C_RED}[ERRO]${C_END}" ;;
     warn) logLevel="${C_YEL}[WARN]${C_END}" ;;
