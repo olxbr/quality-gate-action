@@ -3,7 +3,7 @@
 source "${ACTION_PATH}/src/utils.sh"
 
 function _gh_client() {
-    _log "${C_WHT}Executing command: gh api $@${C_END}"
+    _log debug "${C_WHT}Executing command: gh api $@${C_END}"
     result=$(gh api \
         -H "Accept: application/vnd.github+json" \
         -H "X-GitHub-Api-Version: 2022-11-28" \
