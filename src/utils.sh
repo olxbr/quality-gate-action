@@ -33,7 +33,6 @@ function _log() {
     esac
 
     msg=$( (($# == 2)) && echo "${2}" || echo "${1}")
-    echo "LEVEL: $output"
 
     echo -e "$(date +"%d-%b-%Y %H:%M:%S") ${logLevel} - ${msg}${C_END}" > $output
 }

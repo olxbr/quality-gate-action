@@ -38,7 +38,6 @@ runs:
       shell: bash
       run: |
         echo "ACTION_PATH=${{ github.action_path }}" >> $GITHUB_ENV
-        echo "ACTION_RUNNER_DEBUG=${{ contains(runner.debug, '1') }}" >> $GITHUB_ENV
         echo "DOCS_URL=${{ inputs.docs_url }}" >> $GITHUB_ENV
         echo "GATES_TO_SKIP=${{ inputs.gates_to_skip }}" >> $GITHUB_ENV
         echo "GITHUB_DEFAULT_BRANCH=${{ github.event.repository.default_branch }}" >> $GITHUB_ENV
