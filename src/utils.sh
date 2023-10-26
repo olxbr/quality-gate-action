@@ -22,9 +22,9 @@ function _log() {
     output=/dev/stdout
 
     case $1 in
-    erro) logLevel="${C_RED}[ERRO]${C_END}"; msg="${msg#erro}";;
-    warn) logLevel="${C_YEL}[WARN]${C_END}"; msg="${msg#warn}";;
-    debug)logLevel="${C_YEL}[DEBUG]${C_END}"; msg="${msg#debug}"
+    erro) logLevel="${C_RED}[ERRO]${C_END}"; msg="${msg#erro*\ }";;
+    warn) logLevel="${C_YEL}[WARN]${C_END}"; msg="${msg#warn*\ }";;
+    debug)logLevel="${C_YEL}[DEBUG]${C_END}"; msg="${msg#debug*\ }"
         [[ -n "$RUNNER_DEBUG" ]] &&
             output=/dev/stderr ||
             output=/dev/null;;
