@@ -10,9 +10,9 @@ function _gh_client() {
 }
 
 function _get_ruleset_ids() {
-    ruleset_ids=$(_gh_client /repos/"$REPOSITORY"/rulesets | \
-        jq '[.[] | select(.enforcement == "active") | .id] | join(",")'
-    )
+    ruleset_ids=$(_gh_client \
+        --jq '[.[] | select(.enforcement == "active") | .id] | join(",")' \
+        /repos/"$REPOSITORY"/rulesets)
     echo "$ruleset_ids"
 }
 
@@ -52,8 +52,9 @@ function _update_pr_report_comment() {
 }
 
 function _get_workflow_run_ids() {
-    workflow_run_ids=$(
-        _gh_client "/repos/$REPOSITORY/actions/runs?per_page=100&head_sha=$PR_HEAD_SHA" --jq "[.workflow_runs[].id]")
+    workflow_run_ids=$(_gh_client \
+        --jq "[.workflow_runs[].id]" \
+        "/repos/$REPOSITORY/actions/runs?per_page=100&head_sha=$PR_HEAD_SHA")
     echo "$workflow_run_ids"
 }
 
