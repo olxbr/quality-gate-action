@@ -3,9 +3,9 @@
 source "${ACTION_PATH}/src/utils.sh"
 
 function _gh_client() {
-    _log debug "${C_WHT}Executing command: gh api $@${C_END}"
+    _log debug "${C_WHT}Executing command:${C_END} gh api $@"
     result=$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" "$@")
-    _log debug "Result from Github API: ${result}"
+    _log debug "${C_WHT}Result from Github API:${C_END} ${result}"
     echo $result
 }
 
@@ -53,7 +53,7 @@ function _update_pr_report_comment() {
 
 function _get_workflow_run_ids() {
     workflow_run_ids=$(
-        _gh_client "/repos/$REPOSITORY/actions/runs?per_page=100&head_sha=$PR_HEAD_SHA" | jq "[.workflow_runs[].id]")
+        _gh_client "/repos/$REPOSITORY/actions/runs?per_page=100&head_sha=$PR_HEAD_SHA" --jq "[.workflow_runs[].id]")
     echo "$workflow_run_ids"
 }
 
