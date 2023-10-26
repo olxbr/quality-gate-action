@@ -18,22 +18,20 @@ export E_SUM='\xF0\x9F\x85\xA2'
 export E_MET='\xF0\x9F\x85\x9C'
 
 function _log() {
+    msg="$@"
     output=/dev/stdout
 
     case $1 in
-    erro)
-        logLevel="${C_RED}[ERRO]${C_END}"; msg="$(cut -c 6- <<<"${@}")";;
-    warn)
-        logLevel="${C_YEL}[WARN]${C_END}"; msg="$(cut -c 6- <<<"${@}")";;
-    debug)
-        logLevel="${C_YEL}[DEBUG]${C_END}"; msg="$(cut -c 7- <<<"${@}")"
+    erro) logLevel="${C_RED}[ERRO]${C_END}"; msg="${msg#erro}";;
+    warn) logLevel="${C_YEL}[WARN]${C_END}"; msg="${msg#warn}";;
+    debug)logLevel="${C_YEL}[DEBUG]${C_END}"; msg="${msg#debug}"
         [[ -n "$RUNNER_DEBUG" ]] &&
             output=/dev/stderr ||
             output=/dev/null;;
-    *)  logLevel="${C_WHT}[INFO]${C_END}"; msg="$@";;
+    *)  logLevel="${C_WHT}[INFO]${C_END}";;
     esac
 
-    echo -e "$(date +"%d-%b-%Y %H:%M:%S") ${logLevel} - ${msg}${C_END}" > $output
+    echo -e "$(date +"%d-%b-%Y %H:%M:%S") ${logLevel} - ${msg##*( )}${C_END}" > $output
 }
 
 function _insert_warning_message() {
