@@ -22,17 +22,11 @@ function _log() {
 
     case $1 in
     erro)
-        logLevel="${C_RED}[ERRO]${C_END}"
-        msg="${@#erro }";;
+        logLevel="${C_RED}[ERRO]${C_END}"; msg="$(cut -c 6- <<<"${@}")";;
     warn)
-        logLevel="${C_YEL}[WARN]${C_END}"
-        msg="${@#warn }";;
-    info)
-        logLevel="${C_YEL}[INFO]${C_END}"
-        msg="${@#info }";;
+        logLevel="${C_YEL}[WARN]${C_END}"; msg="$(cut -c 6- <<<"${@}")";;
     debug)
-        logLevel="${C_YEL}[DEBUG]${C_END}"
-        msg="${@#debug }"
+        logLevel="${C_YEL}[DEBUG]${C_END}"; msg="$(cut -c 7- <<<"${@}")"
         [[ -n "$RUNNER_DEBUG" ]] &&
             output=/dev/stderr ||
             output=/dev/null;;
