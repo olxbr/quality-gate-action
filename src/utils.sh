@@ -21,25 +21,22 @@ function _log() {
     output=/dev/stdout
 
     case $1 in
-    erro) logLevel="${C_RED}[ERRO]${C_END}"
-        msg=${@/erro /}
-    ;;
-    warn) logLevel="${C_YEL}[WARN]${C_END}"
-        msg=${@/warn /}
-    ;;
-    info) logLevel="${C_YEL}[INFO]${C_END}"
-        msg=${@/info /}
-    ;;
+    erro)
+        logLevel="${C_RED}[ERRO]${C_END}"
+        msg=${@/erro /};;
+    warn)
+        logLevel="${C_YEL}[WARN]${C_END}"
+        msg=${@/warn /};;
+    info)
+        logLevel="${C_YEL}[INFO]${C_END}"
+        msg=${@/info /};;
     debug)
         logLevel="${C_YEL}[DEBUG]${C_END}"
         msg=${@/debug/}
         [[ -n "$RUNNER_DEBUG" ]] &&
             output=/dev/stderr ||
-            output=/dev/null
-    ;;
-    *) logLevel="${C_WHT}[INFO]${C_END}"
-        msg="$@"
-    ;;
+            output=/dev/null;;
+    *)  logLevel="${C_WHT}[INFO]${C_END}"; msg="$@";;
     esac
 
     echo -e "$(date +"%d-%b-%Y %H:%M:%S") ${logLevel} - ${msg}${C_END}" > $output

@@ -3,9 +3,10 @@
 source "${ACTION_PATH}/src/utils.sh"
 
 function _gh_client() {
-    result=$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" "$@")
-    echo $result
     _log debug "${C_WHT}Executing command: gh api $@${C_END}"
+    result=$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" "$@")
+    _log debug "Result from Github API: ${result}"
+    echo $result
 }
 
 function _get_ruleset_ids() {
