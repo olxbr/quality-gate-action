@@ -23,16 +23,16 @@ function _log() {
     case $1 in
     erro)
         logLevel="${C_RED}[ERRO]${C_END}"
-        msg=${@/erro /};;
+        msg="${@/erro }";;
     warn)
         logLevel="${C_YEL}[WARN]${C_END}"
-        msg=${@/warn /};;
+        msg="${@/warn }";;
     info)
         logLevel="${C_YEL}[INFO]${C_END}"
-        msg=${@/info /};;
+        msg="${@/info }";;
     debug)
         logLevel="${C_YEL}[DEBUG]${C_END}"
-        msg=${@/debug/}
+        msg="${@/debug }"
         [[ -n "$RUNNER_DEBUG" ]] &&
             output=/dev/stderr ||
             output=/dev/null;;
