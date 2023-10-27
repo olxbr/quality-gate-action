@@ -23,9 +23,9 @@ function _get_rules() {
         rules=$(_gh_client \
             /repos/"$REPOSITORY"/rules/branches/$GITHUB_DEFAULT_BRANCH | \
             jq -r ".[] | select(.type == \"pull_request\" and (.ruleset_id == ($ruleset_ids) )) | .parameters" | \
-            grep -v '^null$' | jq -s 'add')
+            grep -v '^null$')
 
-        _log debug "${C_WHT}Rules found for id [${ruleset_ids}]:${C_END} ${rules}"
+        _log debug "${C_WHT}Rules found for id ${ruleset_ids}:${C_END} ${rules}"
         echo $rules
     fi
 }

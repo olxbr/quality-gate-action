@@ -24,7 +24,7 @@ function _check_owner_approval() {
         _log "${C_WHT}Checking Owner Approval...${C_END}"
 
         is_codeowners_file_exists=$(_validate_codeowners)
-        is_required_code_owner_review=$(jq -r 'any(.[]; .require_code_owner_review == true)' <<<"$rules")
+        is_required_code_owner_review=$(jq -sr 'any(.[]; .require_code_owner_review == true)' <<<"$rules")
 
         if [[ $is_codeowners_file_exists == false ]]; then
             _log warn "${C_YEL}CODEOWNERS file not found!${C_END}"
