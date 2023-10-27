@@ -121,7 +121,8 @@ function _check_static_analysis() {
 
         _log debug "${C_WHT}Static Analysis Metrics used:${C_END} ${static_analysis_metrics}"
         if [[ -n "$static_analysis_metrics" && $(jq 'length' <<<"$static_analysis_metrics" | uniq) -gt 0 ]]; then
-            for metric in $(jq -c '.[]' <<<"$static_analysis_metrics"); do
+            for metric in $(jq -sc '.[]' <<<"$static_analysis_metrics"); do
+                _log debug "${C_WHT}Metric:${C_END} ${metric}"
                 local metric_key=$(jq -r '.metricKey' <<<"$metric")
                 local metric_status=$(jq -r '.status' <<<"$metric")
                 local metric_value=$(jq -r '.actualValue' <<<"$metric")
