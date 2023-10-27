@@ -2,7 +2,7 @@
 
 function _gh_client() {
     _log debug "${C_WHT}Executing command:${C_END} gh api $@"
-    result=$(eval gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" "$@")
+    result=$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" "$@")
     _log debug "${C_WHT}Result from Github API:${C_END} ${result}"
     echo $result
 }
@@ -45,7 +45,7 @@ function _create_pr_report_comment() {
         _gh_client \
             -X POST \
             --silent \
-            -f body="$report" \
+            -f body=\"$report\" \
             /repos/"$REPOSITORY"/issues/"$PR_NUMBER"/comments
     fi
 }
@@ -58,7 +58,7 @@ function _update_pr_report_comment() {
         _gh_client \
             --method PATCH \
             --silent \
-            -f body="$report" \
+            -f body=\"$report\" \
             /repos/"$REPOSITORY"/issues/comments/"$comment_id"
     fi
 }
