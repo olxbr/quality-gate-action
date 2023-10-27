@@ -22,8 +22,7 @@ function _get_rules() {
     if [ -n "$ruleset_ids" ]; then
         rules=$(_gh_client \
             /repos/"$REPOSITORY"/rules/branches/$GITHUB_DEFAULT_BRANCH | \
-            jq --arg ruleset_ids "$ruleset_ids" \
-                '.[] | select(.type == "pull_request" and (.ruleset_id == ($ruleset_ids) )) | .parameters' | \
+            jq ".[] | select(.type == \"pull_request\" and (.ruleset_id == ($ruleset_ids) )) | .parameters" | \
             grep -v '^null$' | jq -s 'add')
 
         _log debug "${C_WHT}Rules:${C_END} ${rules}"
