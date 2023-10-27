@@ -2,7 +2,7 @@
 
 function _gh_client() {
     _log debug "${C_WHT}Executing command:${C_END} gh api $@"
-    result=$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" "$@" | grep -v '^null$')
+    result=$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" "$@")
     _log debug "${C_WHT}Result from Github API:${C_END} ${result}"
     echo $result
 }
@@ -10,7 +10,8 @@ function _gh_client() {
 function _get_ruleset_ids() {
     ruleset_ids=$(_gh_client \
         /repos/"$REPOSITORY"/rulesets | \
-        jq '[.[] | select(.enforcement == "active") | .id] | join(",")')
+        jq '[.[] | select(.enforcement == "active") | .id] | join(",")' | \
+        grep -v '^null$')
     echo "$ruleset_ids"
 }
 
@@ -21,7 +22,8 @@ function _get_rules() {
         rules=$(_gh_client \
             /repos/"$REPOSITORY"/rules/branches/$GITHUB_DEFAULT_BRANCH | \
             jq --arg ruleset_ids "$ruleset_ids" \
-                '.[] | select(.type == "pull_request" and (.ruleset_id == ($ruleset_ids) )) | .parameters')
+                '.[] | select(.type == "pull_request" and (.ruleset_id == ($ruleset_ids) )) | .parameters' | \
+            grep -v '^null$')
 
         echo $rules | jq -s
     fi
@@ -33,7 +35,8 @@ function _get_pr_report_comment_id() {
     comment_id=$(_gh_client \
         "/repos/$REPOSITORY/issues/$PR_NUMBER/comments?per_page=100" | \
         jq --arg comment_title "$comment_title" \
-            '[.[] | select(.body | startswith($comment_title)) | .id][0]')
+            '[.[] | select(.body | startswith($comment_title)) | .id][0]' | \
+        grep -v '^null$')
 
     echo "$comment_id"
 }
@@ -77,7 +80,8 @@ function _get_quality_gate_unit_test_step() {
         quality_gate_step=$(_gh_client \
             "/repos/$REPOSITORY/actions/runs/$workflow_run_id/jobs" | \
             jq --arg job_name "$UNIT_TEST_STEP_NAME" \
-                '.jobs[].steps[] | select(.name == $job_name)')
+                '.jobs[].steps[] | select(.name == $job_name)' | \
+            grep -v '^null$')
 
         echo "$quality_gate_step"
     fi
