@@ -18,24 +18,20 @@ export E_SUM='\xF0\x9F\x85\xA2'
 export E_MET='\xF0\x9F\x85\x9C'
 
 function _log() {
+    msg="$@"
+    output=/dev/stdout
+
     case $1 in
-    erro) logLevel="${C_RED}[ERRO]${C_END}" ;;
-    warn) logLevel="${C_YEL}[WARN]${C_END}" ;;
-    debug) [[ $ACTIONS_RUNNER_DEBUG == true ]] && logLevel="${C_YEL}[DEBUG]${C_END}" || return ;;
-    *) logLevel="${C_WHT}[INFO]${C_END}" ;;
+        erro) logLevel="${C_RED}[ERRO]${C_END}"; msg="${msg#erro*\ }";;
+        warn) logLevel="${C_YEL}[WARN]${C_END}"; msg="${msg#warn*\ }";;
+        debug)logLevel="${C_YEL}[DEBUG]${C_END}"; msg="${msg#debug*\ }"
+            [[ -n "$RUNNER_DEBUG" ]] &&
+                output=/dev/stderr ||
+                output=/dev/null;;
+        *)  logLevel="${C_WHT}[INFO]${C_END}";;
     esac
 
-    msg=$( (($# == 2)) && echo "${2}" || echo "${1}")
-    if (($# > 2)); then
-        msg_evaluated=$(echo -e $msg) ## Transform hex to char
-        msg_length=$(echo ${#msg_evaluated})
-        msg_total_coll=$2
-        msg_last_char=$3
-        msg_space_end=$(printf '\\x20%.0s' $(seq 1 $(($msg_total_coll - $msg_length))))
-        msg="${msg}${msg_space_end}${msg_last_char}"
-    fi
-
-    echo -e "$(date +"%d-%b-%Y %H:%M:%S") ${logLevel} - ${msg}${C_END}"
+    echo -e "$(date +"%d-%b-%Y %H:%M:%S") ${logLevel} - ${msg##*( )}${C_END}" > $output
 }
 
 function _insert_warning_message() {

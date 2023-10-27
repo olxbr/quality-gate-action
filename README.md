@@ -13,6 +13,7 @@ This action collects repository and code information to validate if they are com
     sonar_token: ${{ secrets.SONAR_TOKEN }}
     sonar_check_timeout: ${{ vars.SONAR_CHECK_TIMEOUT }}
     unit_test_check_timeout: ${{ vars.UNIT_TEST_CHECK_TIMEOUT }}
+    unit_test_init_wait_timeout: ${{ vars.UNIT_TEST_INIT_WAIT_TIMEOUT }}
     gates_to_skip: ${{ vars.GATES_TO_SKIP }}
     docs_url: "your_docs_url"
 ```
@@ -30,7 +31,7 @@ Comma separated list of gates to skip. The available gates are: `code_review`, `
 #### `docs_url` (default: "")
 Documentation URL to use in the report.
 
-#### `sonar_check_timeout`, `unit_test_check_timeout` (default: 60)
+#### `sonar_check_timeout`, `unit_test_check_timeout`, `unit_test_init_wait_timeout` (default: 60)
 Sonar check timeout in minutes. If the timeout is reached, the action will not fail, but the result will be shown as a warning. The same applies to unit test check timeout.
 
 ## Results

@@ -24,7 +24,7 @@ function _check_owner_approval() {
         _log "${C_WHT}Checking Owner Approval...${C_END}"
 
         is_codeowners_file_exists=$(_validate_codeowners)
-        is_required_code_owner_review=$(jq -r 'any(.[]; .require_code_owner_review == true)' <<<"$rules")
+        is_required_code_owner_review=$(jq -sr 'any(.[]; .require_code_owner_review == true)' <<<"$rules")
 
         if [[ $is_codeowners_file_exists == false ]]; then
             _log warn "${C_YEL}CODEOWNERS file not found!${C_END}"
@@ -63,7 +63,7 @@ function _check_code_review() {
     if [[ $skip_code_review == false ]]; then
         _log "${C_WHT}Checking Code Review...${C_END}"
 
-        is_required_code_review=$(jq -r 'any(.[]; .required_approving_review_count > 0)' <<<"$rules")
+        is_required_code_review=$(jq -sr 'any(.[]; .required_approving_review_count > 0)' <<<"$rules")
         if [[ $is_required_code_review == false ]]; then
             _log warn "${C_YEL} [Required approvals] are less than 0!${C_END}"
             _insert_warning_message required_code_review_warn_msg "⚠️ **Required approvals** are less than 0!"
@@ -90,11 +90,10 @@ function _check_repo_configs() {
 
     if [[ $skip_owner_approval == false || $skip_code_review == false ]]; then
         _log "${C_WHT}Checking Repository Configurations...${C_END}"
-
-        _set_default_branch
-
         _log "${C_WHT}Repository:${C_END} ${REPOSITORY}"
-        _log "${C_WHT}Default Branch:${C_END} ${DEFAULT_BRANCH}"
+        _log "${C_WHT}Default Branch:${C_END} ${GITHUB_DEFAULT_BRANCH}"
+        _log "${C_WHT}Pull Request Number:${C_END} ${PR_NUMBER}"
+        _log "${C_WHT}Pull Request Head SHA:${C_END} ${PR_HEAD_SHA}"
 
         ruleset_ids=$(_get_ruleset_ids)
         rules=$(_get_rules "$ruleset_ids")

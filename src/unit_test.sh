@@ -12,8 +12,10 @@ function _get_workflow_run_id() {
     local succeeded=false
 
     workflow_run_ids=$(_get_workflow_run_ids)
+    _log debug "${C_WHT}Found this list of Workflow Run IDs:${C_END} ${workflow_run_ids}"
 
     for id in $(jq -c '.[]' <<<"$workflow_run_ids"); do
+        _log debug "${C_WHT}Checking Workflow Run ID:${C_END} ${id}"
         if [[ -n "$(_get_quality_gate_unit_test_step "$id")" ]]; then
             _log "${C_WHT}Workflow Run ID:${C_END} ${id}"
             workflow_run_id=$id
@@ -30,6 +32,7 @@ function _check_unit_test_status() {
     local succeeded=false
 
     quality_gate_step=$(_get_quality_gate_unit_test_step "$workflow_run_id")
+    _log debug "${C_WHT}Quality Gate Step:${C_END} ${quality_gate_step}"
 
     status=$(jq -r '.status' <<<"$quality_gate_step")
     conclusion=$(jq -r '.conclusion' <<<"$quality_gate_step")
@@ -66,7 +69,7 @@ function _check_unit_test() {
         unit_tests_warn_msg=""
 
         workflow_run_id=""
-        _retry_with_delay _get_workflow_run_id 120
+        _retry_with_delay _get_workflow_run_id $UNIT_TEST_INIT_WAIT_TIMEOUT
 
         if [[ -n "$workflow_run_id" ]]; then
             _retry_with_delay _check_unit_test_status "$UNIT_TEST_CHECK_TIMEOUT"
