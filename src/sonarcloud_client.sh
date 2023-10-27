@@ -43,7 +43,7 @@ function _get_project_status() {
         https://sonarcloud.io/api/qualitygates/project_status"
 
     _log debug "${C_WHT}Executing command:${C_END} ${project_status_cmd}"
-    project_status=$(${project_status_cmd})
+    project_status=$(eval ${project_status_cmd})
 
     _log debug "${C_WHT}Return of execution:${C_END} ${project_status}"
     echo "$project_status"
