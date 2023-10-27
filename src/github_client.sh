@@ -77,7 +77,7 @@ function _get_quality_gate_unit_test_step() {
         quality_gate_step=$(_gh_client \
             "/repos/$REPOSITORY/actions/runs/$workflow_run_id/jobs" | \
             jq --arg job_name "$UNIT_TEST_STEP_NAME" \
-                ".jobs[].steps[] | select(.name == $job_name)")
+                '.jobs[].steps[] | select(.name == $job_name)')
 
         echo "$quality_gate_step"
     fi
