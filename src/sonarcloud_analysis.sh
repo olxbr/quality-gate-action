@@ -53,12 +53,12 @@ function _check_coverage() {
 
         local metric_selected='.projectStatus.conditions[] | select(.metricKey == "new_coverage")'
         local coverage_metrics=$(
-            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" ||
-            jq -er "${metric_selected}" <<<"$PROJECT_STATUS_DEFAULT_BRANCH" ||
+            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" 2> /dev/null ||
+            jq -er "${metric_selected}" <<<"$PROJECT_STATUS_DEFAULT_BRANCH" 2> /dev/null ||
             echo ""
         )
         local coverage_status_from=$(
-            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" &&
+            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" 2> /dev/null &&
                 echo "(🟢 metrics from Pull Request)" ||
                 echo "(🟡 metrics from Default Branch)"
         )
@@ -107,7 +107,18 @@ function _check_static_analysis() {
     if [[ $skip_static_analysis == false ]]; then
         _log "${C_WHT}Checking Static Analysis...${C_END}"
 
-        local static_analysis_metrics=$(jq -r '[.projectStatus.conditions[] | select(.metricKey != "new_coverage")]' <<<"$PROJECT_STATUS")
+        local metric_selected='.projectStatus.conditions[] | select(.metricKey != "new_coverage")'
+        local static_analysis_metrics=$(
+            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" 2> /dev/null ||
+            jq -er "${metric_selected}" <<<"$PROJECT_STATUS_DEFAULT_BRANCH" 2> /dev/null ||
+            echo ""
+        )
+        local static_analysis_from=$(
+            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" 2> /dev/null &&
+                echo "(🟢 metrics from Pull Request)" ||
+                echo "(🟡 metrics from Default Branch)"
+        )
+
         _log debug "${C_WHT}Static Analysis Metrics used:${C_END} ${static_analysis_metrics}"
         if [[ -n "$static_analysis_metrics" && $(jq 'length' <<<"$static_analysis_metrics") -gt 0 ]]; then
             for metric in $(jq -c '.[]' <<<"$static_analysis_metrics"); do
@@ -116,13 +127,13 @@ function _check_static_analysis() {
                 local metric_value=$(jq -r '.actualValue' <<<"$metric")
                 local metric_threshold=$(jq -r '.errorThreshold' <<<"$metric")
 
-                _log "${C_WHT}Metric:${C_END} ${metric_key}"
-                _log "${C_WHT}Value:${C_END} ${metric_value}"
-                _log "${C_WHT}Threshold:${C_END} ${metric_threshold}"
+                _log "${C_WHT}Metric:${C_END} ${metric_key} ${static_analysis_from}"
+                _log "${C_WHT}Value:${C_END} ${metric_value} ${static_analysis_from}"
+                _log "${C_WHT}Threshold:${C_END} ${metric_threshold} ${static_analysis_from}"
 
                 if [[ $metric_status == "ERROR" ]]; then
-                    _log warn "${C_YEL}Metric is below threshold!${C_END}"
-                    _insert_warning_message static_analysis_warn_msg "⚠️ Metric is below threshold!"
+                    _log warn "${C_YEL}Metric is below threshold!${C_END} ${static_analysis_from}"
+                    _insert_warning_message static_analysis_warn_msg "⚠️ Metric is below threshold! ${static_analysis_from}"
                 else
                     static_analysis_pass=true
                 fi
