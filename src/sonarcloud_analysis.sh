@@ -51,14 +51,14 @@ function _check_coverage() {
     if [[ $skip_coverage == false ]]; then
         _log "${C_WHT}Checking Coverage...${C_END}"
 
-        local metric_selected="'.projectStatus.conditions[] | select(.metricKey == \"new_coverage\")'"
+        local metric_selected='.projectStatus.conditions[] | select(.metricKey == "new_coverage")'
         local coverage_metrics=$(
-            jq -er ${metric_selected} <<<"$PROJECT_STATUS" ||
-            jq -er ${metric_selected} <<<"$PROJECT_STATUS_DEFAULT_BRANCH" ||
+            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" ||
+            jq -er "${metric_selected}" <<<"$PROJECT_STATUS_DEFAULT_BRANCH" ||
             echo ""
         )
         local coverage_status_from=$(
-            jq -er ${metric_selected} <<<"$PROJECT_STATUS" &&
+            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" &&
                 echo "(🟢 metrics from Pull Request)" ||
                 echo "(🟡 metrics from Default Branch)"
         )
