@@ -9,8 +9,8 @@ function _gh_client() {
 
 function _get_ruleset_ids() {
     ruleset_ids=$(_gh_client \
-        --jq '[.[] | select(.enforcement == "active") | .id] | join(",")' \
-        /repos/"$REPOSITORY"/rulesets)
+        /repos/"$REPOSITORY"/rulesets | \
+        jq '[.[] | select(.enforcement == "active") | .id] | join(",")')
     echo "$ruleset_ids"
 }
 
@@ -19,8 +19,9 @@ function _get_rules() {
 
     if [ -n "$ruleset_ids" ]; then
         rules=$(_gh_client \
-            --jq ".[] | select(.type == \"pull_request\" and (.ruleset_id == ($ruleset_ids) )) | .parameters" \
-            /repos/"$REPOSITORY"/rules/branches/$GITHUB_DEFAULT_BRANCH)
+            /repos/"$REPOSITORY"/rules/branches/$GITHUB_DEFAULT_BRANCH | \
+            jq --arg ruleset_ids "$ruleset_ids" \
+                '.[] | select(.type == "pull_request" and (.ruleset_id == ($ruleset_ids) )) | .parameters')
 
         echo $rules | jq -s
     fi
@@ -30,8 +31,9 @@ function _get_pr_report_comment_id() {
     local comment_title="# Quality Gate"
 
     comment_id=$(_gh_client \
-        --jq "[.[] | select(.body | startswith(\"$comment_title\")) | .id][0]" \
-        "/repos/$REPOSITORY/issues/$PR_NUMBER/comments?per_page=100")
+        "/repos/$REPOSITORY/issues/$PR_NUMBER/comments?per_page=100" | \
+        jq --arg comment_title "$comment_title" \
+            '[.[] | select(.body | startswith($comment_title)) | .id][0]')
 
     echo "$comment_id"
 }
@@ -40,10 +42,10 @@ function _create_pr_report_comment() {
     local report=$1
 
     if [ -n "$report" ]; then
-        _gh_client \
+        eval _gh_client \
             -X POST \
             --silent \
-            -f body="$report" \
+            -f body=\"$report\" \
             /repos/"$REPOSITORY"/issues/"$PR_NUMBER"/comments
     fi
 }
@@ -53,10 +55,10 @@ function _update_pr_report_comment() {
     local report=$2
 
     if [ -n "$comment_id" ] && [ -n "$report" ]; then
-        _gh_client \
+        eval _gh_client \
             --method PATCH \
             --silent \
-            -f body="$report" \
+            -f body=\"$report\" \
             /repos/"$REPOSITORY"/issues/comments/"$comment_id"
     fi
 }
@@ -73,8 +75,10 @@ function _get_quality_gate_unit_test_step() {
 
     if [ -n "$workflow_run_id" ]; then
         quality_gate_step=$(_gh_client \
-            --jq ".jobs[].steps[] | select(.name == \"$UNIT_TEST_STEP_NAME\")" \
-            "/repos/$REPOSITORY/actions/runs/$workflow_run_id/jobs")
+            "/repos/$REPOSITORY/actions/runs/$workflow_run_id/jobs" | \
+            jq --arg job_name "$UNIT_TEST_STEP_NAME" \
+                ".jobs[].steps[] | select(.name == $job_name)")
+
         echo "$quality_gate_step"
     fi
 }
