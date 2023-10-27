@@ -45,7 +45,7 @@ function _create_pr_report_comment() {
         _gh_client \
             -X POST \
             --silent \
-            -f body=\"$report\" \
+            -f body="$report" \
             /repos/"$REPOSITORY"/issues/"$PR_NUMBER"/comments
     fi
 }
@@ -58,7 +58,7 @@ function _update_pr_report_comment() {
         _gh_client \
             --method PATCH \
             --silent \
-            -f body=\"$report\" \
+            -f body="$report" \
             /repos/"$REPOSITORY"/issues/comments/"$comment_id"
     fi
 }
