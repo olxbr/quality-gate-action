@@ -12,6 +12,7 @@ function _get_ruleset_ids() {
         /repos/"$REPOSITORY"/rulesets | \
         jq '[.[] | select(.enforcement == "active") | .id] | join(",")' | \
         grep -v '^null$')
+    _log debug "${C_WHT}Ruleset IDs actived:${C_END} ${ruleset_ids}"
     echo "$ruleset_ids"
 }
 
@@ -23,9 +24,10 @@ function _get_rules() {
             /repos/"$REPOSITORY"/rules/branches/$GITHUB_DEFAULT_BRANCH | \
             jq --arg ruleset_ids "$ruleset_ids" \
                 '.[] | select(.type == "pull_request" and (.ruleset_id == ($ruleset_ids) )) | .parameters' | \
-            grep -v '^null$')
+            grep -v '^null$' | jq -s 'add')
 
-        echo $rules | jq -s
+        _log debug "${C_WHT}Rules:${C_END} ${rules}"
+        echo $rules
     fi
 }
 
