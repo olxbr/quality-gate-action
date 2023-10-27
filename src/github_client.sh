@@ -10,7 +10,7 @@ function _gh_client() {
 function _get_ruleset_ids() {
     ruleset_ids=$(_gh_client \
         /repos/"$REPOSITORY"/rulesets | \
-        jq '[.[] | select(.enforcement == "active") | .id] | join(",")' | \
+        jq -r '[.[] | select(.enforcement == "active") | .id] | join(",")' | \
         grep -v '^null$')
     _log debug "${C_WHT}Ruleset IDs actived:${C_END} ${ruleset_ids}"
     echo "$ruleset_ids"
@@ -22,10 +22,10 @@ function _get_rules() {
     if [ -n "$ruleset_ids" ]; then
         rules=$(_gh_client \
             /repos/"$REPOSITORY"/rules/branches/$GITHUB_DEFAULT_BRANCH | \
-            jq ".[] | select(.type == \"pull_request\" and (.ruleset_id == ($ruleset_ids) )) | .parameters" | \
+            jq -r ".[] | select(.type == \"pull_request\" and (.ruleset_id == ($ruleset_ids) )) | .parameters" | \
             grep -v '^null$' | jq -s 'add')
 
-        _log debug "${C_WHT}Rules:${C_END} ${rules}"
+        _log debug "${C_WHT}Rules found for id [${ruleset_ids}]:${C_END} ${rules}"
         echo $rules
     fi
 }
@@ -35,7 +35,7 @@ function _get_pr_report_comment_id() {
 
     comment_id=$(_gh_client \
         "/repos/$REPOSITORY/issues/$PR_NUMBER/comments?per_page=100" | \
-        jq --arg comment_title "$comment_title" \
+        jq -r --arg comment_title "$comment_title" \
             '[.[] | select(.body | startswith($comment_title)) | .id][0]' | \
         grep -v '^null$')
 
