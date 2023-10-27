@@ -100,6 +100,7 @@ function _check_static_analysis() {
         _log "${C_WHT}Checking Static Analysis...${C_END}"
 
         local static_analysis_metrics=$(jq -r '[.projectStatus.conditions[] | select(.metricKey != "new_coverage")]' <<<"$PROJECT_STATUS")
+        _log debug "${C_WHT}Static Analysis Metrics used:${C_END} ${static_analysis_metrics}"
         if [[ -n "$static_analysis_metrics" && $(jq 'length' <<<"$static_analysis_metrics") -gt 0 ]]; then
             for metric in $(jq -c '.[]' <<<"$static_analysis_metrics"); do
                 local metric_key=$(jq -r '.metricKey' <<<"$metric")
