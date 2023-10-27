@@ -51,13 +51,21 @@ function _check_coverage() {
     if [[ $skip_coverage == false ]]; then
         _log "${C_WHT}Checking Coverage...${C_END}"
 
-        local project_status_from=$(grep -q "new_coverage" <<<"$PROJECT_STATUS" && echo "$PROJECT_STATUS" || echo "$PROJECT_STATUS_DEFAULT_BRANCH")
-        local coverage_status_from=$(grep -q "new_coverage" <<<"$PROJECT_STATUS" && echo "(🟢 metrics from Pull Request)" || echo "(🟡 metrics from Default Branch)")
+        local metric_selected="'.projectStatus.conditions[] | select(.metricKey == \"new_coverage\")'"
+        local coverage_metrics=$(
+            jq -er ${metric_selected} <<<"$PROJECT_STATUS" ||
+            jq -er ${metric_selected} <<<"$PROJECT_STATUS_DEFAULT_BRANCH" ||
+            echo ""
+        )
+        local coverage_status_from=$(
+            jq -er ${metric_selected} <<<"$PROJECT_STATUS" &&
+                echo "(🟢 metrics from Pull Request)" ||
+                echo "(🟡 metrics from Default Branch)"
+        )
 
-        _log debug "${C_WHT}Project Status:${C_END} ${project_status_from}"
+        _log debug "${C_WHT}Project Status:${C_END} ${coverage_metrics}"
         _log debug "${C_WHT}Coverage Status from:${C_END} ${coverage_status_from}"
-
-        local coverage_metrics=$(jq -r '.projectStatus.conditions[] | select(.metricKey == "new_coverage")' <<<"$project_status_from" || echo "")
+        
         if [[ -n $coverage_metrics ]]; then
             local coverage_status=$(jq -r '.status' <<<"$coverage_metrics")
             local coverage_value=$(jq -r '.actualValue' <<<"$coverage_metrics")
@@ -176,10 +184,12 @@ function _check_sonarcloud_analysis() {
 
             # Check results (Coverage and Static Analysis)
             if [[ $sonarcloud_analysis_completed ]]; then
-                local project_status=$(_get_project_status)
-                local project_status_default_branch=$(_get_project_status "$GITHUB_DEFAULT_BRANCH")
-                export PROJECT_STATUS=$project_status
-                export PROJECT_STATUS_DEFAULT_BRANCH=$project_status_default_branch ## Used when coverage is not found in PR branch
+                ## Status from PR
+                export PROJECT_STATUS=$(_get_project_status "pullRequest=$PR_NUMBER")
+
+                ## Used when coverage is not found in PR branch
+                export PROJECT_STATUS_DEFAULT_BRANCH=$(_get_project_status "branch=$GITHUB_DEFAULT_BRANCH")
+                
                 _check_coverage
                 _check_static_analysis
             else

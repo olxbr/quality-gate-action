@@ -1,41 +1,49 @@
 #!/bin/bash
 
 function _is_token_valid() {
-    response=$(curl -s -u "${SONAR_TOKEN}": \
-        https://sonarcloud.io/api/authentication/validate)
+    response_cmd="curl -s -u '${SONAR_TOKEN}': \
+        https://sonarcloud.io/api/authentication/validate"
 
+    _log debug "${C_WHT}Executing command:${C_END} ${response_cmd}"
+    response=$(eval ${response_cmd})
+
+    _log debug "${C_WHT}Return of execution:${C_END} ${response}"
     echo "$response" | jq -r '.valid'
 }
 
 function _is_sonarcloud_component_exists() {
-    response_code=$(curl -s -o /dev/null -w "%{http_code}" \
-        -u "${SONAR_TOKEN}": \
-        -d "component=${SONAR_PROJECT}" \
-        https://sonarcloud.io/api/components/show)
+    response_code_cmd="curl -s -o /dev/null -w '%{http_code}' \
+        -u '${SONAR_TOKEN}': \
+        -d 'component=${SONAR_PROJECT}' \
+        https://sonarcloud.io/api/components/show"
 
+    _log debug "${C_WHT}Executing command:${C_END} ${response_code_cmd}"
+    response_code=$(eval ${response_code_cmd})
+
+    _log debug "${C_WHT}Return of execution:${C_END} ${response_code}"
     if [ "$response_code" = "200" ]; then
-        echo true
+        _is_exists=true
     else
-        echo false
+        _is_exists=false
     fi
+
+    _log debug "${C_WHT}SonarCloud component exists:${C_END} ${_is_exists}"
 }
 
 function _get_pull_request_infos() {
-    pull_requests=$(curl -s -u "${SONAR_TOKEN}": \
-        -d "project=${SONAR_PROJECT}" \
-        https://sonarcloud.io/api/project_pull_requests/list)
+    pull_requests_cmd="curl -s -u '${SONAR_TOKEN}': \
+        -d 'project=${SONAR_PROJECT}' \
+        https://sonarcloud.io/api/project_pull_requests/list"
 
+    _log debug "${C_WHT}Executing command:${C_END} ${pull_requests_cmd}"
+    pull_requests=$(eval ${pull_requests_cmd})
+
+    _log debug "${C_WHT}Return of execution:${C_END} ${pull_requests}"
     echo "$pull_requests" | jq ".pullRequests[] | select(.key == \"$PR_NUMBER\")"
 }
 
 function _get_project_status() {
-    filter_parameter="pullRequest=$PR_NUMBER"
-
-    ## If default branch was passed, then use it to get the project status
-    default_branch=$1
-    if [[ -n "$default_branch" ]]; then
-        filter_parameter="branch=$default_branch"
-    fi
+    filter_parameter="$1"
 
     project_status_cmd="curl -s -u '${SONAR_TOKEN}:' \
         -d 'projectKey=${SONAR_PROJECT}' \
