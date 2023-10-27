@@ -42,7 +42,7 @@ function _create_pr_report_comment() {
     local report=$1
 
     if [ -n "$report" ]; then
-        eval _gh_client \
+        _gh_client \
             -X POST \
             --silent \
             -f body=\"$report\" \
@@ -55,7 +55,7 @@ function _update_pr_report_comment() {
     local report=$2
 
     if [ -n "$comment_id" ] && [ -n "$report" ]; then
-        eval _gh_client \
+        _gh_client \
             --method PATCH \
             --silent \
             -f body=\"$report\" \
