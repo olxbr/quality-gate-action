@@ -63,7 +63,7 @@ function _check_code_review() {
     if [[ $skip_code_review == false ]]; then
         _log "${C_WHT}Checking Code Review...${C_END}"
 
-        is_required_code_review=$(jq -r 'any(.[]; .required_approving_review_count > 0)' <<<"$rules")
+        is_required_code_review=$(jq -sr 'any(.[]; .required_approving_review_count > 0)' <<<"$rules")
         if [[ $is_required_code_review == false ]]; then
             _log warn "${C_YEL} [Required approvals] are less than 0!${C_END}"
             _insert_warning_message required_code_review_warn_msg "⚠️ **Required approvals** are less than 0!"
