@@ -58,7 +58,7 @@ function _check_coverage() {
             echo ""
         )
         local coverage_status_from=$(
-            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" 2> /dev/null &&
+            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" 2> /dev/null | grep -q '.' &&
                 echo "(🟢 metrics from Pull Request)" ||
                 echo "(🟡 metrics from Default Branch)"
         )
@@ -114,7 +114,7 @@ function _check_static_analysis() {
             echo ""
         )
         local static_analysis_from=$(
-            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" 2> /dev/null &&
+            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" 2> /dev/null | grep -q '.' &&
                 echo "(🟢 metrics from Pull Request)" ||
                 echo "(🟡 metrics from Default Branch)"
         )
