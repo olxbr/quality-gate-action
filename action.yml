@@ -82,3 +82,9 @@ runs:
       run: |
         source ${{ env.ACTION_PATH }}/src/report.sh
         _send_report
+
+    - name: "Submit Metrics"
+      shell: bash
+      run: |
+        source ${{ env.ACTION_PATH }}/src/submit_metrics.sh
+        _submit_metrics
