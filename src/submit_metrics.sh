@@ -8,7 +8,16 @@ source "${ACTION_PATH}/src/utils.sh"
 
 # Set variables
 ENDPOINT_URL="https://gh-hooks.olxbr.io/quality-gates/required-workflow"
-DATA="{\"metric_name\": \"example_metric\", \"value\": 42}"
+DATA='{
+    "repository": "${GITHUB_REPOSITORY}",
+    "workflow": "${GITHUB_WORKFLOW}",
+    "run_id": "${GITHUB_RUN_ID}",
+    "gate_to_skip": "${GATE_TO_SKIP}",
+    "value": 42
+}'
+
+# Replace variables in data
+DATA=$(envsubst <<<"$DATA")
 
 # Send data to endpoint
 CURL_LOG="curl.log"
