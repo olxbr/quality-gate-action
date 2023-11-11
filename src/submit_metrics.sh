@@ -12,7 +12,7 @@ DATA='{
     "repository": "${GITHUB_REPOSITORY}",
     "workflow": "${GITHUB_WORKFLOW}",
     "run_id": "${GITHUB_RUN_ID}",
-    "gate_to_skip": "${GATE_TO_SKIP}",
+    "gates_to_skip": "${GATES_TO_SKIP}",
     "value": 42
 }'
 
@@ -33,7 +33,7 @@ function _submit_metrics() {
     if [[ "${CURL_RES}" =~ [23].. ]]; then
         _log "Data sent successfully to endpoint ${ENDPOINT_URL}. Status code: ${CURL_RES}"
     else
-        _log error "Failed to send data to endpoint ${ENDPOINT_URL}. Status code: ${CURL_RES}"
+        _log erro "Failed to send data to endpoint ${ENDPOINT_URL}. Status code: ${CURL_RES}"
     fi
 
     _log debug "Response: $(cat ${CURL_LOG})"
