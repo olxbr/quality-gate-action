@@ -49,5 +49,5 @@ function _submit_metrics() {
     ## Delete files if they exist
     rm -f "${CURL_LOG}" "${CURL_ERR}"
 
-    ${EVENT_CONTEXT} | jq
+    echo ${EVENT_CONTEXT} | jq
 }
