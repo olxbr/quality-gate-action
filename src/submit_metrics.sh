@@ -37,7 +37,7 @@ function _submit_metrics() {
     fi
 
     _log debug "Response: $(cat ${CURL_LOG})"
-    _log debug "Full log: $(cat ${CURL_ERR} | grep -v '^\* ')"
+    _log debug "Full log: $(cat ${CURL_ERR} | grep -v '^\[*{}] ')"
 
     env
 
