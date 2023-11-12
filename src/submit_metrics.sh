@@ -49,5 +49,5 @@ function _submit_metrics() {
     ## Delete files if they exist
     rm -f "${CURL_LOG}" "${CURL_ERR}"
 
-    car ${GITHUB_EVENT_PATH} | jq
+    cat ${GITHUB_EVENT_PATH} | jq
 }
