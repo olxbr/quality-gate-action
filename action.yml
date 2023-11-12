@@ -46,11 +46,6 @@ runs:
         echo "GITHUB_TOKEN=${{ inputs.github_token }}" >> $GITHUB_ENV
         echo "PR_HEAD_SHA=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
         echo "PR_NUMBER=${{ github.event.number }}" >> $GITHUB_ENV
-        echo "PR_NUM_CHANGED_FILES=${{ github.event.pull_request.changed_files || '0' }}" >> $GITHUB_ENV
-        echo "PR_NUM_COMMITS=${{ github.event.pull_request.commits || '0' }}" >> $GITHUB_ENV
-        echo "PR_NUM_ADDITIONS=${{ github.event.pull_request.additions || '0' }}" >> $GITHUB_ENV
-        echo "PR_NUM_DELETIONS=${{ github.event.pull_request.deletions || '0' }}" >> $GITHUB_ENV
-        echo "PR_CREATED_AT=${{ github.event.pull_request.created_at || new Date() }}" >> $GITHUB_ENV
         echo "REPOSITORY=${{ github.repository }}" >> $GITHUB_ENV
         echo "SONAR_TOKEN=${{ inputs.sonar_token }}" >> $GITHUB_ENV
         echo "SONAR_CHECK_TIMEOUT=${{ inputs.sonar_check_timeout }}" >> $GITHUB_ENV

@@ -7,6 +7,12 @@
 source "${ACTION_PATH}/src/utils.sh"
 
 # Set variables
+export PR_NUM_COMMITS=$(jq -er '.pull_request.commits' ${GITHUB_EVENT_PATH} || echo 0)
+export PR_NUM_CHANGED_FILES=$(jq -er '.pull_request.changed_files' ${GITHUB_EVENT_PATH} || echo 0)
+export PR_NUM_ADDITIONS=$(jq -er '.pull_request.additions' ${GITHUB_EVENT_PATH} || echo 0)
+export PR_NUM_DELETIONS=$(jq -er '.pull_request.deletions' ${GITHUB_EVENT_PATH} || echo 0)
+export PR_CREATED_AT=$(jq -er '.pull_request.created_at' ${GITHUB_EVENT_PATH} || date -u +%Y-%m-%dT%H:%M:%SZ)
+
 ENDPOINT_URL="https://gh-hooks.olxbr.io/quality-gates/required-workflow"
 DATA='{
     "repository": "${GITHUB_REPOSITORY}",
