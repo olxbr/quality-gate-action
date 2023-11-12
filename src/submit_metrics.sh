@@ -13,11 +13,11 @@ DATA='{
     "workflow": "${GITHUB_WORKFLOW}",
     "run_id": "${GITHUB_RUN_ID}",
     "gates_to_skip": "${GATES_TO_SKIP}",
-    "num_commits": ${{ github.event.pull_request.commits }},
-    "num_changed_files": ${{ github.event.pull_request.changed_files }},
-    "num_additions": ${{ github.event.pull_request.additions }},
-    "num_deletions": ${{ github.event.pull_request.deletions }},
-    "created_at": "${{ github.event.pull_request.created_at }}",
+    "num_commits": ${PR_NUM_COMMITS},
+    "num_changed_files": ${PR_NUM_CHANGED_FILES},
+    "num_additions": ${PR_NUM_ADDITIONS},
+    "num_deletions": ${PR_NUM_DELETIONS},
+    "created_at": "${PR_CREATED_AT}",
     "value": 42
 }'
 
