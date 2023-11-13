@@ -30,16 +30,19 @@ DATA='{
     "qg_code_review_warn_msgs": "${QUALITY_GATE__CODE_REVIEW_WARN_MSGS}",
     "qg_unit_test_pass": ${QUALITY_GATE__UNIT_TEST_PASS},
     "qg_unit_test_warn_msgs": "${QUALITY_GATE__UNIT_TEST_WARN_MSGS}",
+    "qg_unit_test_skipped": ${QUALITY_GATE__UNIT_TEST_SKIPPED},
     "qg_coverage_pass": ${QUALITY_GATE__COVERAGE_PASS},
     "qg_coverage_warn_msgs": "${QUALITY_GATE__COVERAGE_WARN_MSGS}",
     "qg_coverage_threshold": "${QUALITY_GATE__COVERAGE_THRESHOLD}",
     "qg_coverage_value": "${QUALITY_GATE__COVERAGE_VALUE}",
     "qg_coverage_status": "${QUALITY_GATE__COVERAGE_STATUS}",
+    "qg_coverage_skipped": ${QUALITY_GATE__COVERAGE_SKIPPED},
     "gq_static_analysis_pass": ${QUALITY_GATE__STATIC_ANALYSIS_PASS},
     "qg_static_analysis_warn_msgs": "${QUALITY_GATE__STATIC_ANALYSIS_WARN_MSGS}",
     "qg_static_analysis_threshold": "${QUALITY_GATE__STATIC_ANALYSIS_THRESHOLD}",
     "qg_static_analysis_value": "${QUALITY_GATE__STATIC_ANALYSIS_VALUE}",
-    "qg_static_analysis_status": "${QUALITY_GATE__STATIC_ANALYSIS_STATUS}"
+    "qg_static_analysis_status": "${QUALITY_GATE__STATIC_ANALYSIS_STATUS}",
+    "qg_static_analysis_skipped": ${QUALITY_GATE__STATIC_ANALYSIS_SKIPPED},
 }'
 
 # Replace variables in data

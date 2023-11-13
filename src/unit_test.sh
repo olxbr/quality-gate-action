@@ -87,5 +87,6 @@ function _check_unit_test() {
     {
         echo "QUALITY_GATE__UNIT_TEST_PASS=$is_unit_tests_pass"
         echo "QUALITY_GATE__UNIT_TEST_WARN_MSGS=$unit_tests_warn_msg"
+        echo "QUALITY_GATE__UNIT_TEST_SKIPPED=$skip_unit_tests"
     } >>"$GITHUB_ENV"
 }
