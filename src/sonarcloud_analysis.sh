@@ -99,7 +99,7 @@ function _check_coverage() {
         echo "QUALITY_GATE__COVERAGE_VALUE=$coverage_value"
         echo "QUALITY_GATE__COVERAGE_THRESHOLD=$coverage_threshold"
         echo "QUALITY_GATE__COVERAGE_STATUS=$coverage_status"
-        echo "QUALITY_GATE__COVERAGE_SKIPPED=$skip_coverage"
+        echo "QUALITY_GATE__COVERAGE_SKIPPED=$(_has_gate_to_skip "coverage")"
     } >>"$GITHUB_ENV"
 }
 
@@ -162,7 +162,7 @@ function _check_static_analysis() {
         echo "QUALITY_GATE__STATIC_ANALYSIS_VALUE=$metric_value"
         echo "QUALITY_GATE__STATIC_ANALYSIS_THRESHOLD=$metric_threshold"
         echo "QUALITY_GATE__STATIC_ANALYSIS_STATUS=$metric_status"
-        echo "QUALITY_GATE__STATIC_ANALYSIS_SKIPPED=$skip_static_analysis"
+        echo "QUALITY_GATE__STATIC_ANALYSIS_SKIPPED=$(_has_gate_to_skip "static_analysis")"
     } >>"$GITHUB_ENV"
 }
 
