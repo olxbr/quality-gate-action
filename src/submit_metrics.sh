@@ -32,8 +32,14 @@ DATA='{
     "qg_unit_test_warn_msgs": "${QUALITY_GATE__UNIT_TEST_WARN_MSGS}",
     "qg_coverage_pass": ${QUALITY_GATE__COVERAGE_PASS},
     "qg_coverage_warn_msgs": "${QUALITY_GATE__COVERAGE_WARN_MSGS}",
+    "qg_coverage_threshold": "${QUALITY_GATE__COVERAGE_THRESHOLD}",
+    "qg_coverage_value": "${QUALITY_GATE__COVERAGE_VALUE}",
+    "qg_coverage_status": "${QUALITY_GATE__COVERAGE_STATUS}",
     "gq_static_analysis_pass": ${QUALITY_GATE__STATIC_ANALYSIS_PASS},
-    "qg_static_analysis_warn_msgs": "${QUALITY_GATE__STATIC_ANALYSIS_WARN_MSGS}"
+    "qg_static_analysis_warn_msgs": "${QUALITY_GATE__STATIC_ANALYSIS_WARN_MSGS}",
+    "qg_static_analysis_threshold": "${QUALITY_GATE__STATIC_ANALYSIS_THRESHOLD}",
+    "qg_static_analysis_value": "${QUALITY_GATE__STATIC_ANALYSIS_VALUE}",
+    "qg_static_analysis_status": "${QUALITY_GATE__STATIC_ANALYSIS_STATUS}"
 }'
 
 # Replace variables in data
@@ -48,13 +54,12 @@ CURL_CMD="curl -sv --connect-timeout 5 --write-out '%{http_code}' -X POST -H 'Co
 function _submit_metrics() {
     _log "Sending data to endpoint..."
     _log debug "Executing command: $CURL_CMD"
+
     CURL_RES=$(eval $CURL_CMD)
 
-    if [[ "${CURL_RES}" =~ [23].. ]]; then
-        _log "Data sent successfully to endpoint ${ENDPOINT_URL}. Status code: ${CURL_RES}"
-    else
+    [[ "${CURL_RES}" =~ [23].. ]] &&
+        _log "Data sent successfully to endpoint ${ENDPOINT_URL}. Status code: ${CURL_RES}" ||
         _log erro "Failed to send data to endpoint ${ENDPOINT_URL}. Status code: ${CURL_RES}"
-    fi
 
     _log debug "Response: $(cat ${CURL_LOG})"
     _log debug "Full log: $(cat ${CURL_ERR} | grep -v '^[\*\{\}] ')"
