@@ -17,6 +17,7 @@ ENDPOINT_URL="https://gh-hooks.olxbr.io/quality-gates/required-workflow"
 DATA='{
     "repository": "${GITHUB_REPOSITORY}",
     "pr_number": ${PR_NUMBER},
+    "pr_attempt": ${GITHUB_RUN_ATTEMPT},
     "pr_created_at": ${PR_CREATED_AT},
     "pr_num_commits": ${PR_NUM_COMMITS},
     "pr_num_changed_files": ${PR_NUM_CHANGED_FILES},
