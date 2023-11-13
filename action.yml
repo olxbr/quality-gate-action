@@ -44,6 +44,7 @@ runs:
         echo "GITHUB_REPOSITORY=${{ github.repository }}" >> $GITHUB_ENV
         echo "GITHUB_PR_NUMBER=${{ github.event.number }}" >> $GITHUB_ENV
         echo "GITHUB_TOKEN=${{ inputs.github_token }}" >> $GITHUB_ENV
+        echo "GH_METRICS_SERVER_ENDPOINT=${{ secrets.GH_METRICS_SERVER_ENDPOINT }}" >> $GITHUB_ENV
         echo "PR_HEAD_SHA=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
         echo "PR_NUMBER=${{ github.event.number }}" >> $GITHUB_ENV
         echo "REPOSITORY=${{ github.repository }}" >> $GITHUB_ENV

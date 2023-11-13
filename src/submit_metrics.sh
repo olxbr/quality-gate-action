@@ -13,7 +13,7 @@ export PR_NUM_ADDITIONS=$(jq -er '.pull_request.additions' ${GITHUB_EVENT_PATH})
 export PR_NUM_DELETIONS=$(jq -er '.pull_request.deletions' ${GITHUB_EVENT_PATH})
 export PR_CREATED_AT=$(jq -e '.pull_request.created_at' ${GITHUB_EVENT_PATH})
 
-ENDPOINT_URL="https://gh-hooks.olxbr.io/quality-gates/required-workflow"
+ENDPOINT_URL="${GH_METRICS_SERVER_ENDPOINT}/quality-gates/required-workflow"
 DATA='{
     "repository": "${GITHUB_REPOSITORY}",
     "pr_number": ${PR_NUMBER},
