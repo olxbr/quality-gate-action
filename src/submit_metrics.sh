@@ -30,8 +30,8 @@ DATA='{
     "qg_code_review_warn_msgs": "${QUALITY_GATE__CODE_REVIEW_WARN_MSGS}",
     "qg_unit_test_pass": ${QUALITY_GATE__UNIT_TEST_PASS},
     "qg_unit_test_warn_msgs": "${QUALITY_GATE__UNIT_TEST_WARN_MSGS}",
-    "qg_code_coverage_pass": ${QUALITY_GATE__COVERAGE_PASS},
-    "qg_code_coverage_warn_msgs": "${QUALITY_GATE__COVERAGE_WARN_MSGS}",
+    "qg_coverage_pass": ${QUALITY_GATE__COVERAGE_PASS},
+    "qg_coverage_warn_msgs": "${QUALITY_GATE__COVERAGE_WARN_MSGS}",
     "gq_static_analysis_pass": ${QUALITY_GATE__STATIC_ANALYSIS_PASS},
     "qg_static_analysis_warn_msgs": "${QUALITY_GATE__STATIC_ANALYSIS_WARN_MSGS}"
 }'
