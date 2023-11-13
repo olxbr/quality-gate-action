@@ -24,15 +24,15 @@ DATA='{
     "num_changed_files": ${PR_NUM_CHANGED_FILES},
     "num_additions": ${PR_NUM_ADDITIONS},
     "num_deletions": ${PR_NUM_DELETIONS},
-    "qg_unit_test_pass": "${QUALITY_GATE__UNIT_TEST_PASS}",
+    "qg_unit_test_pass": ${QUALITY_GATE__UNIT_TEST_PASS},
     "qg_unit_test_warn_msgs": "${QUALITY_GATE__UNIT_TEST_WARN_MSGS}",
-    "qg_sonarcloud_pass": "${QUALITY_GATE__SONARCLOUD_PASS}",
+    "qg_sonarcloud_pass": ${QUALITY_GATE__SONARCLOUD_PASS},
     "qg_sonarcloud_warn_msgs": "${QUALITY_GATE__SONARCLOUD_WARN_MSGS}",
-    "qg_owner_approval": "${QUALITY_GATE__OWNER_APPROVAL}",
+    "qg_owner_approval": ${QUALITY_GATE__OWNER_APPROVAL},
     "qg_owner_approval_warn_msgs": "${QUALITY_GATE__OWNER_APPROVAL_WARN_MSGS}",
-    "qg_code_review": "${QUALITY_GATE__CODE_REVIEW}",
+    "qg_code_review": ${QUALITY_GATE__CODE_REVIEW},
     "qg_code_review_warn_msgs": "${QUALITY_GATE__CODE_REVIEW_WARN_MSGS}",
-    "qg_code_coverage": "${QUALITY_GATE__CODE_COVERAGE}",
+    "qg_code_coverage": ${QUALITY_GATE__CODE_COVERAGE},
     "qg_code_coverage_warn_msgs": "${QUALITY_GATE__CODE_COVERAGE_WARN_MSGS}"
 }'
 
