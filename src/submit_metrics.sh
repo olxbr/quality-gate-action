@@ -16,14 +16,13 @@ export PR_CREATED_AT=$(jq -e '.pull_request.created_at' ${GITHUB_EVENT_PATH})
 ENDPOINT_URL="https://gh-hooks.olxbr.io/quality-gates/required-workflow"
 DATA='{
     "repository": "${GITHUB_REPOSITORY}",
-    "workflow": "${GITHUB_WORKFLOW}",
-    "gates_to_skip": "${GATES_TO_SKIP}",
-    "created_at": ${PR_CREATED_AT},
-    "num_pull_requests": ${PR_NUMBER},
-    "num_commits": ${PR_NUM_COMMITS},
-    "num_changed_files": ${PR_NUM_CHANGED_FILES},
-    "num_additions": ${PR_NUM_ADDITIONS},
-    "num_deletions": ${PR_NUM_DELETIONS},
+    "pr_number": ${PR_NUMBER},
+    "pr_created_at": ${PR_CREATED_AT},
+    "pr_num_commits": ${PR_NUM_COMMITS},
+    "pr_num_changed_files": ${PR_NUM_CHANGED_FILES},
+    "pr_num_additions": ${PR_NUM_ADDITIONS},
+    "pr_num_deletions": ${PR_NUM_DELETIONS},
+    "qg_gates_to_skip": "${GATES_TO_SKIP}",
     "qg_owner_approval": ${QUALITY_GATE__OWNER_APPROVAL},
     "qg_owner_approval_warn_msgs": "${QUALITY_GATE__OWNER_APPROVAL_WARN_MSGS}",
     "qg_code_review": ${QUALITY_GATE__CODE_REVIEW},
@@ -67,10 +66,6 @@ function _submit_metrics() {
     _log debug "Response: $(cat ${CURL_LOG})"
     _log debug "Full log: $(cat ${CURL_ERR} | grep -v '^[\*\{\}] ')"
 
-    env
-
     ## Delete files if they exist
     rm -f "${CURL_LOG}" "${CURL_ERR}"
-
-    cat ${GITHUB_EVENT_PATH} | jq
 }
