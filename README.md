@@ -16,6 +16,7 @@ This action collects repository and code information to validate if they are com
     unit_test_init_wait_timeout: ${{ vars.UNIT_TEST_INIT_WAIT_TIMEOUT }}
     gates_to_skip: ${{ vars.GATES_TO_SKIP }}
     docs_url: "your_docs_url"
+    gh_metrics_server_endpoint: ${{ secrets.GH_METRICS_SERVER_ENDPOINT }}
 ```
 ## Inputs
 
@@ -30,6 +31,9 @@ Comma separated list of gates to skip. The available gates are: `code_review`, `
 
 #### `docs_url` (default: "")
 Documentation URL to use in the report.
+
+#### `gh_metrics_server_endpoint`
+The endpoint of GITHUB Exporter to receives events from workflow. Useful to collect strategic metrics from quality gates.
 
 #### `sonar_check_timeout`, `unit_test_check_timeout`, `unit_test_init_wait_timeout` (default: 60)
 Sonar check timeout in minutes. If the timeout is reached, the action will not fail, but the result will be shown as a warning. The same applies to unit test check timeout.

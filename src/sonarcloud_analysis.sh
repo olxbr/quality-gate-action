@@ -96,6 +96,9 @@ function _check_coverage() {
     {
         echo "QUALITY_GATE__COVERAGE_PASS=$coverage_passed"
         echo "QUALITY_GATE__COVERAGE_WARN_MSGS=$coverage_warn_msg"
+        echo "QUALITY_GATE__COVERAGE_VALUE=$coverage_value"
+        echo "QUALITY_GATE__COVERAGE_THRESHOLD=$coverage_threshold"
+        echo "QUALITY_GATE__COVERAGE_STATUS=$coverage_status"
     } >>"$GITHUB_ENV"
 }
 
@@ -155,6 +158,9 @@ function _check_static_analysis() {
     {
         echo "QUALITY_GATE__STATIC_ANALYSIS_PASS=$static_analysis_pass"
         echo "QUALITY_GATE__STATIC_ANALYSIS_WARN_MSGS=$static_analysis_warn_msg"
+        echo "QUALITY_GATE__STATIC_ANALYSIS_VALUE=$metric_value"
+        echo "QUALITY_GATE__STATIC_ANALYSIS_THRESHOLD=$metric_threshold"
+        echo "QUALITY_GATE__STATIC_ANALYSIS_STATUS=$metric_status"
     } >>"$GITHUB_ENV"
 }
 
@@ -185,6 +191,12 @@ function _check_sonarcloud_analysis_status() {
 function _check_sonarcloud_analysis() {
     skip_coverage=$(_has_gate_to_skip "coverage")
     skip_static_analysis=$(_has_gate_to_skip "static_analysis")
+
+    ## Create env vars to skip gates
+    {
+        echo "QUALITY_GATE__COVERAGE_SKIPPED=$skip_coverage"
+        echo "QUALITY_GATE__STATIC_ANALYSIS_SKIPPED=$skip_static_analysis"
+    } >>"$GITHUB_ENV"
 
     if [[ $skip_coverage == false || $skip_static_analysis == false ]]; then
         _update_sonar_project_key

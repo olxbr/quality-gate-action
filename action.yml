@@ -30,6 +30,9 @@ inputs:
     description: "The gates to skip (code_review, coverage, owner_approval, static_analysis, unit_test)"
     required: false
     default: ""
+  gh_metrics_server_endpoint:
+    description: "The endpoint of the GitHub metrics server"
+    required: true
 
 runs:
   using: "composite"
@@ -44,6 +47,7 @@ runs:
         echo "GITHUB_REPOSITORY=${{ github.repository }}" >> $GITHUB_ENV
         echo "GITHUB_PR_NUMBER=${{ github.event.number }}" >> $GITHUB_ENV
         echo "GITHUB_TOKEN=${{ inputs.github_token }}" >> $GITHUB_ENV
+        echo "GH_METRICS_SERVER_ENDPOINT=${{ inputs.gh_metrics_server_endpoint }}" >> $GITHUB_ENV
         echo "PR_HEAD_SHA=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
         echo "PR_NUMBER=${{ github.event.number }}" >> $GITHUB_ENV
         echo "REPOSITORY=${{ github.repository }}" >> $GITHUB_ENV
@@ -82,3 +86,9 @@ runs:
       run: |
         source ${{ env.ACTION_PATH }}/src/report.sh
         _send_report
+
+    - name: "Submit Metrics"
+      shell: bash
+      run: |
+        source ${{ env.ACTION_PATH }}/src/submit_metrics.sh
+        _submit_metrics
