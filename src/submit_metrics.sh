@@ -11,7 +11,7 @@ export PR_NUM_COMMITS=$(jq -er '.pull_request.commits' ${GITHUB_EVENT_PATH})
 export PR_NUM_CHANGED_FILES=$(jq -er '.pull_request.changed_files' ${GITHUB_EVENT_PATH})
 export PR_NUM_ADDITIONS=$(jq -er '.pull_request.additions' ${GITHUB_EVENT_PATH})
 export PR_NUM_DELETIONS=$(jq -er '.pull_request.deletions' ${GITHUB_EVENT_PATH})
-export PR_CREATED_AT=$(jq -er '.pull_request.created_at' ${GITHUB_EVENT_PATH})
+export PR_CREATED_AT=$(jq -e '.pull_request.created_at' ${GITHUB_EVENT_PATH})
 
 ENDPOINT_URL="https://gh-hooks.olxbr.io/quality-gates/required-workflow"
 DATA='{
@@ -23,7 +23,7 @@ DATA='{
     "num_changed_files": ${PR_NUM_CHANGED_FILES},
     "num_additions": ${PR_NUM_ADDITIONS},
     "num_deletions": ${PR_NUM_DELETIONS},
-    "created_at": "${PR_CREATED_AT}",
+    "created_at": ${PR_CREATED_AT},
     "value": 42
 }'
 
