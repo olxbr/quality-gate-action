@@ -17,14 +17,23 @@ ENDPOINT_URL="https://gh-hooks.olxbr.io/quality-gates/required-workflow"
 DATA='{
     "repository": "${GITHUB_REPOSITORY}",
     "workflow": "${GITHUB_WORKFLOW}",
-    "run_id": "${GITHUB_RUN_ID}",
     "gates_to_skip": "${GATES_TO_SKIP}",
+    "created_at": ${PR_CREATED_AT},
+    "num_pull_requests": ${PR_NUMBER},
     "num_commits": ${PR_NUM_COMMITS},
     "num_changed_files": ${PR_NUM_CHANGED_FILES},
     "num_additions": ${PR_NUM_ADDITIONS},
     "num_deletions": ${PR_NUM_DELETIONS},
-    "created_at": ${PR_CREATED_AT},
-    "value": 42
+    "qg_unit_test_pass": "${QUALITY_GATE__UNIT_TEST_PASS}",
+    "qg_unit_test_warn_msgs": "${QUALITY_GATE__UNIT_TEST_WARN_MSGS}",
+    "qg_sonarcloud_pass": "${QUALITY_GATE__SONARCLOUD_PASS}",
+    "qg_sonarcloud_warn_msgs": "${QUALITY_GATE__SONARCLOUD_WARN_MSGS}",
+    "qg_owner_approval": "${QUALITY_GATE__OWNER_APPROVAL}",
+    "qg_owner_approval_warn_msgs": "${QUALITY_GATE__OWNER_APPROVAL_WARN_MSGS}",
+    "qg_code_review": "${QUALITY_GATE__CODE_REVIEW}",
+    "qg_code_review_warn_msgs": "${QUALITY_GATE__CODE_REVIEW_WARN_MSGS}",
+    "qg_code_coverage": "${QUALITY_GATE__CODE_COVERAGE}",
+    "qg_code_coverage_warn_msgs": "${QUALITY_GATE__CODE_COVERAGE_WARN_MSGS}"
 }'
 
 # Replace variables in data
