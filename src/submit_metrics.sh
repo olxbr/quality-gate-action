@@ -42,7 +42,8 @@ DATA='{
     "qg_static_analysis_threshold": "${QUALITY_GATE__STATIC_ANALYSIS_THRESHOLD}",
     "qg_static_analysis_value": "${QUALITY_GATE__STATIC_ANALYSIS_VALUE}",
     "qg_static_analysis_status": "${QUALITY_GATE__STATIC_ANALYSIS_STATUS}",
-    "qg_static_analysis_skipped": ${QUALITY_GATE__STATIC_ANALYSIS_SKIPPED}
+    "qg_static_analysis_skipped": ${QUALITY_GATE__STATIC_ANALYSIS_SKIPPED},
+    "qg_pass": ${QUALITY_GATE__PASS},
 }'
 
 # Replace variables in data
