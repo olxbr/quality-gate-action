@@ -16,10 +16,10 @@ function _get_status_badge() {
         [ "$QUALITY_GATE__COVERAGE_PASS" == true ] &&
         [ "$QUALITY_GATE__STATIC_ANALYSIS_PASS" == true ]; then
         echo "Passed!-01aa00"
-        export QUALITY_GATE__PASS=true
+        echo "QUALITY_GATE__PASS=true" >>"$GITHUB_ENV"
     else
         echo "Failed!-d43340"
-        export QUALITY_GATE__PASS=false
+        echo "QUALITY_GATE__PASS=false" >>"$GITHUB_ENV"
     fi
 }
 
