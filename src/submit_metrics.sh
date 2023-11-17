@@ -16,7 +16,9 @@ export PR_CREATED_AT=$(jq -e '.pull_request.created_at' ${GITHUB_EVENT_PATH})
 
 # Normalize values
 export QUALITY_GATE__COVERAGE_VALUE=${QUALITY_GATE__COVERAGE_VALUE:-null}
+export QUALITY_GATE__COVERAGE_THRESHOLD=${QUALITY_GATE__COVERAGE_THRESHOLD:-null}
 export QUALITY_GATE__STATIC_ANALYSIS_VALUE=${QUALITY_GATE__STATIC_ANALYSIS_VALUE:-null}
+export QUALITY_GATE__STATIC_ANALYSIS_THRESHOLD=${QUALITY_GATE__STATIC_ANALYSIS_THRESHOLD:-null}
 
 ENDPOINT_URL="${GH_METRICS_SERVER_ENDPOINT}/quality-gates/required-workflow"
 DATA='{
@@ -39,7 +41,7 @@ DATA='{
     "quality_gate_unit_test_skipped": ${QUALITY_GATE__UNIT_TEST_SKIPPED},
     "quality_gate_coverage_pass": ${QUALITY_GATE__COVERAGE_PASS},
     "quality_gate_coverage_warn_msgs": "${QUALITY_GATE__COVERAGE_WARN_MSGS}",
-    "quality_gate_coverage_threshold": "${QUALITY_GATE__COVERAGE_THRESHOLD}",
+    "quality_gate_coverage_threshold": ${QUALITY_GATE__COVERAGE_THRESHOLD},
     "quality_gate_coverage_value": ${QUALITY_GATE__COVERAGE_VALUE},
     "quality_gate_coverage_status": "${QUALITY_GATE__COVERAGE_STATUS}",
     "quality_gate_coverage_skipped": ${QUALITY_GATE__COVERAGE_SKIPPED},
