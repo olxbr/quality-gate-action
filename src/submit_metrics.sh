@@ -7,6 +7,7 @@
 source "${ACTION_PATH}/src/utils.sh"
 
 # Set variables
+export REPOSITORY_NAME=${GITHUB_REPOSITORY/*\/}
 export PR_NUM_COMMITS=$(jq -er '.pull_request.commits' ${GITHUB_EVENT_PATH})
 export PR_NUM_CHANGED_FILES=$(jq -er '.pull_request.changed_files' ${GITHUB_EVENT_PATH})
 export PR_NUM_ADDITIONS=$(jq -er '.pull_request.additions' ${GITHUB_EVENT_PATH})
@@ -15,35 +16,36 @@ export PR_CREATED_AT=$(jq -e '.pull_request.created_at' ${GITHUB_EVENT_PATH})
 
 ENDPOINT_URL="${GH_METRICS_SERVER_ENDPOINT}/quality-gates/required-workflow"
 DATA='{
-    "repository": "${GITHUB_REPOSITORY}",
-    "pr_number": ${PR_NUMBER},
-    "pr_attempt": ${GITHUB_RUN_ATTEMPT},
-    "pr_created_at": ${PR_CREATED_AT},
-    "pr_num_commits": ${PR_NUM_COMMITS},
-    "pr_num_changed_files": ${PR_NUM_CHANGED_FILES},
-    "pr_num_additions": ${PR_NUM_ADDITIONS},
-    "pr_num_deletions": ${PR_NUM_DELETIONS},
-    "qg_gates_to_skip": "${GATES_TO_SKIP}",
-    "qg_owner_approval": ${QUALITY_GATE__OWNER_APPROVAL},
-    "qg_owner_approval_warn_msgs": "${QUALITY_GATE__OWNER_APPROVAL_WARN_MSGS}",
-    "qg_code_review": ${QUALITY_GATE__CODE_REVIEW},
-    "qg_code_review_warn_msgs": "${QUALITY_GATE__CODE_REVIEW_WARN_MSGS}",
-    "qg_unit_test_pass": ${QUALITY_GATE__UNIT_TEST_PASS},
-    "qg_unit_test_warn_msgs": "${QUALITY_GATE__UNIT_TEST_WARN_MSGS}",
-    "qg_unit_test_skipped": ${QUALITY_GATE__UNIT_TEST_SKIPPED},
-    "qg_coverage_pass": ${QUALITY_GATE__COVERAGE_PASS},
-    "qg_coverage_warn_msgs": "${QUALITY_GATE__COVERAGE_WARN_MSGS}",
-    "qg_coverage_threshold": "${QUALITY_GATE__COVERAGE_THRESHOLD}",
-    "qg_coverage_value": "${QUALITY_GATE__COVERAGE_VALUE}",
-    "qg_coverage_status": "${QUALITY_GATE__COVERAGE_STATUS}",
-    "qg_coverage_skipped": ${QUALITY_GATE__COVERAGE_SKIPPED},
-    "gq_static_analysis_pass": ${QUALITY_GATE__STATIC_ANALYSIS_PASS},
-    "qg_static_analysis_warn_msgs": "${QUALITY_GATE__STATIC_ANALYSIS_WARN_MSGS}",
-    "qg_static_analysis_threshold": "${QUALITY_GATE__STATIC_ANALYSIS_THRESHOLD}",
-    "qg_static_analysis_value": "${QUALITY_GATE__STATIC_ANALYSIS_VALUE}",
-    "qg_static_analysis_status": "${QUALITY_GATE__STATIC_ANALYSIS_STATUS}",
-    "qg_static_analysis_skipped": ${QUALITY_GATE__STATIC_ANALYSIS_SKIPPED},
-    "qg_pass": ${QUALITY_GATE__PASS}
+    "repository_name": "${REPOSITORY_NAME}",
+    "repository_full_name": "${GITHUB_REPOSITORY}",
+    "workflow_job_run_attempt": ${GITHUB_RUN_ATTEMPT},
+    "pull_request_number": ${PR_NUMBER},
+    "pull_request_created_at": ${PR_CREATED_AT},
+    "pull_request_commits": ${PR_NUM_COMMITS},
+    "pull_request_additions": ${PR_NUM_ADDITIONS},
+    "pull_request_deletions": ${PR_NUM_DELETIONS},
+    "pull_request_changed_files": ${PR_NUM_CHANGED_FILES},
+    "quality_gates_to_skip_str": "${GATES_TO_SKIP}",
+    "quality_gate_owner_approval": ${QUALITY_GATE__OWNER_APPROVAL},
+    "quality_gate_owner_approval_warn_msgs": "${QUALITY_GATE__OWNER_APPROVAL_WARN_MSGS}",
+    "quality_gate_code_review": ${QUALITY_GATE__CODE_REVIEW},
+    "quality_gate_code_review_warn_msgs": "${QUALITY_GATE__CODE_REVIEW_WARN_MSGS}",
+    "quality_gate_unit_test_pass": ${QUALITY_GATE__UNIT_TEST_PASS},
+    "quality_gate_unit_test_warn_msgs": "${QUALITY_GATE__UNIT_TEST_WARN_MSGS}",
+    "quality_gate_unit_test_skipped": ${QUALITY_GATE__UNIT_TEST_SKIPPED},
+    "quality_gate_coverage_pass": ${QUALITY_GATE__COVERAGE_PASS},
+    "quality_gate_coverage_warn_msgs": "${QUALITY_GATE__COVERAGE_WARN_MSGS}",
+    "quality_gate_coverage_threshold": "${QUALITY_GATE__COVERAGE_THRESHOLD}",
+    "quality_gate_coverage_value": "${QUALITY_GATE__COVERAGE_VALUE}",
+    "quality_gate_coverage_status": "${QUALITY_GATE__COVERAGE_STATUS}",
+    "quality_gate_coverage_skipped": ${QUALITY_GATE__COVERAGE_SKIPPED},
+    "quality_gate_static_analysis_pass": ${QUALITY_GATE__STATIC_ANALYSIS_PASS},
+    "quality_gate_static_analysis_warn_msgs": "${QUALITY_GATE__STATIC_ANALYSIS_WARN_MSGS}",
+    "quality_gate_static_analysis_threshold": "${QUALITY_GATE__STATIC_ANALYSIS_THRESHOLD}",
+    "quality_gate_static_analysis_value": "${QUALITY_GATE__STATIC_ANALYSIS_VALUE}",
+    "quality_gate_static_analysis_status": "${QUALITY_GATE__STATIC_ANALYSIS_STATUS}",
+    "quality_gate_static_analysis_skipped": ${QUALITY_GATE__STATIC_ANALYSIS_SKIPPED},
+    "quality_gate_pass": ${QUALITY_GATE__PASS}
 }'
 
 # Replace variables in data
