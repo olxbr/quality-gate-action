@@ -14,6 +14,10 @@ export PR_NUM_ADDITIONS=$(jq -er '.pull_request.additions' ${GITHUB_EVENT_PATH})
 export PR_NUM_DELETIONS=$(jq -er '.pull_request.deletions' ${GITHUB_EVENT_PATH})
 export PR_CREATED_AT=$(jq -e '.pull_request.created_at' ${GITHUB_EVENT_PATH})
 
+# Normalize values
+export QUALITY_GATE__COVERAGE_VALUE=${QUALITY_GATE__COVERAGE_VALUE:-null}
+export QUALITY_GATE__STATIC_ANALYSIS_VALUE=${QUALITY_GATE__STATIC_ANALYSIS_VALUE:-null}
+
 ENDPOINT_URL="${GH_METRICS_SERVER_ENDPOINT}/quality-gates/required-workflow"
 DATA='{
     "repository_name": "${REPOSITORY_NAME}",
@@ -36,13 +40,13 @@ DATA='{
     "quality_gate_coverage_pass": ${QUALITY_GATE__COVERAGE_PASS},
     "quality_gate_coverage_warn_msgs": "${QUALITY_GATE__COVERAGE_WARN_MSGS}",
     "quality_gate_coverage_threshold": "${QUALITY_GATE__COVERAGE_THRESHOLD}",
-    "quality_gate_coverage_value": "${QUALITY_GATE__COVERAGE_VALUE}",
+    "quality_gate_coverage_value": ${QUALITY_GATE__COVERAGE_VALUE},
     "quality_gate_coverage_status": "${QUALITY_GATE__COVERAGE_STATUS}",
     "quality_gate_coverage_skipped": ${QUALITY_GATE__COVERAGE_SKIPPED},
     "quality_gate_static_analysis_pass": ${QUALITY_GATE__STATIC_ANALYSIS_PASS},
     "quality_gate_static_analysis_warn_msgs": "${QUALITY_GATE__STATIC_ANALYSIS_WARN_MSGS}",
-    "quality_gate_static_analysis_threshold": "${QUALITY_GATE__STATIC_ANALYSIS_THRESHOLD}",
-    "quality_gate_static_analysis_value": "${QUALITY_GATE__STATIC_ANALYSIS_VALUE}",
+    "quality_gate_static_analysis_threshold": ${QUALITY_GATE__STATIC_ANALYSIS_THRESHOLD},
+    "quality_gate_static_analysis_value": ${QUALITY_GATE__STATIC_ANALYSIS_VALUE},
     "quality_gate_static_analysis_status": "${QUALITY_GATE__STATIC_ANALYSIS_STATUS}",
     "quality_gate_static_analysis_skipped": ${QUALITY_GATE__STATIC_ANALYSIS_SKIPPED},
     "quality_gate_pass": ${QUALITY_GATE__PASS}
