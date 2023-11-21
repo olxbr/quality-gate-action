@@ -98,7 +98,7 @@ function _check_repo_configs() {
         ruleset_ids=$(_get_ruleset_ids)
         rules=$(_get_rules "$ruleset_ids")
 
-        if [[ $(jq 'length > 0' <<<"$rules") == true ]]; then
+        if [[ $(jq -s 'length > 0' <<<"$rules") == true ]]; then
             _check_owner_approval
             _check_code_review
         else
