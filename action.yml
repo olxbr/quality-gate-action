@@ -40,6 +40,7 @@ runs:
     - name: "Setup default environment for all steps"
       shell: bash
       run: |
+        ## Set default environment variables
         echo "ACTION_PATH=${{ github.action_path }}" >> $GITHUB_ENV
         echo "DOCS_URL=${{ inputs.docs_url }}" >> $GITHUB_ENV
         echo "GATES_TO_SKIP=${{ inputs.gates_to_skip }}" >> $GITHUB_ENV
