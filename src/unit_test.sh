@@ -76,6 +76,7 @@ function _check_unit_test() {
             if [[ "$status" != "completed" ]]; then
                 _log debug "Inserting timeout message to Unit Test"
                 _insert_warning_message unit_tests_warn_msg "⚠️ Unit Test Job is not completed!"
+            fi
         else
             message="Step ($UNIT_TEST_STEP_NAME) not found!"
             _log warn "${C_YEL}${message}${C_END}"
