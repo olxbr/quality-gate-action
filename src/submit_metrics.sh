@@ -1,30 +1,28 @@
 #!/bin/bash
 
-## Responsible for sending metrics to gh-metrics endpoint
-## Usage:
-##   submit_metrics.sh
-
+# shellcheck disable=SC1091
 source "${ACTION_PATH}/src/utils.sh"
 
 # Set variables
-export REPOSITORY_NAME=${GITHUB_REPOSITORY/*\/}
-export PR_NUM_COMMITS=$(jq -er '.pull_request.commits' ${GITHUB_EVENT_PATH})
-export PR_NUM_CHANGED_FILES=$(jq -er '.pull_request.changed_files' ${GITHUB_EVENT_PATH})
-export PR_NUM_ADDITIONS=$(jq -er '.pull_request.additions' ${GITHUB_EVENT_PATH})
-export PR_NUM_DELETIONS=$(jq -er '.pull_request.deletions' ${GITHUB_EVENT_PATH})
-export PR_CREATED_AT=$(jq -e '.pull_request.created_at' ${GITHUB_EVENT_PATH})
+export REPOSITORY_NAME=${GITHUB_REPOSITORY/*\//}
+export PR_NUM_COMMITS=$(jq -er '.pull_request.commits' "${GITHUB_EVENT_PATH}")
+export PR_NUM_CHANGED_FILES=$(jq -er '.pull_request.changed_files' "${GITHUB_EVENT_PATH}")
+export PR_NUM_ADDITIONS=$(jq -er '.pull_request.additions' "${GITHUB_EVENT_PATH}")
+export PR_NUM_DELETIONS=$(jq -er '.pull_request.deletions' "${GITHUB_EVENT_PATH}")
+export PR_CREATED_AT=$(jq -e '.pull_request.created_at' "${GITHUB_EVENT_PATH}")
 
 # Normalize values
 export QUALITY_GATE__COVERAGE_VALUE=${QUALITY_GATE__COVERAGE_VALUE:-null}
-export QUALITY_GATE__COVERAGE_VALUE=${QUALITY_GATE__COVERAGE_VALUE/.*} ## Remove decimal places (if any)
+export QUALITY_GATE__COVERAGE_VALUE=${QUALITY_GATE__COVERAGE_VALUE/.*/} ## Remove decimal places (if any)
 export QUALITY_GATE__COVERAGE_THRESHOLD=${QUALITY_GATE__COVERAGE_THRESHOLD:-null}
-export QUALITY_GATE__COVERAGE_THRESHOLD=${QUALITY_GATE__COVERAGE_THRESHOLD/.*} ## Remove decimal places (if any)
+export QUALITY_GATE__COVERAGE_THRESHOLD=${QUALITY_GATE__COVERAGE_THRESHOLD/.*/} ## Remove decimal places (if any)
 export QUALITY_GATE__STATIC_ANALYSIS_VALUE=${QUALITY_GATE__STATIC_ANALYSIS_VALUE:-null}
-export QUALITY_GATE__STATIC_ANALYSIS_VALUE=${QUALITY_GATE__STATIC_ANALYSIS_VALUE/.*} ## Remove decimal places (if any)
+export QUALITY_GATE__STATIC_ANALYSIS_VALUE=${QUALITY_GATE__STATIC_ANALYSIS_VALUE/.*/} ## Remove decimal places (if any)
 export QUALITY_GATE__STATIC_ANALYSIS_THRESHOLD=${QUALITY_GATE__STATIC_ANALYSIS_THRESHOLD:-null}
-export QUALITY_GATE__STATIC_ANALYSIS_THRESHOLD=${QUALITY_GATE__STATIC_ANALYSIS_THRESHOLD/.*} ## Remove decimal places (if any)
+export QUALITY_GATE__STATIC_ANALYSIS_THRESHOLD=${QUALITY_GATE__STATIC_ANALYSIS_THRESHOLD/.*/} ## Remove decimal places (if any)
 
 ENDPOINT_URL="${GH_METRICS_SERVER_ENDPOINT}/quality-gates/required-workflow"
+# shellcheck disable=SC2016
 DATA='{
     "repository_name": "${REPOSITORY_NAME}",
     "repository_full_name": "${GITHUB_REPOSITORY}",
@@ -71,8 +69,9 @@ function _submit_metrics() {
     _log "Sending data to endpoint..."
     _log debug "Executing command: $CURL_CMD"
 
-    CURL_RES=$(eval $CURL_CMD)
+    CURL_RES=$(eval "$CURL_CMD")
 
+    # shellcheck disable=SC2015
     [[ "${CURL_RES}" =~ [23].. ]] &&
         _log "Data sent successfully to endpoint ${ENDPOINT_URL}. Status code: ${CURL_RES}" ||
         _log erro "Failed to send data to endpoint ${ENDPOINT_URL}. Status code: ${CURL_RES}"

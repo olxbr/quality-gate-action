@@ -22,16 +22,25 @@ function _log() {
     output=/dev/stdout
 
     case $1 in
-        erro) logLevel="${C_RED}[ERRO]${C_END}"; msg="${msg#erro*\ }";;
-        warn) logLevel="${C_YEL}[WARN]${C_END}"; msg="${msg#warn*\ }";;
-        debug)logLevel="${C_YEL}[DEBUG]${C_END}"; msg="${msg#debug*\ }"
-            [[ -n "$RUNNER_DEBUG" ]] &&
-                output=/dev/stderr ||
-                output=/dev/null;;
-        *)  logLevel="${C_WHT}[INFO]${C_END}";;
+    erro)
+        logLevel="${C_RED}[ERRO]${C_END}"
+        msg="${msg#erro*\ }"
+        ;;
+    warn)
+        logLevel="${C_YEL}[WARN]${C_END}"
+        msg="${msg#warn*\ }"
+        ;;
+    debug)
+        logLevel="${C_YEL}[DEBUG]${C_END}"
+        msg="${msg#debug*\ }"
+        [[ -n "$RUNNER_DEBUG" ]] &&
+            output=/dev/stderr ||
+            output=/dev/null
+        ;;
+    *) logLevel="${C_WHT}[INFO]${C_END}" ;;
     esac
 
-    echo -e "$(date +"%d-%b-%Y %H:%M:%S") ${logLevel} - ${msg##*( )}${C_END}" > $output
+    echo -e "$(date +"%d-%b-%Y %H:%M:%S") ${logLevel} - ${msg##*( )}${C_END}" >$output
 }
 
 function _insert_warning_message() {
@@ -102,7 +111,7 @@ function _retry_with_delay() {
         else
             _log "${C_BLU}Attempt $i failed${C_END}"
 
-            if [ $i -lt $max_retries ]; then
+            if [ $i -lt "$max_retries" ]; then
                 sleep_seconds=$((initial_retry_delay * i))
                 if [ $sleep_seconds -gt $max_retry_delay ]; then
                     sleep_seconds=$max_retry_delay

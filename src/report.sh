@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# shellcheck disable=SC1091
 source "${ACTION_PATH}/src/utils.sh"
 source "${ACTION_PATH}/src/github_client.sh"
 
