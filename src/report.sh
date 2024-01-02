@@ -79,12 +79,12 @@ function _post_pr_comment() {
         _log "${C_WHT}PR Comment ID:${C_END} ${comment_id}"
 
         if [ -n "$comment_id" ]; then
-            _log "${C_WHT}Updating an existing PR comment...${C_END}"
-            _update_pr_report_comment "$comment_id" "$report"
-        else
-            _log "${C_WHT}Creating PR comment...${C_END}"
-            _create_pr_report_comment "$report"
+            _log "${C_WHT}Deleting an existing PR comment...${C_END}"
+            _delete_pr_report_comment "$comment_id"
         fi
+
+        _log "${C_WHT}Creating PR comment...${C_END}"
+        _create_pr_report_comment "$report"
     else
         _log warn "${C_YEL}Not a PR, so no comment will be posted!${C_END}"
     fi
