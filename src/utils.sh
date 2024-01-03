@@ -127,5 +127,10 @@ function _retry_with_delay() {
 }
 
 function _convert_to_json_array() {
-    echo "$1" | tr ",;| " "," | jq -R 'split(",")'
+    local input=$1
+    if [ -n "$input" ]; then
+        echo "$input" | tr ",;| " "," | jq -R 'split(",")'
+    else
+        echo null
+    fi
 }
