@@ -125,3 +125,12 @@ function _retry_with_delay() {
         fi
     done
 }
+
+function _convert_to_json_array() {
+    local input=$1
+    if [ -n "$input" ]; then
+        echo "$input" | tr ",;| " "," | jq -R 'split(",")'
+    else
+        echo "[]"
+    fi
+}
