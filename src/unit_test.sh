@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# shellcheck disable=SC1091
 source "${ACTION_PATH}/src/utils.sh"
 source "${ACTION_PATH}/src/github_client.sh"
 
@@ -69,7 +70,7 @@ function _check_unit_test() {
         unit_tests_warn_msg=""
 
         workflow_run_id=""
-        _retry_with_delay _get_workflow_run_id $UNIT_TEST_INIT_WAIT_TIMEOUT
+        _retry_with_delay _get_workflow_run_id "$UNIT_TEST_INIT_WAIT_TIMEOUT"
 
         if [[ -n "$workflow_run_id" ]]; then
             _retry_with_delay _check_unit_test_status "$UNIT_TEST_CHECK_TIMEOUT"
