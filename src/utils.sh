@@ -125,3 +125,7 @@ function _retry_with_delay() {
         fi
     done
 }
+
+function _convert_to_json_array() {
+    echo "$1" | tr ",;| " "," | jq -R 'split(",")'
+}
