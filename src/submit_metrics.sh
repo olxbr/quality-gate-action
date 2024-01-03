@@ -35,7 +35,7 @@ DATA='{
     "pull_request_deletions": ${PR_NUM_DELETIONS},
     "pull_request_changed_files": ${PR_NUM_CHANGED_FILES},
     "quality_gates_to_skip_str": "${GATES_TO_SKIP}",
-    "quality_gates_to_skip_arr": "${GATES_TO_SKIP_ARR}",
+    "quality_gates_to_skip_arr": ${GATES_TO_SKIP_ARR},
     "quality_gate_owner_approval": ${QUALITY_GATE__OWNER_APPROVAL},
     "quality_gate_owner_approval_warn_msgs": "${QUALITY_GATE__OWNER_APPROVAL_WARN_MSGS}",
     "quality_gate_code_review": ${QUALITY_GATE__CODE_REVIEW},
