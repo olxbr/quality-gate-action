@@ -20,7 +20,7 @@ export QUALITY_GATE__STATIC_ANALYSIS_VALUE=${QUALITY_GATE__STATIC_ANALYSIS_VALUE
 export QUALITY_GATE__STATIC_ANALYSIS_VALUE=${QUALITY_GATE__STATIC_ANALYSIS_VALUE/.*/} ## Remove decimal places (if any)
 export QUALITY_GATE__STATIC_ANALYSIS_THRESHOLD=${QUALITY_GATE__STATIC_ANALYSIS_THRESHOLD:-null}
 export QUALITY_GATE__STATIC_ANALYSIS_THRESHOLD=${QUALITY_GATE__STATIC_ANALYSIS_THRESHOLD/.*/} ## Remove decimal places (if any)
-export GATES_TO_SKIP_ARR=$(_convert_to_json_array "${GATES_TO_SKIP:-}")
+export GATES_TO_SKIP=$(echo "${GATES_TO_SKIP:-}" | tr ",;| " ",") ## Replace all separators with comma
 
 ENDPOINT_URL="${GH_METRICS_SERVER_ENDPOINT}/quality-gates/required-workflow"
 # shellcheck disable=SC2016
@@ -35,7 +35,6 @@ DATA='{
     "pull_request_deletions": ${PR_NUM_DELETIONS},
     "pull_request_changed_files": ${PR_NUM_CHANGED_FILES},
     "quality_gates_to_skip_str": "${GATES_TO_SKIP}",
-    "quality_gates_to_skip_arr": ${GATES_TO_SKIP_ARR},
     "quality_gate_owner_approval": ${QUALITY_GATE__OWNER_APPROVAL},
     "quality_gate_owner_approval_warn_msgs": "${QUALITY_GATE__OWNER_APPROVAL_WARN_MSGS}",
     "quality_gate_code_review": ${QUALITY_GATE__CODE_REVIEW},
