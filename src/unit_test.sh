@@ -74,6 +74,11 @@ function _check_unit_test() {
 
         if [[ -n "$workflow_run_id" ]]; then
             _retry_with_delay _check_unit_test_status "$UNIT_TEST_CHECK_TIMEOUT"
+            if [[ "$status" != "completed" ]]; then
+                message="Unit Test check is not completed!"
+                _log warn "${C_YEL}${message}${C_END}"
+                _insert_warning_message unit_tests_warn_msg "⚠️ ${message}"
+            fi
         else
             message="Step ($UNIT_TEST_STEP_NAME) not found!"
             _log warn "${C_YEL}${message}${C_END}"
