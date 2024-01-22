@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# shellcheck disable=SC1091
 source "${ACTION_PATH}/src/utils.sh"
 source "${ACTION_PATH}/src/sonarcloud_client.sh"
 
@@ -53,19 +54,19 @@ function _check_coverage() {
 
         local metric_selected='.projectStatus.conditions[] | select(.metricKey == "new_coverage")'
         local coverage_metrics=$(
-            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" 2> /dev/null ||
-            jq -er "${metric_selected}" <<<"$PROJECT_STATUS_DEFAULT_BRANCH" 2> /dev/null ||
-            echo ""
+            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" 2>/dev/null ||
+                jq -er "${metric_selected}" <<<"$PROJECT_STATUS_DEFAULT_BRANCH" 2>/dev/null ||
+                echo ""
         )
         local coverage_status_from=$(
-            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" 2> /dev/null | grep -q '.' &&
+            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" 2>/dev/null | grep -q '.' &&
                 echo "(🟢 metrics from Pull Request)" ||
                 echo "(🟡 metrics from Default Branch)"
         )
 
         _log debug "${C_WHT}Project Status:${C_END} ${coverage_metrics}"
         _log debug "${C_WHT}Coverage Status from:${C_END} ${coverage_status_from}"
-        
+
         if [[ -n $coverage_metrics ]]; then
             local coverage_status=$(jq -r '.status' <<<"$coverage_metrics")
             local coverage_value=$(jq -r '.actualValue' <<<"$coverage_metrics")
@@ -112,12 +113,12 @@ function _check_static_analysis() {
 
         local metric_selected='.projectStatus.conditions[] | select(.metricKey != "new_coverage")'
         local static_analysis_metrics=$(
-            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" 2> /dev/null ||
-            jq -er "${metric_selected}" <<<"$PROJECT_STATUS_DEFAULT_BRANCH" 2> /dev/null ||
-            echo ""
+            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" 2>/dev/null ||
+                jq -er "${metric_selected}" <<<"$PROJECT_STATUS_DEFAULT_BRANCH" 2>/dev/null ||
+                echo ""
         )
         local static_analysis_from=$(
-            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" 2> /dev/null | grep -q '.' &&
+            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" 2>/dev/null | grep -q '.' &&
                 echo "(🟢 metrics from Pull Request)" ||
                 echo "(🟡 metrics from Default Branch)"
         )
@@ -213,7 +214,7 @@ function _check_sonarcloud_analysis() {
 
                 ## Used when coverage is not found in PR branch
                 export PROJECT_STATUS_DEFAULT_BRANCH=$(_get_project_status "branch=$GITHUB_DEFAULT_BRANCH")
-                
+
                 _check_coverage
                 _check_static_analysis
             else
