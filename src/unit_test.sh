@@ -62,12 +62,29 @@ function _check_unit_test_status() {
 function _check_unit_test() {
     skip_unit_tests=$(_has_gate_to_skip "unit_test")
 
-    if [[ $skip_unit_tests == false ]]; then
+    is_unit_tests_pass=false
+    unit_tests_warn_msg=""
+
+    ## Check if step name is present in the workflow directory
+    if grep -qr "name:.*${UNIT_TEST_STEP_NAME}" ${GITHUB_WORKSPACE}/.github/*; then
+        _log "${C_WHT}Step ($UNIT_TEST_STEP_NAME) found in workflow directory!${C_END}"
+        grep_step_name_is_found=true
+    else
+        message="Step ($UNIT_TEST_STEP_NAME) not found in any file in workflow directory (${GITHUB_WORKSPACE}/.github)! Add it to your workflow to enable this gate."
+        _log warn "${C_YEL}${message}${C_END}"
+        _insert_warning_message unit_tests_warn_msg "⚠️ ${message}"
+        grep_step_name_is_found=false
+    fi
+
+    if [[ $skip_unit_tests == true ]]; then
+        _log warn "${C_YEL}Unit Test check skipped!${C_END}"
+        _insert_warning_message unit_tests_warn_msg "Unit Test check skipped!"
+        is_unit_tests_pass=true
+    fi
+
+    if [[ $grep_step_name_is_found == true && $skip_unit_tests == false ]]; then
         _log "${C_WHT}Checking Unit Test...${C_END}"
         _log "${C_WHT}PR_HEAD_SHA:${C_END} ${PR_HEAD_SHA}"
-
-        is_unit_tests_pass=false
-        unit_tests_warn_msg=""
 
         workflow_run_id=""
         _retry_with_delay _get_workflow_run_id "$UNIT_TEST_INIT_WAIT_TIMEOUT"
@@ -80,14 +97,10 @@ function _check_unit_test() {
                 _insert_warning_message unit_tests_warn_msg "⚠️ ${message}"
             fi
         else
-            message="Step ($UNIT_TEST_STEP_NAME) not found!"
+            message="Step ($UNIT_TEST_STEP_NAME) not found in these workflows executions. Check if the workflow is running in the correct Pull request event."
             _log warn "${C_YEL}${message}${C_END}"
             _insert_warning_message unit_tests_warn_msg "⚠️ ${message}"
         fi
-    else
-        _log warn "${C_YEL}Unit Test check skipped!${C_END}"
-        _insert_warning_message unit_tests_warn_msg "Unit Test check skipped!"
-        is_unit_tests_pass=true
     fi
 
     {
