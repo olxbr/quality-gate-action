@@ -82,7 +82,7 @@ function _check_unit_test() {
         is_unit_tests_pass=true
     fi
 
-    if [[ $grep_step_name_is_found == true && $skip_unit_tests == false ]]; then
+    if [[ $skip_unit_tests == false && $grep_step_name_is_found == true ]]; then
         _log "${C_WHT}Checking Unit Test...${C_END}"
         _log "${C_WHT}PR_HEAD_SHA:${C_END} ${PR_HEAD_SHA}"
 
