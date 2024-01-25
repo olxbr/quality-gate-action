@@ -65,16 +65,8 @@ function _check_unit_test() {
     is_unit_tests_pass=false
     unit_tests_warn_msg=""
 
-    ## Check if step name is present in the workflow directory
-    if grep -qr "name:.*${UNIT_TEST_STEP_NAME}" ${GITHUB_WORKSPACE}/.github/*; then
-        _log "${C_WHT}Step name ($UNIT_TEST_STEP_NAME) found in workflow directory [.github]!${C_END}"
-        grep_step_name_is_found=true
-    else
-        message="Step name ($UNIT_TEST_STEP_NAME) not found in any file in workflow directory [.github]! Add it to your workflow to enable this gate."
-        _log warn "${C_YEL}${message}${C_END}"
-        _insert_warning_message unit_tests_warn_msg "⚠️ ${message}"
-        grep_step_name_is_found=false
-    fi
+    ## Avoid waiting for unit test if not configured
+    grep_step_name_is_found=$(grep -qr "name:.*${UNIT_TEST_STEP_NAME}" ${GITHUB_WORKSPACE}/.github/* && echo true || echo false)
 
     if [[ $skip_unit_tests == true ]]; then
         _log warn "${C_YEL}Unit Test check skipped!${C_END}"
@@ -82,9 +74,16 @@ function _check_unit_test() {
         is_unit_tests_pass=true
     fi
 
+    if [[ $skip_unit_tests == false && $grep_step_name_is_found == false ]]; then
+        message="Step name ($UNIT_TEST_STEP_NAME) not found in any file in workflow directory [.github]! Add it to your workflow to enable this gate."
+        _log warn "${C_YEL}${message}${C_END}"
+        _insert_warning_message unit_tests_warn_msg "⚠️ ${message}"
+    fi
+
     if [[ $skip_unit_tests == false && $grep_step_name_is_found == true ]]; then
         _log "${C_WHT}Checking Unit Test...${C_END}"
         _log "${C_WHT}PR_HEAD_SHA:${C_END} ${PR_HEAD_SHA}"
+        _log "${C_WHT}Step name ($UNIT_TEST_STEP_NAME) found in workflow directory [.github]!${C_END}"
 
         workflow_run_id=""
         _retry_with_delay _get_workflow_run_id "$UNIT_TEST_INIT_WAIT_TIMEOUT"
