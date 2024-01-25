@@ -67,10 +67,10 @@ function _check_unit_test() {
 
     ## Check if step name is present in the workflow directory
     if grep -qr "name:.*${UNIT_TEST_STEP_NAME}" ${GITHUB_WORKSPACE}/.github/*; then
-        _log "${C_WHT}Step ($UNIT_TEST_STEP_NAME) found in workflow directory [.github]!${C_END}"
+        _log "${C_WHT}Step name ($UNIT_TEST_STEP_NAME) found in workflow directory [.github]!${C_END}"
         grep_step_name_is_found=true
     else
-        message="Step ($UNIT_TEST_STEP_NAME) not found in any file in workflow directory [.github]! Add it to your workflow to enable this gate."
+        message="Step name ($UNIT_TEST_STEP_NAME) not found in any file in workflow directory [.github]! Add it to your workflow to enable this gate."
         _log warn "${C_YEL}${message}${C_END}"
         _insert_warning_message unit_tests_warn_msg "⚠️ ${message}"
         grep_step_name_is_found=false
@@ -97,7 +97,7 @@ function _check_unit_test() {
                 _insert_warning_message unit_tests_warn_msg "⚠️ ${message}"
             fi
         else
-            message="Step ($UNIT_TEST_STEP_NAME) not found in these workflows executions. Check if the workflow is running in the correct Pull request event."
+            message="Step name ($UNIT_TEST_STEP_NAME) not found in these workflows executions. Check if the workflow is running in the correct PR event."
             _log warn "${C_YEL}${message}${C_END}"
             _insert_warning_message unit_tests_warn_msg "⚠️ ${message}"
         fi
