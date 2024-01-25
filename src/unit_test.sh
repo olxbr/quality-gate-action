@@ -62,9 +62,6 @@ function _check_unit_test_status() {
 function _check_unit_test() {
     skip_unit_tests=$(_has_gate_to_skip "unit_test")
 
-    is_unit_tests_pass=false
-    unit_tests_warn_msg=""
-
     ## Avoid waiting for unit test if not configured
     grep_step_name_is_found=$(grep -qr "name:.*${UNIT_TEST_STEP_NAME}" ${GITHUB_WORKSPACE}/.github/* && echo true || echo false)
 
@@ -84,6 +81,9 @@ function _check_unit_test() {
         _log "${C_WHT}Checking Unit Test...${C_END}"
         _log "${C_WHT}PR_HEAD_SHA:${C_END} ${PR_HEAD_SHA}"
         _log "${C_WHT}Step name ($UNIT_TEST_STEP_NAME) found in workflow directory [.github]!${C_END}"
+
+        is_unit_tests_pass=false
+        unit_tests_warn_msg=""
 
         workflow_run_id=""
         _retry_with_delay _get_workflow_run_id "$UNIT_TEST_INIT_WAIT_TIMEOUT"
