@@ -62,9 +62,31 @@ function _check_unit_test_status() {
 function _check_unit_test() {
     skip_unit_tests=$(_has_gate_to_skip "unit_test")
 
-    if [[ $skip_unit_tests == false ]]; then
+    ## Avoid waiting for unit test if not configured
+    is_grep_found_step_name=$(grep -qr "name:.*${UNIT_TEST_STEP_NAME}" ${GITHUB_WORKSPACE}/.github/* && echo true || echo false)
+
+    _log debug "is_grep_found_step_name: ${is_grep_found_step_name}"
+    _log debug "Directory used to search string (${UNIT_TEST_STEP_NAME}) was ${GITHUB_WORKSPACE}/.github"
+    _log debug "Count of files found with step name: [$(grep -rl "name:.*${UNIT_TEST_STEP_NAME}" ${GITHUB_WORKSPACE}/.github/* | wc -l)]"
+    _log debug "List of files found with step name: [$(grep -rl "name:.*${UNIT_TEST_STEP_NAME}" ${GITHUB_WORKSPACE}/.github/*)]"
+    _log debug "List of all files in directory ${GITHUB_WORKSPACE}/.github: [$(find ${GITHUB_WORKSPACE}/.github)]"
+
+    if [[ $skip_unit_tests == true ]]; then
+        _log warn "${C_YEL}Unit Test check skipped!${C_END}"
+        _insert_warning_message unit_tests_warn_msg "Unit Test check skipped!"
+        is_unit_tests_pass=true
+    fi
+
+    if [[ $skip_unit_tests == false && $is_grep_found_step_name == false ]]; then
+        message="Step name ($UNIT_TEST_STEP_NAME) not found in any file in workflow directory [.github]! Add it to your workflow to enable this gate."
+        _log warn "${C_YEL}${message}${C_END}"
+        _insert_warning_message unit_tests_warn_msg "⚠️ ${message}"
+    fi
+
+    if [[ $skip_unit_tests == false && $is_grep_found_step_name == true ]]; then
         _log "${C_WHT}Checking Unit Test...${C_END}"
         _log "${C_WHT}PR_HEAD_SHA:${C_END} ${PR_HEAD_SHA}"
+        _log "${C_WHT}Step name ($UNIT_TEST_STEP_NAME) found in workflow directory [.github]!${C_END}"
 
         is_unit_tests_pass=false
         unit_tests_warn_msg=""
@@ -80,14 +102,10 @@ function _check_unit_test() {
                 _insert_warning_message unit_tests_warn_msg "⚠️ ${message}"
             fi
         else
-            message="Step ($UNIT_TEST_STEP_NAME) not found!"
+            message="Step name ($UNIT_TEST_STEP_NAME) not found in these workflows executions. Check if the workflow is running in the correct PR event."
             _log warn "${C_YEL}${message}${C_END}"
             _insert_warning_message unit_tests_warn_msg "⚠️ ${message}"
         fi
-    else
-        _log warn "${C_YEL}Unit Test check skipped!${C_END}"
-        _insert_warning_message unit_tests_warn_msg "Unit Test check skipped!"
-        is_unit_tests_pass=true
     fi
 
     {
