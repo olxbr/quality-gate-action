@@ -65,6 +65,10 @@ function _check_unit_test() {
     ## Avoid waiting for unit test if not configured
     is_grep_found_step_name=$(grep -qr "name:.*${UNIT_TEST_STEP_NAME}" ${GITHUB_WORKSPACE}/.github/* && echo true || echo false)
 
+    _log debug "is_grep_found_step_name: ${is_grep_found_step_name}"
+    _log debug "Directory used to search string (${UNIT_TEST_STEP_NAME}) was ${GITHUB_WORKSPACE}/.github"
+    _log debug "List of files found: [$(grep -rl "name:.*${UNIT_TEST_STEP_NAME}" ${GITHUB_WORKSPACE}/.github/*)]"
+
     if [[ $skip_unit_tests == true ]]; then
         _log warn "${C_YEL}Unit Test check skipped!${C_END}"
         _insert_warning_message unit_tests_warn_msg "Unit Test check skipped!"
