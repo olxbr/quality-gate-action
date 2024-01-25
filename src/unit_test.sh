@@ -63,7 +63,7 @@ function _check_unit_test() {
     skip_unit_tests=$(_has_gate_to_skip "unit_test")
 
     ## Avoid waiting for unit test if not configured
-    grep_step_name_is_found=$(grep -qr "name:.*${UNIT_TEST_STEP_NAME}" ${GITHUB_WORKSPACE}/.github/* && echo true || echo false)
+    is_grep_found_step_name=$(grep -qr "name:.*${UNIT_TEST_STEP_NAME}" ${GITHUB_WORKSPACE}/.github/* && echo true || echo false)
 
     if [[ $skip_unit_tests == true ]]; then
         _log warn "${C_YEL}Unit Test check skipped!${C_END}"
@@ -71,13 +71,13 @@ function _check_unit_test() {
         is_unit_tests_pass=true
     fi
 
-    if [[ $skip_unit_tests == false && $grep_step_name_is_found == false ]]; then
+    if [[ $skip_unit_tests == false && $is_grep_found_step_name == false ]]; then
         message="Step name ($UNIT_TEST_STEP_NAME) not found in any file in workflow directory [.github]! Add it to your workflow to enable this gate."
         _log warn "${C_YEL}${message}${C_END}"
         _insert_warning_message unit_tests_warn_msg "⚠️ ${message}"
     fi
 
-    if [[ $skip_unit_tests == false && $grep_step_name_is_found == true ]]; then
+    if [[ $skip_unit_tests == false && $is_grep_found_step_name == true ]]; then
         _log "${C_WHT}Checking Unit Test...${C_END}"
         _log "${C_WHT}PR_HEAD_SHA:${C_END} ${PR_HEAD_SHA}"
         _log "${C_WHT}Step name ($UNIT_TEST_STEP_NAME) found in workflow directory [.github]!${C_END}"
