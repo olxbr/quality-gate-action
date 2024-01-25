@@ -67,7 +67,9 @@ function _check_unit_test() {
 
     _log debug "is_grep_found_step_name: ${is_grep_found_step_name}"
     _log debug "Directory used to search string (${UNIT_TEST_STEP_NAME}) was ${GITHUB_WORKSPACE}/.github"
-    _log debug "List of files found: [$(grep -rl "name:.*${UNIT_TEST_STEP_NAME}" ${GITHUB_WORKSPACE}/.github/*)]"
+    _log debug "List of files found with step name: [$(grep -rl "name:.*${UNIT_TEST_STEP_NAME}" ${GITHUB_WORKSPACE}/.github/*)]"
+    _log debug "Count of files found with step name: [$(grep -rl "name:.*${UNIT_TEST_STEP_NAME}" ${GITHUB_WORKSPACE}/.github/* | wc -l)]"
+    _log debug "List of all files in directory ${GITHUB_WORKSPACE}/.github: [$(ls -la ${GITHUB_WORKSPACE}/.github)]"
 
     if [[ $skip_unit_tests == true ]]; then
         _log warn "${C_YEL}Unit Test check skipped!${C_END}"
