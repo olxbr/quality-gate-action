@@ -84,12 +84,72 @@ function _check_code_review() {
     } >>"$GITHUB_ENV"
 }
 
+# Function to check vulnerabilites
+function _check_vulnerability_configs() {
+    local is_vulnerability_check_ok=true
+    local vulnerability_warn_msg=""
+
+    if [[ $skip_vulnerability == false ]]; then
+        _log "${C_WHT}Checking Vulnerability Configurations...${C_END}"
+
+        is_dependabot_security_updates_disabled=true
+        is_dependabot_alerts_disabled=$(_is_dependabot_alerts_disabled)
+        if [[ $is_dependabot_alerts_disabled == true ]]; then
+            _log warn "${C_YEL}Dependabot alerts is disabled!${C_END}"
+            _insert_warning_message vulnerability_warn_msg "⚠️ Dependabot alerts is disabled!"
+            is_vulnerability_check_ok=false
+        else
+            is_dependabot_security_updates_disabled=$(_is_dependabot_security_updates_disabled)
+        fi
+
+        if [[ $is_dependabot_security_updates_disabled == true ]]; then
+            _log warn "${C_YEL}Dependabot security updates is disabled!${C_END}"
+            _insert_warning_message vulnerability_warn_msg "⚠️ Dependabot security updates is disabled!"
+            is_vulnerability_check_ok=false
+        fi
+
+        is_secret_scanning_disabled=true
+        is_code_scanning_tool_configured=false
+        is_github_advanced_security_disabled=$(_is_github_advanced_security_disabled)
+        if [[ $is_github_advanced_security_disabled == true ]]; then
+            _log warn "${C_YEL}GitHub Advanced Security is disabled!${C_END}"
+            _insert_warning_message vulnerability_warn_msg "⚠️ GitHub Advanced Security is disabled!"
+            is_vulnerability_check_ok=false
+        else
+            is_code_scanning_tool_configured=$(_is_code_scanning_tool_configured)
+            is_secret_scanning_disabled=$(_is_secret_scanning_disabled)
+        fi
+
+        if [[ $is_code_scanning_tool_configured == false ]]; then
+            _log warn "${C_YEL}Code Scanning tool is not configured!${C_END}"
+            _insert_warning_message vulnerability_warn_msg "⚠️ Code Scanning tool is not configured!"
+            is_vulnerability_check_ok=false
+        fi
+
+        if [[ $is_secret_scanning_disabled == true ]]; then
+            _log warn "${C_YEL}Secret scanning is disabled!${C_END}"
+            _insert_warning_message vulnerability_warn_msg "⚠️ Secret scanning is disabled!"
+            is_vulnerability_check_ok=false
+        fi
+
+    else
+        _log warn "${C_YEL}Vulnerability check skipped!${C_END}"
+        _insert_warning_message vulnerability_warn_msg "Vulnerability check skipped!"
+    fi
+
+    {
+        echo "QUALITY_GATE__VULNERABILITY=$is_vulnerability_check_ok"
+        echo "QUALITY_GATE__VULNERABILITY_WARN_MSGS=$vulnerability_warn_msg"
+    } >>"$GITHUB_ENV"
+}
+
 # Function to check repo configs
 function _check_repo_configs() {
     skip_owner_approval=$(_has_gate_to_skip "owner_approval")
     skip_code_review=$(_has_gate_to_skip "code_review")
+    skip_vulnerability=$(_has_gate_to_skip "vulnerability")
 
-    if [[ $skip_owner_approval == false || $skip_code_review == false ]]; then
+    if [[ $skip_owner_approval == false || $skip_code_review == false || $skip_vulnerability == false ]]; then
         _log "${C_WHT}Checking Repository Configurations...${C_END}"
         _log "${C_WHT}Repository:${C_END} ${REPOSITORY}"
         _log "${C_WHT}Default Branch:${C_END} ${GITHUB_DEFAULT_BRANCH}"
@@ -113,6 +173,8 @@ function _check_repo_configs() {
             } >>"$GITHUB_ENV"
         fi
 
+        _check_vulnerability_configs
+
     else
         _log warn "${C_YEL}Repository Configurations check skipped!${C_END}"
         {
@@ -120,6 +182,8 @@ function _check_repo_configs() {
             echo "QUALITY_GATE__CODE_REVIEW_WARN_MSGS=Code Review check skipped!"
             echo "QUALITY_GATE__OWNER_APPROVAL=true"
             echo "QUALITY_GATE__OWNER_APPROVAL_WARN_MSGS=Owner Approval check skipped!"
+            echo "QUALITY_GATE__VULNERABILITY=true"
+            echo "QUALITY_GATE__VULNERABILITY_WARN_MSGS=Vulnerability check skipped!"
         } >>"$GITHUB_ENV"
     fi
 }
