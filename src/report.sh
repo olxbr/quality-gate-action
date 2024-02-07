@@ -15,7 +15,8 @@ function _get_status_badge() {
         [ "$QUALITY_GATE__CODE_REVIEW" = true ] &&
         [ "$QUALITY_GATE__OWNER_APPROVAL" = true ] &&
         [ "$QUALITY_GATE__COVERAGE_PASS" == true ] &&
-        [ "$QUALITY_GATE__STATIC_ANALYSIS_PASS" == true ]; then
+        [ "$QUALITY_GATE__STATIC_ANALYSIS_PASS" == true ] &&
+        [ "$QUALITY_GATE__VULNERABILITY" == true ]; then
         echo "Passed!-01aa00"
         echo "QUALITY_GATE__PASS=true" >>"$GITHUB_ENV"
     else
@@ -52,6 +53,7 @@ function _log_results() {
     _log "| Owner Approval | ${QUALITY_GATE__OWNER_APPROVAL_EMOJI} |"
     _log "| Coverage       | ${QUALITY_GATE__COVERAGE_EMOJI} |"
     _log "| Static Analysis| ${QUALITY_GATE__STATIC_ANALYSIS_EMOJI} |"
+    _log "| Vulnerability  | ${QUALITY_GATE__VULNERABILITY_EMOJI} |"
     _log "└─────────────────────┘"
 }
 
@@ -98,12 +100,14 @@ function _send_report() {
     export QUALITY_GATE__OWNER_APPROVAL_EMOJI=$(_get_emoji "$QUALITY_GATE__OWNER_APPROVAL" "owner_approval")
     export QUALITY_GATE__COVERAGE_EMOJI=$(_get_emoji "$QUALITY_GATE__COVERAGE_PASS" "coverage")
     export QUALITY_GATE__STATIC_ANALYSIS_EMOJI=$(_get_emoji "$QUALITY_GATE__STATIC_ANALYSIS_PASS" "static_analysis")
+    export QUALITY_GATE__VULNERABILITY_EMOJI=$(_get_emoji "$QUALITY_GATE__VULNERABILITY" "vulnerability")
 
     export QUALITY_GATE__UNIT_TEST_DESCRIPTION=${QUALITY_GATE__UNIT_TEST_WARN_MSGS:-"Passed!"}
     export QUALITY_GATE__CODE_REVIEW_DESCRIPTION=${QUALITY_GATE__CODE_REVIEW_WARN_MSGS:-"Passed!"}
     export QUALITY_GATE__OWNER_APPROVAL_DESCRIPTION=${QUALITY_GATE__OWNER_APPROVAL_WARN_MSGS:-"Passed!"}
     export QUALITY_GATE__COVERAGE_DESCRIPTION=${QUALITY_GATE__COVERAGE_WARN_MSGS:-"Passed!"}
     export QUALITY_GATE__STATIC_ANALYSIS_DESCRIPTION=${QUALITY_GATE__STATIC_ANALYSIS_WARN_MSGS:-"Passed!"}
+    export QUALITY_GATE__VULNERABILITY_DESCRIPTION=${QUALITY_GATE__VULNERABILITY_WARN_MSGS:-"Passed!"}
 
     export STATUS_BADGE=$(_get_status_badge)
 
