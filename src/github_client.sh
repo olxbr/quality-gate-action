@@ -55,9 +55,9 @@ function _is_dependabot_alerts_disabled() {
     local disabled=false
 
     response=$(_gh_client -i --silent \
-        "/repos/$REPOSITORY/vulnerability-alerts")
+        "/repos/$REPOSITORY/dependabot/alerts")
 
-    if [[ "$response" =~ "404 Not Found" ]]; then
+    if [[ "$response" =~ "403 Forbidden" ]]; then
         disabled=true
     fi
 
