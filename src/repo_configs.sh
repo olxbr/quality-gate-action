@@ -157,6 +157,8 @@ function _check_repo_configs() {
     skip_code_review=$(_has_gate_to_skip "code_review")
     skip_vulnerability=$(_has_gate_to_skip "vulnerability")
 
+    echo "QUALITY_GATE__VULNERABILITY_SKIPPED=$skip_vulnerability" >>"$GITHUB_ENV"
+
     if [[ $skip_owner_approval == false || $skip_code_review == false || $skip_vulnerability == false ]]; then
         _log "${C_WHT}Checking Repository Configurations...${C_END}"
         _log "${C_WHT}Repository:${C_END} ${REPOSITORY}"
