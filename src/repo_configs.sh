@@ -86,7 +86,7 @@ function _check_code_review() {
 
 # Function to check vulnerabilites
 function _check_vulnerability_configs() {
-    local is_vulnerability_check_ok=true
+    local vulnerability_pass=true
     local vulnerability_warn_msg=""
 
     if [[ $skip_vulnerability == false ]]; then
@@ -99,7 +99,7 @@ function _check_vulnerability_configs() {
         if [[ $is_dependabot_alerts_disabled == true ]]; then
             _log warn "${C_YEL}Dependabot alerts is disabled!${C_END}"
             _insert_warning_message vulnerability_warn_msg "⚠️ Dependabot alerts is disabled!"
-            is_vulnerability_check_ok=false
+            vulnerability_pass=false
         else
             _log "${C_WHT}Checking Dependabot Security Updates...${C_END}"
             is_dependabot_security_updates_disabled=$(_is_dependabot_security_updates_disabled)
@@ -108,7 +108,7 @@ function _check_vulnerability_configs() {
         if [[ $is_dependabot_security_updates_disabled == true ]]; then
             _log warn "${C_YEL}Dependabot security updates is disabled!${C_END}"
             _insert_warning_message vulnerability_warn_msg "⚠️ Dependabot security updates is disabled!"
-            is_vulnerability_check_ok=false
+            vulnerability_pass=false
         fi
 
         _log "${C_WHT}Checking GitHub Advanced Security...${C_END}"
@@ -119,7 +119,7 @@ function _check_vulnerability_configs() {
         if [[ $is_github_advanced_security_disabled == true ]]; then
             _log warn "${C_YEL}GitHub Advanced Security is disabled!${C_END}"
             _insert_warning_message vulnerability_warn_msg "⚠️ GitHub Advanced Security is disabled!"
-            is_vulnerability_check_ok=false
+            vulnerability_pass=false
         else
             _log "${C_WHT}Checking Code Scanning Tool...${C_END}"
             is_code_scanning_tool_configured=$(_is_code_scanning_tool_configured)
@@ -131,13 +131,13 @@ function _check_vulnerability_configs() {
         if [[ $is_code_scanning_tool_configured == false ]]; then
             _log warn "${C_YEL}Code Scanning tool is not configured!${C_END}"
             _insert_warning_message vulnerability_warn_msg "⚠️ Code Scanning tool is not configured!"
-            is_vulnerability_check_ok=false
+            vulnerability_pass=false
         fi
 
         if [[ $is_secret_scanning_disabled == true ]]; then
             _log warn "${C_YEL}Secret scanning is disabled!${C_END}"
             _insert_warning_message vulnerability_warn_msg "⚠️ Secret scanning is disabled!"
-            is_vulnerability_check_ok=false
+            vulnerability_pass=false
         fi
 
     else
@@ -146,7 +146,7 @@ function _check_vulnerability_configs() {
     fi
 
     {
-        echo "QUALITY_GATE__VULNERABILITY=$is_vulnerability_check_ok"
+        echo "QUALITY_GATE__VULNERABILITY_PASS=$vulnerability_pass"
         echo "QUALITY_GATE__VULNERABILITY_WARN_MSGS=$vulnerability_warn_msg"
     } >>"$GITHUB_ENV"
 }
@@ -192,7 +192,7 @@ function _check_repo_configs() {
             echo "QUALITY_GATE__CODE_REVIEW_WARN_MSGS=Code Review check skipped!"
             echo "QUALITY_GATE__OWNER_APPROVAL=true"
             echo "QUALITY_GATE__OWNER_APPROVAL_WARN_MSGS=Owner Approval check skipped!"
-            echo "QUALITY_GATE__VULNERABILITY=true"
+            echo "QUALITY_GATE__VULNERABILITY_PASS=true"
             echo "QUALITY_GATE__VULNERABILITY_WARN_MSGS=Vulnerability check skipped!"
         } >>"$GITHUB_ENV"
     fi
