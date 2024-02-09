@@ -51,6 +51,67 @@ function _get_quality_gate_unit_test_step() {
     fi
 }
 
+function _is_dependabot_alerts_disabled() {
+    local disabled=false
+
+    response=$(_gh_client -i --silent \
+        "/repos/$REPOSITORY/dependabot/alerts")
+
+    if [[ "$response" =~ "403 Forbidden" ]]; then
+        disabled=true
+    fi
+
+    echo "$disabled"
+}
+
+function _is_dependabot_security_updates_disabled() {
+    local disabled=false
+
+    is_disabled=$(_gh_client \
+        "/repos/$REPOSITORY/automated-security-fixes" |
+        jq -r '.enabled | not')
+
+    if [ "$is_disabled" = "true" ]; then
+        disabled=true
+    fi
+
+    echo "$disabled"
+}
+
+function _is_github_advanced_security_disabled() {
+    local disabled=false
+
+    response=$(_gh_client -i --silent \
+        "/repos/$REPOSITORY/code-scanning/default-setup")
+
+    if [[ "$response" =~ "403 Forbidden" ]]; then
+        disabled=true
+    fi
+
+    echo "$disabled"
+}
+
+function _is_code_scanning_tool_configured() {
+    configured=$(_gh_client \
+        "/repos/$REPOSITORY/code-scanning/default-setup" |
+        jq -r '.state == "configured"')
+
+    echo "$configured"
+}
+
+function _is_secret_scanning_disabled() {
+    local disabled=false
+
+    response=$(_gh_client -i --silent \
+        "/repos/$REPOSITORY/secret-scanning/alerts")
+
+    if [[ "$response" =~ "404 Not Found" ]]; then
+        disabled=true
+    fi
+
+    echo "$disabled"
+}
+
 function _get_pr_report_comment_id() {
     local comment_title="# Quality Gate"
 

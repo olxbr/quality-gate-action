@@ -55,6 +55,9 @@ DATA='{
     "quality_gate_static_analysis_value": ${QUALITY_GATE__STATIC_ANALYSIS_VALUE},
     "quality_gate_static_analysis_status": "${QUALITY_GATE__STATIC_ANALYSIS_STATUS}",
     "quality_gate_static_analysis_skipped": ${QUALITY_GATE__STATIC_ANALYSIS_SKIPPED},
+    "quality_gate_vulnerability_pass": ${QUALITY_GATE__VULNERABILITY_PASS},
+    "quality_gate_vulnerability_warn_msgs": "${QUALITY_GATE__VULNERABILITY_WARN_MSGS}",
+    "quality_gate_vulnerability_skipped": ${QUALITY_GATE__VULNERABILITY_SKIPPED},
     "quality_gate_pass": ${QUALITY_GATE__PASS}
 }'
 

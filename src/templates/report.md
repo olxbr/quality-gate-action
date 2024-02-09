@@ -7,5 +7,7 @@
 | Owner Approval  | ${QUALITY_GATE__OWNER_APPROVAL_EMOJI}  | ${QUALITY_GATE__OWNER_APPROVAL_DESCRIPTION} |
 | Coverage        | ${QUALITY_GATE__COVERAGE_EMOJI}        | ${QUALITY_GATE__COVERAGE_DESCRIPTION}       |
 | Static Analysis | ${QUALITY_GATE__STATIC_ANALYSIS_EMOJI} | ${QUALITY_GATE__STATIC_ANALYSIS_DESCRIPTION}|
+| Vulnerability   | ${QUALITY_GATE__VULNERABILITY_EMOJI}   | ${QUALITY_GATE__VULNERABILITY_DESCRIPTION}  |
 
-**To comply with the Quality Gates, consult this [documentation](${DOCS_URL}).**
+> [!NOTE]
+> **To comply with the Quality Gates, consult this [documentation](${DOCS_URL}).**
