@@ -28,6 +28,7 @@ function _is_sonarcloud_component_exists() {
     fi
 
     _log debug "${C_WHT}SonarCloud component exists:${C_END} ${_is_exists}"
+    echo "$_is_exists"
 }
 
 function _get_pull_request_infos() {
