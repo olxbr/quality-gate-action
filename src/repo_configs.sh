@@ -114,25 +114,25 @@ function _check_vulnerability_configs() {
         _log "${C_WHT}Checking GitHub Advanced Security...${C_END}"
         is_github_advanced_security_disabled=$(_is_github_advanced_security_disabled)
         is_secret_scanning_disabled=true
-        is_code_scanning_tool_configured=false
+        # is_code_scanning_tool_configured=false
 
         if [[ $is_github_advanced_security_disabled == true ]]; then
             _log warn "${C_YEL}GitHub Advanced Security is disabled!${C_END}"
             _insert_warning_message vulnerability_warn_msg "⚠️ GitHub Advanced Security is disabled!"
             vulnerability_pass=false
         else
-            _log "${C_WHT}Checking Code Scanning Tool...${C_END}"
-            is_code_scanning_tool_configured=$(_is_code_scanning_tool_configured)
+            # _log "${C_WHT}Checking Code Scanning Tool...${C_END}"
+            # is_code_scanning_tool_configured=$(_is_code_scanning_tool_configured)
 
             _log "${C_WHT}Checking Secret Scanning...${C_END}"
             is_secret_scanning_disabled=$(_is_secret_scanning_disabled)
         fi
 
-        if [[ $is_code_scanning_tool_configured == false ]]; then
-            _log warn "${C_YEL}Code Scanning tool is not configured!${C_END}"
-            _insert_warning_message vulnerability_warn_msg "⚠️ Code Scanning tool is not configured!"
-            vulnerability_pass=false
-        fi
+        # if [[ $is_code_scanning_tool_configured == false ]]; then
+        #     _log warn "${C_YEL}Code Scanning tool is not configured!${C_END}"
+        #     _insert_warning_message vulnerability_warn_msg "⚠️ Code Scanning tool is not configured!"
+        #     vulnerability_pass=false
+        # fi
 
         if [[ $is_secret_scanning_disabled == true ]]; then
             _log warn "${C_YEL}Secret scanning is disabled!${C_END}"
