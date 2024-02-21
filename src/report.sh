@@ -16,7 +16,7 @@ function _get_status_badge() {
         [ "$QUALITY_GATE__OWNER_APPROVAL" = true ] &&
         [ "$QUALITY_GATE__COVERAGE_PASS" == true ] &&
         [ "$QUALITY_GATE__STATIC_ANALYSIS_PASS" == true ] &&
-        [ "$QUALITY_GATE__VULNERABILITY" == true ]; then
+        [ "$QUALITY_GATE__VULNERABILITY_PASS" == true ]; then
         echo "Passed!-01aa00"
         echo "QUALITY_GATE__PASS=true" >>"$GITHUB_ENV"
     else
