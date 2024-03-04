@@ -62,8 +62,10 @@ function _check_unit_test_step() {
     _log "${C_WHT}Checking if ($UNIT_TEST_STEP_NAME) step is present in files...${C_END}"
     is_grep_found_step_name=$(grep -qr "name:.*${UNIT_TEST_STEP_NAME}" ${GITHUB_WORKSPACE}/.github/* && echo true || echo false)
 
-    if [[ $is_grep_found_step_name == false ]]; then
-        _log warn "${C_YEL}Step not found in any file in workflow directory [.github]!${C_END}"
+    if [[ $is_grep_found_step_name == true ]]; then
+        _log "${C_WHT}Step name ($UNIT_TEST_STEP_NAME) found in workflow directory [.github/]!${C_END}"
+    else
+        _log warn "${C_YEL}Step name ($UNIT_TEST_STEP_NAME) not found in any file in workflow directory [.github/]!${C_END}"
 
         _log "${C_WHT}Searching for referenced workflows...${C_END}"
         referenced_workflows=$(grep -hoPr '(?<=uses: ).*olxbr.*.github/workflows.*' ${GITHUB_WORKSPACE}/.github/* | uniq)
@@ -84,7 +86,7 @@ function _check_unit_test_step() {
             if [[ -n "$content_file" ]]; then
                 is_grep_found_step_name=$(grep -q "name:.*${UNIT_TEST_STEP_NAME}" <<<"$content_file" && echo true || echo false)
                 if [[ $is_grep_found_step_name == true ]]; then
-                    _log "${C_WHT}Step ($UNIT_TEST_STEP_NAME) found!${C_END}"
+                    _log "${C_WHT}Step name ($UNIT_TEST_STEP_NAME) found in referenced workflow [$workflow]!${C_END}"
                     break
                 fi
             fi
