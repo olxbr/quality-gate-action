@@ -5,6 +5,7 @@ source "${ACTION_PATH}/src/utils.sh"
 
 # Set variables
 export REPOSITORY_NAME=${GITHUB_REPOSITORY/*\//}
+export PR_NUM_ID=$(jq -er '.pull_request.id' "${GITHUB_EVENT_PATH}")
 export PR_NUM_COMMITS=$(jq -er '.pull_request.commits' "${GITHUB_EVENT_PATH}")
 export PR_NUM_CHANGED_FILES=$(jq -er '.pull_request.changed_files' "${GITHUB_EVENT_PATH}")
 export PR_NUM_ADDITIONS=$(jq -er '.pull_request.additions' "${GITHUB_EVENT_PATH}")
@@ -25,9 +26,11 @@ export GATES_TO_SKIP_ARR=$(_convert_to_json_array "${GATES_TO_SKIP:-}")
 ENDPOINT_URL="${GH_METRICS_SERVER_ENDPOINT}/quality-gates/required-workflow"
 # shellcheck disable=SC2016
 DATA='{
+    "repository_id": ${GITHUB_REPOSITORY_ID},
     "repository_name": "${REPOSITORY_NAME}",
     "repository_full_name": "${GITHUB_REPOSITORY}",
     "workflow_job_run_attempt": ${GITHUB_RUN_ATTEMPT},
+    "pull_request_id": ${PR_NUM_ID},
     "pull_request_number": ${PR_NUMBER},
     "pull_request_created_at": ${PR_CREATED_AT},
     "pull_request_commits": ${PR_NUM_COMMITS},
