@@ -58,14 +58,52 @@ function _check_unit_test_status() {
     $succeeded
 }
 
+function _check_unit_test_step() {
+    _log "${C_WHT}Checking if Unit Test Step is present in files...${C_END}"
+    is_grep_found_step_name=$(grep -qr "name:.*${UNIT_TEST_STEP_NAME}" ${GITHUB_WORKSPACE}/.github/* && echo true || echo false)
+
+    if [[ $is_grep_found_step_name == false ]]; then
+        _log "${C_WHT}Step name ($UNIT_TEST_STEP_NAME) not found in any file in workflow directory [.github]!${C_END}"
+
+        _log "${C_WHT}Searching for referenced workflows...${C_END}"
+        referenced_workflows=$(grep -hoPr '(?<=uses: ).*olxbr.*.github/workflows.*' ${GITHUB_WORKSPACE}/.github/* | uniq)
+
+        _log "${C_WHT}Referenced workflows:${C_END} ${referenced_workflows}"
+        for workflow in $referenced_workflows; do
+            echo "Processing referenced workflow: $workflow"
+
+            repo=$(echo "$workflow" | awk -F '/.github/' '{print $1}')
+            file=".github/$(echo "$workflow" | awk -F '/.github/' '{print $2}' | awk -F '@' '{print $1}')"
+            branch=$(echo "$workflow" | awk -F '@' '{print $2}')
+
+            content_file=$(_get_repository_contents "$repo" "$file" "$branch")
+
+            if [[ -n "$content_file" ]]; then
+                is_grep_found_step_name=$(grep -q "name:.*${UNIT_TEST_STEP_NAME}" <<<"$content_file" && echo true || echo false)
+                if [[ $is_grep_found_step_name == true ]]; then
+                    _log "${C_WHT}Step name ($UNIT_TEST_STEP_NAME) found!${C_END}"
+                    break
+                fi
+            fi
+
+        done
+
+        if [[ $is_grep_found_step_name == false ]]; then
+            message="Step name ($UNIT_TEST_STEP_NAME) not found in any file in workflow directory [.github]! Add it to your workflow to enable this gate."
+            _log warn "${C_YEL}${message}${C_END}"
+            _insert_warning_message unit_tests_warn_msg "⚠️ ${message}"
+        fi
+    fi
+}
+
 # Function to check unit tests
 function _check_unit_test() {
     skip_unit_tests=$(_has_gate_to_skip "unit_test")
     is_unit_tests_pass=false
     unit_tests_warn_msg=""
+    is_grep_found_step_name=false
 
-    ## Avoid waiting for unit test if not configured
-    is_grep_found_step_name=$(grep -qr "name:.*${UNIT_TEST_STEP_NAME}" ${GITHUB_WORKSPACE}/.github/* && echo true || echo false)
+    _check_unit_test_step
 
     _log debug "is_grep_found_step_name: ${is_grep_found_step_name}"
     _log debug "Directory used to search string (${UNIT_TEST_STEP_NAME}) was ${GITHUB_WORKSPACE}/.github"
