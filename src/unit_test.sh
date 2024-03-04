@@ -70,27 +70,33 @@ function _check_unit_test_step() {
         _log "${C_WHT}Searching for referenced workflows...${C_END}"
         referenced_workflows=$(grep -hoPr '(?<=uses: ).*olxbr.*.github/workflows.*' ${GITHUB_WORKSPACE}/.github/* | uniq)
 
-        for workflow in $referenced_workflows; do
-            _log "${C_WHT}Checking referenced workflow:${C_END} ${workflow}"
+        if [[ -n "$referenced_workflows" ]]; then
+            _log debug "${C_WHT}Referenced workflows:${C_END} ${referenced_workflows}"
 
-            repo=$(echo "$workflow" | awk -F '/.github/' '{print $1}')
-            file=".github/$(echo "$workflow" | awk -F '/.github/' '{print $2}' | awk -F '@' '{print $1}')"
-            branch=$(echo "$workflow" | awk -F '@' '{print $2}')
+            for workflow in $referenced_workflows; do
+                _log "${C_WHT}Checking referenced workflow:${C_END} ${workflow}"
 
-            _log debug "${C_WHT}Repo:${C_END} ${repo}"
-            _log debug "${C_WHT}File:${C_END} ${file}"
-            _log debug "${C_WHT}Branch:${C_END} ${branch}"
+                repo=$(echo "$workflow" | awk -F '/.github/' '{print $1}')
+                file=".github/$(echo "$workflow" | awk -F '/.github/' '{print $2}' | awk -F '@' '{print $1}')"
+                branch=$(echo "$workflow" | awk -F '@' '{print $2}')
 
-            content_file=$(_get_repository_contents "$repo" "$file" "$branch")
+                _log debug "${C_WHT}Repo:${C_END} ${repo}"
+                _log debug "${C_WHT}File:${C_END} ${file}"
+                _log debug "${C_WHT}Branch:${C_END} ${branch}"
 
-            if [[ -n "$content_file" ]]; then
-                is_grep_found_step_name=$(grep -q "name:.*${UNIT_TEST_STEP_NAME}" <<<"$content_file" && echo true || echo false)
-                if [[ $is_grep_found_step_name == true ]]; then
-                    _log "${C_WHT}Step name ($UNIT_TEST_STEP_NAME) found in referenced workflow!${C_END}"
-                    break
+                content_file=$(_get_repository_contents "$repo" "$file" "$branch")
+
+                if [[ -n "$content_file" ]]; then
+                    is_grep_found_step_name=$(grep -q "name:.*${UNIT_TEST_STEP_NAME}" <<<"$content_file" && echo true || echo false)
+                    if [[ $is_grep_found_step_name == true ]]; then
+                        _log "${C_WHT}Step name ($UNIT_TEST_STEP_NAME) found in referenced workflow!${C_END}"
+                        break
+                    fi
                 fi
-            fi
-        done
+            done
+        else
+            _log warn "${C_YEL}No referenced workflows found!${C_END}"
+        fi
     fi
 
     _log debug "is_grep_found_step_name: ${is_grep_found_step_name}"
