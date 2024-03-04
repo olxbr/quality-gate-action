@@ -86,7 +86,7 @@ function _check_unit_test_step() {
             if [[ -n "$content_file" ]]; then
                 is_grep_found_step_name=$(grep -q "name:.*${UNIT_TEST_STEP_NAME}" <<<"$content_file" && echo true || echo false)
                 if [[ $is_grep_found_step_name == true ]]; then
-                    _log "${C_WHT}Step name ($UNIT_TEST_STEP_NAME) found in referenced workflow [$workflow]!${C_END}"
+                    _log "${C_WHT}Step name ($UNIT_TEST_STEP_NAME) found in referenced workflow!${C_END}"
                     break
                 fi
             fi
