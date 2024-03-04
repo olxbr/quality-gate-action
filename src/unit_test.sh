@@ -69,9 +69,10 @@ function _check_unit_test_step() {
 
         _log "${C_WHT}Searching for referenced workflows...${C_END}"
         referenced_workflows=$(grep -hoPr '(?<=uses: ).*olxbr.*.github/workflows.*' ${GITHUB_WORKSPACE}/.github/* | uniq)
+        _log "${C_WHT}Referenced workflows:${C_END} ${referenced_workflows}"
 
         if [[ -n "$referenced_workflows" ]]; then
-            _log debug "${C_WHT}Referenced workflows:${C_END} ${referenced_workflows}"
+            _log debug "Referenced workflows: ${referenced_workflows}"
 
             for workflow in $referenced_workflows; do
                 _log "${C_WHT}Checking referenced workflow:${C_END} ${workflow}"
@@ -80,9 +81,9 @@ function _check_unit_test_step() {
                 file=".github/$(echo "$workflow" | awk -F '/.github/' '{print $2}' | awk -F '@' '{print $1}')"
                 branch=$(echo "$workflow" | awk -F '@' '{print $2}')
 
-                _log debug "${C_WHT}Repo:${C_END} ${repo}"
-                _log debug "${C_WHT}File:${C_END} ${file}"
-                _log debug "${C_WHT}Branch:${C_END} ${branch}"
+                _log debug "Repo: ${repo}"
+                _log debug "File: ${file}"
+                _log debug "Branch: ${branch}"
 
                 content_file=$(_get_repository_contents "$repo" "$file" "$branch")
 
