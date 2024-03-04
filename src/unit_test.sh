@@ -69,7 +69,6 @@ function _check_unit_test_step() {
 
         _log "${C_WHT}Searching for referenced workflows...${C_END}"
         referenced_workflows=$(grep -hoPr '(?<=uses: ).*olxbr.*.github/workflows.*' ${GITHUB_WORKSPACE}/.github/* || true | uniq)
-        _log "${C_WHT}Referenced workflows:${C_END} ${referenced_workflows}"
 
         if [[ -n "$referenced_workflows" ]]; then
             _log debug "Referenced workflows: ${referenced_workflows}"
