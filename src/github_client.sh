@@ -156,10 +156,7 @@ function _get_repository_contents() {
     contents=$(_gh_client \
         "/repos/$repo/contents/$file?ref=$branch" --jq '.content')
 
-    if [[ "$contents" =~ "message" ]]; then
-        _log warn "${C_YEL}Error getting file content:${C_END} $contents"
-        echo ""
-    else
+    if ! [[ "$contents" =~ "message" ]]; then
         echo "$contents" | base64 -d
     fi
 }
