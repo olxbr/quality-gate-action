@@ -157,7 +157,7 @@ function _get_repository_contents() {
         "/repos/$repo/contents/$file?ref=$branch" --jq '.content')
 
     if [[ "$contents" =~ "message" ]]; then
-        _log error "${C_YEL}Error getting file content:${C_END} $contents"
+        _log warn "${C_YEL}Error getting file content:${C_END} $contents"
         echo ""
     else
         echo "$contents" | base64 -d

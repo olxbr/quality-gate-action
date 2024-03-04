@@ -63,7 +63,7 @@ function _check_unit_test_step() {
     is_grep_found_step_name=$(grep -qr "name:.*${UNIT_TEST_STEP_NAME}" ${GITHUB_WORKSPACE}/.github/* && echo true || echo false)
 
     if [[ $is_grep_found_step_name == false ]]; then
-        _log warn "${C_WHT}Step name ($UNIT_TEST_STEP_NAME) not found in any file in workflow directory [.github]!${C_END}"
+        _log warn "${C_YEL}Step name ($UNIT_TEST_STEP_NAME) not found in any file in workflow directory [.github]!${C_END}"
 
         _log "${C_WHT}Searching for referenced workflows...${C_END}"
         referenced_workflows=$(grep -hoPr '(?<=uses: ).*olxbr.*.github/workflows.*' ${GITHUB_WORKSPACE}/.github/* | uniq)
