@@ -147,3 +147,16 @@ function _delete_pr_report_comment() {
             /repos/"$REPOSITORY"/issues/comments/"$comment_id"
     fi
 }
+
+function _get_repository_contents() {
+    local repo=$1
+    local file=$2
+    local branch=$3
+
+    contents=$(_gh_client \
+        "/repos/$repo/contents/$file?ref=$branch" --jq '.content')
+
+    if ! [[ "$contents" =~ "message" ]]; then
+        echo "$contents" | base64 -d
+    fi
+}
