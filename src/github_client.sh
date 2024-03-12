@@ -112,6 +112,36 @@ function _is_secret_scanning_disabled() {
     echo "$disabled"
 }
 
+function _get_dependabot_alerts_count_by_severity() {
+    alerts=$(_gh_client \
+        "/repos/$REPOSITORY/dependabot/alerts?state=open" |
+        jq -r 'group_by(.security_advisory.severity) | map({severity: .[0].security_advisory.severity, count: length})')
+
+    if [[ $(jq -r 'length' <<<"$alerts") -gt 0 ]]; then
+        echo "$alerts"
+    fi
+}
+
+function _get_code_scanning_alerts_count_by_severity() {
+    alerts=$(_gh_client \
+        "/repos/$REPOSITORY/code-scanning/alerts?state=open" |
+        jq -r 'group_by(.rule.security_severity_level) | map({severity: .[0].rule.security_severity_level, count: length})')
+
+    if [[ $(jq -r 'length' <<<"$alerts") -gt 0 ]]; then
+        echo "$alerts"
+    fi
+}
+
+function _get_secret_scanning_alerts_count() {
+    alerts=$(_gh_client \
+        "/repos/$REPOSITORY/secret-scanning/alerts?state=open" |
+        jq -r 'length')
+
+    if [ "$alerts" -gt 0 ]; then
+        echo "$alerts"
+    fi
+}
+
 function _get_pr_report_comment_id() {
     local comment_title="# Quality Gate"
 
