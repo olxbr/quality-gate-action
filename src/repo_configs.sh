@@ -86,13 +86,18 @@ function _check_code_review() {
 
 # Function to check vulnerabilites
 function _check_vulnerability_configs() {
+    local has_critical_alerts=false
     local vulnerability_pass=true
     local vulnerability_warn_msg=""
+    local vulnerability_alert_details=""
+    local vulnerability_total_count=0
+    local total_dependabot_alerts=0
+    local total_code_scanning_alerts=0
+    local total_secret_scanning_alerts=0
 
     if [[ $skip_vulnerability == false ]]; then
         _log "${C_WHT}Checking Vulnerability Configurations...${C_END}"
 
-        _log "${C_WHT}Checking Dependabot Alerts...${C_END}"
         is_dependabot_alerts_disabled=$(_is_dependabot_alerts_disabled)
         is_dependabot_security_updates_disabled=true
 
@@ -101,7 +106,6 @@ function _check_vulnerability_configs() {
             _insert_warning_message vulnerability_warn_msg "⚠️ Dependabot alerts is disabled!"
             vulnerability_pass=false
         else
-            _log "${C_WHT}Checking Dependabot Security Updates...${C_END}"
             is_dependabot_security_updates_disabled=$(_is_dependabot_security_updates_disabled)
         fi
 
@@ -111,28 +115,16 @@ function _check_vulnerability_configs() {
             vulnerability_pass=false
         fi
 
-        _log "${C_WHT}Checking GitHub Advanced Security...${C_END}"
         is_github_advanced_security_disabled=$(_is_github_advanced_security_disabled)
         is_secret_scanning_disabled=true
-        # is_code_scanning_tool_configured=false
 
         if [[ $is_github_advanced_security_disabled == true ]]; then
             _log warn "${C_YEL}GitHub Advanced Security is disabled!${C_END}"
             _insert_warning_message vulnerability_warn_msg "⚠️ GitHub Advanced Security is disabled!"
             vulnerability_pass=false
         else
-            # _log "${C_WHT}Checking Code Scanning Tool...${C_END}"
-            # is_code_scanning_tool_configured=$(_is_code_scanning_tool_configured)
-
-            _log "${C_WHT}Checking Secret Scanning...${C_END}"
             is_secret_scanning_disabled=$(_is_secret_scanning_disabled)
         fi
-
-        # if [[ $is_code_scanning_tool_configured == false ]]; then
-        #     _log warn "${C_YEL}Code Scanning tool is not configured!${C_END}"
-        #     _insert_warning_message vulnerability_warn_msg "⚠️ Code Scanning tool is not configured!"
-        #     vulnerability_pass=false
-        # fi
 
         if [[ $is_secret_scanning_disabled == true ]]; then
             _log warn "${C_YEL}Secret scanning is disabled!${C_END}"
@@ -140,14 +132,79 @@ function _check_vulnerability_configs() {
             vulnerability_pass=false
         fi
 
+        _log "${C_WHT}Checking Vulnerability Alerts...${C_END}"
+
+        if [[ $is_dependabot_alerts_disabled == false ]]; then
+            dependabot_alerts=$(_get_dependabot_alerts_count_by_severity)
+            _log debug "${C_WHT}[Dependabot Alerts] Result:${C_END} $dependabot_alerts"
+
+            if [[ -n $dependabot_alerts ]]; then
+                total_dependabot_alerts=$(jq -r '[.[].count] | add' <<<"$dependabot_alerts")
+                dependabot_alerts_content=$(jq -r 'map("\(.severity) `\(.count)`") | join(", ")' <<<"$dependabot_alerts")
+                has_critical_alerts=$(jq -r 'any(.[]; .severity == "critical")' <<<"$dependabot_alerts")
+                vulnerability_total_count=$((vulnerability_total_count + total_dependabot_alerts))
+
+                _log "${C_WHT}[Dependabot Alerts] Total:${C_END} $total_dependabot_alerts"
+                _log "${C_WHT}[Dependabot Alerts] Content:${C_END} $dependabot_alerts_content"
+                vulnerability_alert_details+="<li>**Dependabot Alerts:** $dependabot_alerts_content</li>"
+            fi
+        fi
+
+        if [[ $is_github_advanced_security_disabled == false ]]; then
+            code_scanning_alerts=$(_get_code_scanning_alerts_count_by_severity)
+            _log debug "${C_WHT}[Code Scanning Alerts] Result:${C_END} $code_scanning_alerts"
+
+            if [[ -n $code_scanning_alerts ]]; then
+                total_code_scanning_alerts=$(jq -r '[.[].count] | add' <<<"$code_scanning_alerts")
+                code_scanning_alerts_content=$(jq -r 'map("\(.severity) `\(.count)`") | join(", ")' <<<"$code_scanning_alerts")
+                has_critical_alerts=$(jq -r 'any(.[]; .severity == "critical")' <<<"$code_scanning_alerts")
+                vulnerability_total_count=$((vulnerability_total_count + total_code_scanning_alerts))
+
+                _log "${C_WHT}[Code Scanning Alerts] Total:${C_END} $total_code_scanning_alerts"
+                _log "${C_WHT}[Code Scanning Alerts] Content:${C_END} $code_scanning_alerts_content"
+                vulnerability_alert_details+="<li>**Code Scanning Alerts:** $code_scanning_alerts_content</li>"
+            fi
+        fi
+
+        if [[ $is_secret_scanning_disabled == false ]]; then
+            secret_scanning_alerts=$(_get_secret_scanning_alerts_count)
+            _log debug "${C_WHT}[Secret Scanning Alerts] Result:${C_END} $secret_scanning_alerts"
+
+            if [[ -n $secret_scanning_alerts ]]; then
+                total_secret_scanning_alerts=$secret_scanning_alerts
+                secret_scanning_alerts_content="\`$secret_scanning_alerts\`"
+                has_critical_alerts=true
+                vulnerability_total_count=$((vulnerability_total_count + secret_scanning_alerts))
+
+                _log "${C_WHT}[Secret Scanning Alerts] Total:${C_END} $total_secret_scanning_alerts"
+                _log "${C_WHT}[Secret Scanning Alerts] Content:${C_END} $secret_scanning_alerts_content"
+                vulnerability_alert_details+="<li>**Secret Scanning Alerts (critical):** $secret_scanning_alerts_content</li>"
+            fi
+        fi
+
     else
         _log warn "${C_YEL}Vulnerability check skipped!${C_END}"
         _insert_warning_message vulnerability_warn_msg "Vulnerability check skipped!"
     fi
 
+    if [[ -n $vulnerability_alert_details ]]; then
+        if [[ $has_critical_alerts == true ]]; then
+            _log warn "${C_YEL}Critical alerts found, resolve them to proceed!${C_END}"
+            _insert_warning_message vulnerability_warn_msg "⚠️ Critical alerts found, resolve them to proceed!"
+            vulnerability_pass=false
+        fi
+
+        _log "${C_WHT}Vulnerability Total Count:${C_END} $vulnerability_total_count"
+        msg="⚠️ Security \`$vulnerability_total_count\`<details><summary>Details</summary><ul>$vulnerability_alert_details</ul></details>"
+        vulnerability_warn_msg+="<br>$msg"
+    fi
+
     {
         echo "QUALITY_GATE__VULNERABILITY_PASS=$vulnerability_pass"
         echo "QUALITY_GATE__VULNERABILITY_WARN_MSGS=$vulnerability_warn_msg"
+        echo "QUALITY_GATE__VULNERABILITY_DEPENDABOT_ALERTS=$total_dependabot_alerts"
+        echo "QUALITY_GATE__VULNERABILITY_CODE_SCANNING_ALERTS=$total_code_scanning_alerts"
+        echo "QUALITY_GATE__VULNERABILITY_SECRET_SCANNING_ALERTS=$total_secret_scanning_alerts"
     } >>"$GITHUB_ENV"
 }
 
