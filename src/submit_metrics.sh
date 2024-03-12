@@ -61,6 +61,9 @@ DATA='{
     "quality_gate_vulnerability_pass": ${QUALITY_GATE__VULNERABILITY_PASS},
     "quality_gate_vulnerability_warn_msgs": "${QUALITY_GATE__VULNERABILITY_WARN_MSGS}",
     "quality_gate_vulnerability_skipped": ${QUALITY_GATE__VULNERABILITY_SKIPPED},
+    "quality_gate_vulnerability_dependabot_alerts": ${QUALITY_GATE__VULNERABILITY_DEPENDABOT_ALERTS},
+    "quality_gate_vulnerability_code_scanning_alerts": ${QUALITY_GATE__VULNERABILITY_CODE_SCANNING_ALERTS},
+    "quality_gate_vulnerability_secret_scanning_alerts": ${QUALITY_GATE__VULNERABILITY_SECRET_SCANNING_ALERTS},
     "quality_gate_pass": ${QUALITY_GATE__PASS}
 }'
 
