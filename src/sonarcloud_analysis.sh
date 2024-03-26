@@ -6,6 +6,7 @@ source "${ACTION_PATH}/src/sonarcloud_client.sh"
 
 export SONAR_PROJECT="${REPOSITORY/\//_}"
 export SONAR_CHECK_TIMEOUT="${SONAR_CHECK_TIMEOUT:-60}"
+export COVERAGE_THRESHOLD="${COVERAGE_THRESHOLD:-80}"
 
 # Function to update sonar project key from properties file if exists
 function _update_sonar_project_key() {
@@ -51,43 +52,48 @@ function _check_coverage() {
 
     if [[ $skip_coverage == false ]]; then
         _log "${C_WHT}Checking Coverage...${C_END}"
+        _log "${C_WHT}Threshold:${C_END} ${COVERAGE_THRESHOLD}%"
 
-        local metric_selected='.projectStatus.conditions[] | select(.metricKey == "new_coverage")'
-        local coverage_metrics=$(
-            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" 2>/dev/null ||
-                jq -er "${metric_selected}" <<<"$PROJECT_STATUS_DEFAULT_BRANCH" 2>/dev/null ||
-                echo ""
-        )
-        local coverage_status_from=$(
-            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" 2>/dev/null | grep -q '.' &&
-                echo "(🟢 metrics from Pull Request)" ||
-                echo "(🟡 metrics from Default Branch)"
-        )
+        local pull_request_coverage_value=$(_get_coverage_measure "pullRequest=$PR_NUMBER")
+        local default_branch_coverage_value=$(_get_coverage_measure "branch=$GITHUB_DEFAULT_BRANCH")
 
-        _log debug "${C_WHT}Project Status:${C_END} ${coverage_metrics}"
-        _log debug "${C_WHT}Coverage Status from:${C_END} ${coverage_status_from}"
+        _log "${C_WHT}Pull Request Coverage:${C_END} ${pull_request_coverage_value}%"
+        _log "${C_WHT}Default Branch Coverage:${C_END} ${default_branch_coverage_value}%"
 
-        if [[ -n $coverage_metrics ]]; then
-            local coverage_status=$(jq -r '.status' <<<"$coverage_metrics")
-            local coverage_value=$(jq -r '.actualValue' <<<"$coverage_metrics")
-            local coverage_threshold=$(jq -r '.errorThreshold' <<<"$coverage_metrics")
-
-            _log "${C_WHT}Coverage:${C_END} ${coverage_value}% ${coverage_status_from}"
-            _log "${C_WHT}Coverage Threshold:${C_END} ${coverage_threshold}% ${coverage_status_from}"
-
-            if [[ $coverage_status == "ERROR" ]]; then
-                _log warn "${C_YEL}Coverage is below threshold! ${coverage_status_from}${C_END}"
-                _insert_warning_message coverage_warn_msg "⚠️ Coverage is below threshold! ${coverage_status_from}"
-            else
-                coverage_passed=true
-            fi
-        else
+        if [[ -z $pull_request_coverage_value || -z $default_branch_coverage_value ]]; then
             _log warn "${C_YEL}Coverage metrics not found!${C_END}"
             _insert_warning_message coverage_warn_msg "⚠️ Coverage metrics not found!"
+        else
+            local coverage_value=$pull_request_coverage_value
+            local coverage_status="OK"
+
+            # Check if the coverage is decreasing
+            if (($(echo "$pull_request_coverage_value < $default_branch_coverage_value" | bc -l))); then
+                coverage_status="DECREASING"
+
+                # Check if the coverage is below the threshold
+                if (($(echo "$pull_request_coverage_value < $COVERAGE_THRESHOLD" | bc -l))); then
+                    coverage_status="BELOW_THRESHOLD"
+                fi
+            fi
+
+            if [[ $coverage_status == "OK" ]]; then
+                coverage_passed=true
+            else
+                local details="<details><summary>Details</summary><ul><li>Coverage Threshold: $COVERAGE_THRESHOLD%</li><li>Default Branch Coverage: $default_branch_coverage_value%</li><li>Pull Request Coverage: $pull_request_coverage_value%</li></ul></details>"
+
+                if [[ $coverage_status == "DECREASING" ]]; then
+                    _log warn "${C_YEL}Coverage is decreasing from $default_branch_coverage_value% to $pull_request_coverage_value%!${C_END}"
+                    _insert_warning_message coverage_warn_msg "⚠️ Coverage is decreasing, but still above the threshold!${details}"
+                    coverage_passed=true
+                fi
+
+                if [[ $coverage_status == "BELOW_THRESHOLD" ]]; then
+                    _log warn "${C_YEL}Coverage is below threshold ($COVERAGE_THRESHOLD%)!${C_END}"
+                    _insert_warning_message coverage_warn_msg "⚠️ Coverage is below threshold!${details}"
+                fi
+            fi
         fi
-
-        _log "${C_WHT}Coverage:${C_END} ${coverage_passed}"
-
     else
         _log warn "${C_YEL}Coverage check skipped!${C_END}"
         _insert_warning_message coverage_warn_msg "Coverage check skipped!"
@@ -98,7 +104,7 @@ function _check_coverage() {
         echo "QUALITY_GATE__COVERAGE_PASS=$coverage_passed"
         echo "QUALITY_GATE__COVERAGE_WARN_MSGS=$coverage_warn_msg"
         echo "QUALITY_GATE__COVERAGE_VALUE=$coverage_value"
-        echo "QUALITY_GATE__COVERAGE_THRESHOLD=$coverage_threshold"
+        echo "QUALITY_GATE__COVERAGE_THRESHOLD=$COVERAGE_THRESHOLD"
         echo "QUALITY_GATE__COVERAGE_STATUS=$coverage_status"
     } >>"$GITHUB_ENV"
 }
@@ -207,12 +213,8 @@ function _check_sonarcloud_analysis() {
             local sonarcloud_analysis_completed=false
             _retry_with_delay _check_sonarcloud_analysis_status "$SONAR_CHECK_TIMEOUT"
 
-            # Check results (Coverage and Static Analysis)
             if [[ $sonarcloud_analysis_completed ]]; then
-                ## Status from PR
                 export PROJECT_STATUS=$(_get_project_status "pullRequest=$PR_NUMBER")
-
-                ## Used when coverage is not found in PR branch
                 export PROJECT_STATUS_DEFAULT_BRANCH=$(_get_project_status "branch=$GITHUB_DEFAULT_BRANCH")
 
                 _check_coverage
