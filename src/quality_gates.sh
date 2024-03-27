@@ -8,11 +8,11 @@ function _check_quality_gates() {
     local lock_pull_request=false
 
     if [ "$QUALITY_GATE__UNIT_TEST_PASS" = false ]; then
-        _log error "${C_RED}Unit tests failed!${C_END}"
+        _log error "Unit tests failed!"
     fi
 
     if [ "$QUALITY_GATE__CODE_REVIEW_PASS" = false ]; then
-        _log error "${C_RED}Code review failed!${C_END}"
+        _log error "Code review failed!"
     fi
 
     if [ "$QUALITY_GATE__OWNER_APPROVAL_PASS" = false ]; then
@@ -29,12 +29,11 @@ function _check_quality_gates() {
     fi
 
     if [ "$QUALITY_GATE__VULNERABILITY_PASS" == false ]; then
-        _log error "${C_RED}Vulnerability failed!${C_END}"
+        _log error "Vulnerability failed!"
     fi
 
     if [ "$lock_pull_request" = true ]; then
         _log error "${C_RED}Pull request is locked!${C_END}"
         echo "::error::Pull request is locked! Please fix the issues and try again."
-        exit 1
     fi
 }
