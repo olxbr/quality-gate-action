@@ -3,7 +3,15 @@
 # shellcheck disable=SC1091
 source "${ACTION_PATH}"/src/utils.sh
 
+export SKIP_QUALITY_GATE_LOCK="${SKIP_QUALITY_GATE_LOCK:-false}"
+
 function _check_quality_gates() {
+    if [ "$SKIP_QUALITY_GATE_LOCK" = true ]; then
+        _log warn "${C_YEL}Skipping Quality Gate Locks!${C_END}"
+        echo "::warning::Skipping Quality Gate Locks!"
+        return
+    fi
+
     _log info "${C_WHT}Checking Quality Gates...${C_END}"
     local lock_pull_request=false
 
