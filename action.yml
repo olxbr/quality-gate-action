@@ -98,3 +98,9 @@ runs:
       run: |
         source ${{ env.ACTION_PATH }}/src/submit_metrics.sh
         _submit_metrics
+
+    - name: "Check Quality Gates"
+      shell: bash
+      run: |
+        source ${{ env.ACTION_PATH }}/src/quality_gates.sh
+        _check_quality_gates
