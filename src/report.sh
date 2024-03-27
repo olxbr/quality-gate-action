@@ -12,8 +12,8 @@ export DOCS_URL="${DOCS_URL:-}"
 # Function to return status badge configuration
 function _get_status_badge() {
     if [ "$QUALITY_GATE__UNIT_TEST_PASS" = true ] &&
-        [ "$QUALITY_GATE__CODE_REVIEW" = true ] &&
-        [ "$QUALITY_GATE__OWNER_APPROVAL" = true ] &&
+        [ "$QUALITY_GATE__CODE_REVIEW_PASS" = true ] &&
+        [ "$QUALITY_GATE__OWNER_APPROVAL_PASS" = true ] &&
         [ "$QUALITY_GATE__COVERAGE_PASS" == true ] &&
         [ "$QUALITY_GATE__STATIC_ANALYSIS_PASS" == true ] &&
         [ "$QUALITY_GATE__VULNERABILITY_PASS" == true ]; then
@@ -96,8 +96,8 @@ function _post_pr_comment() {
 # Function to send report
 function _send_report() {
     export QUALITY_GATE__UNIT_TEST_EMOJI=$(_get_emoji "$QUALITY_GATE__UNIT_TEST_PASS" "unit_test")
-    export QUALITY_GATE__CODE_REVIEW_EMOJI=$(_get_emoji "$QUALITY_GATE__CODE_REVIEW" "code_review")
-    export QUALITY_GATE__OWNER_APPROVAL_EMOJI=$(_get_emoji "$QUALITY_GATE__OWNER_APPROVAL" "owner_approval")
+    export QUALITY_GATE__CODE_REVIEW_EMOJI=$(_get_emoji "$QUALITY_GATE__CODE_REVIEW_PASS" "code_review")
+    export QUALITY_GATE__OWNER_APPROVAL_EMOJI=$(_get_emoji "$QUALITY_GATE__OWNER_APPROVAL_PASS" "owner_approval")
     export QUALITY_GATE__COVERAGE_EMOJI=$(_get_emoji "$QUALITY_GATE__COVERAGE_PASS" "coverage")
     export QUALITY_GATE__STATIC_ANALYSIS_EMOJI=$(_get_emoji "$QUALITY_GATE__STATIC_ANALYSIS_PASS" "static_analysis")
     export QUALITY_GATE__VULNERABILITY_EMOJI=$(_get_emoji "$QUALITY_GATE__VULNERABILITY_PASS" "vulnerability")
