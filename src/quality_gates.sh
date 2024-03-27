@@ -41,7 +41,6 @@ function _check_quality_gates() {
     fi
 
     if [ "$lock_pull_request" = true ]; then
-        _log error "${C_RED}Pull request is locked!${C_END}"
         echo "::error::Pull request is locked! Please fix the issues and try again."
         exit 1
     fi
