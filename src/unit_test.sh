@@ -35,8 +35,8 @@ function _check_unit_test_status() {
     quality_gate_step=$(_get_quality_gate_unit_test_step "$workflow_run_id")
     _log debug "${C_WHT}Quality Gate Step:${C_END} ${quality_gate_step}"
 
-    status=$(jq -r '.status' <<<"$quality_gate_step")
-    conclusion=$(jq -r '.conclusion' <<<"$quality_gate_step")
+    status=$(jq -r '.status' <<<"$quality_gate_step" | uniq)
+    conclusion=$(jq -r '.conclusion' <<<"$quality_gate_step" | uniq)
 
     if [[ $status == "completed" ]]; then
         succeeded=true
