@@ -57,3 +57,19 @@ function _get_project_status() {
     _log debug "${C_WHT}Return of execution:${C_END} ${project_status}"
     echo "$project_status"
 }
+
+function _get_coverage_measure() {
+    filter_parameter="$1"
+
+    coverage_cmd="curl -s -u '${SONAR_TOKEN}:' \
+        -d 'component=${SONAR_PROJECT}' \
+        -d 'metricKeys=coverage' \
+        -d '${filter_parameter}' \
+        https://sonarcloud.io/api/measures/component"
+
+    _log debug "${C_WHT}Executing command:${C_END} ${coverage_cmd}"
+    coverage=$(eval "${coverage_cmd}")
+
+    _log debug "${C_WHT}Return of execution:${C_END} ${coverage}"
+    echo "$coverage" | jq -r '.component.measures[0].value'
+}
