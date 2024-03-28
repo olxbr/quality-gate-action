@@ -36,7 +36,6 @@ function _check_quality_gates() {
 
     if [ "$SKIP_QUALITY_GATE_LOCK" = true ]; then
         _log warn "${C_YEL}Skipping Quality Gate Locks...${C_END}"
-        echo "::warning::Skipping Quality Gate Locks..."
     else
         if [ "$lock_pull_request" = true ]; then
             echo "::error::Pull Request is locked! Please fix the issues and try again."
