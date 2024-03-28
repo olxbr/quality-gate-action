@@ -134,3 +134,12 @@ function _convert_to_json_array() {
         echo "[]"
     fi
 }
+
+function _build_github_alert() {
+    # Usage: _build_github_alert "CAUTION" "This is a caution message"
+    # Types: NOTE, TIP, IMPORTANT, WARNING, CAUTION
+    local type=$1
+    local message=$2
+
+    echo "> [!$type]&#013; $message"
+}

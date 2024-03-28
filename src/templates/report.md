@@ -9,5 +9,7 @@
 | Static Analysis | ${QUALITY_GATE__STATIC_ANALYSIS_EMOJI} | ${QUALITY_GATE__STATIC_ANALYSIS_DESCRIPTION}|
 | Vulnerability   | ${QUALITY_GATE__VULNERABILITY_EMOJI}   | ${QUALITY_GATE__VULNERABILITY_DESCRIPTION}  |
 
+${QUALITY_GATE__LOCK_SKIPPED_MSG}
+
 > [!NOTE]
 > **To comply with the Quality Gates, consult this [documentation](${DOCS_URL}).**

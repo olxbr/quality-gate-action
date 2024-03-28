@@ -51,7 +51,7 @@ function _check_owner_approval() {
     fi
 
     {
-        echo "QUALITY_GATE__OWNER_APPROVAL=$is_required_owner_approval"
+        echo "QUALITY_GATE__OWNER_APPROVAL_PASS=$is_required_owner_approval"
         echo "QUALITY_GATE__OWNER_APPROVAL_WARN_MSGS=$required_owner_approval_warn_msg"
     } >>"$GITHUB_ENV"
 }
@@ -79,7 +79,7 @@ function _check_code_review() {
     fi
 
     {
-        echo "QUALITY_GATE__CODE_REVIEW=$is_required_code_review"
+        echo "QUALITY_GATE__CODE_REVIEW_PASS=$is_required_code_review"
         echo "QUALITY_GATE__CODE_REVIEW_WARN_MSGS=$required_code_review_warn_msg"
     } >>"$GITHUB_ENV"
 }
@@ -233,9 +233,9 @@ function _check_repo_configs() {
             message="No rules found for repository!"
             _log warn "${C_YEL}${message}${C_END}"
             {
-                echo "QUALITY_GATE__CODE_REVIEW=false"
+                echo "QUALITY_GATE__CODE_REVIEW_PASS=false"
                 echo "QUALITY_GATE__CODE_REVIEW_WARN_MSGS=⚠️ $message"
-                echo "QUALITY_GATE__OWNER_APPROVAL=false"
+                echo "QUALITY_GATE__OWNER_APPROVAL_PASS=false"
                 echo "QUALITY_GATE__OWNER_APPROVAL_WARN_MSGS=⚠️ $message"
             } >>"$GITHUB_ENV"
         fi
@@ -245,9 +245,9 @@ function _check_repo_configs() {
     else
         _log warn "${C_YEL}Repository Configurations check skipped!${C_END}"
         {
-            echo "QUALITY_GATE__CODE_REVIEW=true"
+            echo "QUALITY_GATE__CODE_REVIEW_PASS=true"
             echo "QUALITY_GATE__CODE_REVIEW_WARN_MSGS=Code Review check skipped!"
-            echo "QUALITY_GATE__OWNER_APPROVAL=true"
+            echo "QUALITY_GATE__OWNER_APPROVAL_PASS=true"
             echo "QUALITY_GATE__OWNER_APPROVAL_WARN_MSGS=Owner Approval check skipped!"
             echo "QUALITY_GATE__VULNERABILITY_PASS=true"
             echo "QUALITY_GATE__VULNERABILITY_WARN_MSGS=Vulnerability check skipped!"
