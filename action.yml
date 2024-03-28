@@ -35,12 +35,8 @@ inputs:
     required: true
   coverage_threshold:
     description: "The minimum acceptable coverage threshold"
-    required: false
-    default: 80
   skip-quality-gate-lock:
     description: "Skip the Quality Gates Lock"
-    required: false
-    default: false
 
 runs:
   using: "composite"
