@@ -35,7 +35,7 @@ inputs:
     required: true
   coverage_threshold:
     description: "The minimum acceptable coverage threshold"
-  skip-quality-gate-lock:
+  skip_quality_gate_lock:
     description: "Skip the Quality Gate Lock"
 
 runs:
