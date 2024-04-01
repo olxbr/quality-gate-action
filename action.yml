@@ -33,6 +33,10 @@ inputs:
   gh_metrics_server_endpoint:
     description: "The endpoint of the GitHub metrics server"
     required: true
+  coverage_threshold:
+    description: "The minimum acceptable coverage threshold"
+  skip_quality_gate_lock:
+    description: "Skip the Quality Gate Lock"
 
 runs:
   using: "composite"
@@ -56,6 +60,8 @@ runs:
         echo "SONAR_CHECK_TIMEOUT=${{ inputs.sonar_check_timeout }}" >> $GITHUB_ENV
         echo "UNIT_TEST_CHECK_TIMEOUT=${{ inputs.unit_test_check_timeout }}" >> $GITHUB_ENV
         echo "UNIT_TEST_INIT_WAIT_TIMEOUT=${{ inputs.unit_test_init_wait_timeout }}" >> $GITHUB_ENV
+        echo "COVERAGE_THRESHOLD=${{ inputs.coverage_threshold }}" >> $GITHUB_ENV
+        echo "SKIP_QUALITY_GATE_LOCK=${{ inputs.skip_quality_gate_lock }}" >> $GITHUB_ENV
 
     - name: "Log Skip Gates Configuration"
       if: ${{ inputs.gates_to_skip != '' }}
@@ -93,3 +99,9 @@ runs:
       run: |
         source ${{ env.ACTION_PATH }}/src/submit_metrics.sh
         _submit_metrics
+
+    - name: "Check Quality Gates"
+      shell: bash
+      run: |
+        source ${{ env.ACTION_PATH }}/src/quality_gates.sh
+        _check_quality_gates

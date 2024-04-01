@@ -12,8 +12,8 @@ export DOCS_URL="${DOCS_URL:-}"
 # Function to return status badge configuration
 function _get_status_badge() {
     if [ "$QUALITY_GATE__UNIT_TEST_PASS" = true ] &&
-        [ "$QUALITY_GATE__CODE_REVIEW" = true ] &&
-        [ "$QUALITY_GATE__OWNER_APPROVAL" = true ] &&
+        [ "$QUALITY_GATE__CODE_REVIEW_PASS" = true ] &&
+        [ "$QUALITY_GATE__OWNER_APPROVAL_PASS" = true ] &&
         [ "$QUALITY_GATE__COVERAGE_PASS" == true ] &&
         [ "$QUALITY_GATE__STATIC_ANALYSIS_PASS" == true ] &&
         [ "$QUALITY_GATE__VULNERABILITY_PASS" == true ]; then
@@ -36,8 +36,13 @@ function _get_emoji() {
     else
         echo -e "\xE2\x9D\x8C"
     fi
+}
 
-    # "\xE2\x9A\xA0\xEF\xB8\x8F"
+# Function to return Quality Gate Locks Skipped message
+function _get_lock_skipped_msg() {
+    if [ "$SKIP_QUALITY_GATE_LOCK" = true ]; then
+        echo $(_build_github_alert "CAUTION" "**Quality Gate Locks** manually disabled by registering the **SKIP_QUALITY_GATE_LOCK** variable!")
+    fi
 }
 
 # Function to log results
@@ -96,8 +101,8 @@ function _post_pr_comment() {
 # Function to send report
 function _send_report() {
     export QUALITY_GATE__UNIT_TEST_EMOJI=$(_get_emoji "$QUALITY_GATE__UNIT_TEST_PASS" "unit_test")
-    export QUALITY_GATE__CODE_REVIEW_EMOJI=$(_get_emoji "$QUALITY_GATE__CODE_REVIEW" "code_review")
-    export QUALITY_GATE__OWNER_APPROVAL_EMOJI=$(_get_emoji "$QUALITY_GATE__OWNER_APPROVAL" "owner_approval")
+    export QUALITY_GATE__CODE_REVIEW_EMOJI=$(_get_emoji "$QUALITY_GATE__CODE_REVIEW_PASS" "code_review")
+    export QUALITY_GATE__OWNER_APPROVAL_EMOJI=$(_get_emoji "$QUALITY_GATE__OWNER_APPROVAL_PASS" "owner_approval")
     export QUALITY_GATE__COVERAGE_EMOJI=$(_get_emoji "$QUALITY_GATE__COVERAGE_PASS" "coverage")
     export QUALITY_GATE__STATIC_ANALYSIS_EMOJI=$(_get_emoji "$QUALITY_GATE__STATIC_ANALYSIS_PASS" "static_analysis")
     export QUALITY_GATE__VULNERABILITY_EMOJI=$(_get_emoji "$QUALITY_GATE__VULNERABILITY_PASS" "vulnerability")
@@ -110,7 +115,7 @@ function _send_report() {
     export QUALITY_GATE__VULNERABILITY_DESCRIPTION=${QUALITY_GATE__VULNERABILITY_WARN_MSGS:-"Passed!"}
 
     export STATUS_BADGE=$(_get_status_badge)
-
+    export QUALITY_GATE__LOCK_SKIPPED_MSG=$(_get_lock_skipped_msg)
     export REPORT_TEMPLATE=$(cat "${ACTION_PATH}/src/templates/report.md")
 
     _log_results
