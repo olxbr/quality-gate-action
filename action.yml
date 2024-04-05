@@ -3,12 +3,15 @@ description: "This action will check the quality gate of the project"
 inputs:
   github_token:
     description: "The GitHub token for the repository"
+    type: string
     required: true
   sonar_token:
     description: "The SonarCloud token for the repository"
+    type: string
     required: true
   docs_url:
     description: "The URL of the documentation"
+    type: string
     required: false
     default: ""
   sonar_check_timeout:
@@ -28,15 +31,21 @@ inputs:
     default: 30
   gates_to_skip:
     description: "The gates to skip (code_review, coverage, owner_approval, static_analysis, unit_test)"
+    type: string
     required: false
     default: ""
   gh_metrics_server_endpoint:
     description: "The endpoint of the GitHub metrics server"
+    type: string
     required: true
   coverage_threshold:
     description: "The minimum acceptable coverage threshold"
+    type: integer
+    default: 30
   skip_quality_gate_lock:
     description: "Skip the Quality Gate Lock"
+    type: boolean
+    default: false
 
 runs:
   using: "composite"
@@ -61,7 +70,7 @@ runs:
         echo "UNIT_TEST_CHECK_TIMEOUT=${{ inputs.unit_test_check_timeout }}" >> $GITHUB_ENV
         echo "UNIT_TEST_INIT_WAIT_TIMEOUT=${{ inputs.unit_test_init_wait_timeout }}" >> $GITHUB_ENV
         echo "COVERAGE_THRESHOLD=${{ inputs.coverage_threshold }}" >> $GITHUB_ENV
-        echo "SKIP_QUALITY_GATE_LOCK=${{ inputs.skip_quality_gate_lock }}" >> $GITHUB_ENV
+        echo "SKIP_QUALITY_GATE_LOCK=${{ inputs.skip_quality_gate_lock && 'true' || 'false' }}" >> $GITHUB_ENV
 
     - name: "Log Skip Gates Configuration"
       if: ${{ inputs.gates_to_skip != '' }}
