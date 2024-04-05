@@ -45,7 +45,7 @@ inputs:
   skip_quality_gate_lock:
     description: "Skip the Quality Gate Lock"
     type: string
-    default: false
+    default: "false"
 
 runs:
   using: "composite"
