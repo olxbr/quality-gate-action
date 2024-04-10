@@ -45,3 +45,7 @@ The result will be shown as a log of the action execution, as a summary in actio
 ![image](https://github.com/olxbr/quality-gate-action/assets/4138825/32b030b9-a8ba-41f4-96da-df7e5a031bdc)
 
 ![image](https://github.com/olxbr/quality-gate-action/assets/4138825/67810ffd-14df-48ae-883e-fbf403c28b19)
+
+## Metrics Collected to DataLake
+
+The definition of the metrics sent to Datalake can be found in the [METRICS.md](./docs/METRICS.md) file.
