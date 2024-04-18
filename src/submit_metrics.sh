@@ -69,7 +69,6 @@ PAYLOAD='{
     "quality_gate_vulnerability_secret_scanning_alerts": ${QUALITY_GATE__VULNERABILITY_SECRET_SCANNING_ALERTS}, ## long | Github secret scanning alerts for the repository
     "quality_gate_pass": ${QUALITY_GATE__PASS}, ## boolean | Indicates if all quality gates have been passed
     "quality_gate_skip_lock": ${SKIP_QUALITY_GATE_LOCK} ## boolean | Indicates if pull request locking by not passing quality gates has been skipped
-    "JEFF_NEW_COLUMN": ${something amazing} ## String | A beatiful string
 }'
 
 # Remove comments from payload
