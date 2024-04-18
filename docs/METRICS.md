@@ -1,0 +1,47 @@
+# Quality Gates Metrics
+Definition of metrics sent to Datalake.
+
+| Field | Type | Description |
+| ----- | ---- |------------ |
+| **repository_id** | `long` | Repository ID
+| **repository_name** | `string` | Repository name
+| **repository_full_name** | `string` | Repository full name (org/repo)
+| **workflow_job_run_attempt** | `long` | Quality Gates workflow execution attempts
+| **pull_request_id** | `long` | Pull request ID
+| **pull_request_number** | `long` | Pull request number
+| **pull_request_created_at** | `long` | Pull request created at (timestamp)
+| **pull_request_commits** | `long` | Number of pull request commits
+| **pull_request_additions** | `long` | Number of pull request additions
+| **pull_request_deletions** | `long` | Number of pull request deletions
+| **pull_request_changed_files** | `long` | Number of pull request changed files
+| **quality_gates_to_skip_str** | `string` | String with all gates skipped, registered as a repository variable 
+| **quality_gates_to_skip_arr** | `array[string]` | Same as GATES_TO_SKIP, but as an array
+| **quality_gate_owner_approval** | `boolean` | Indicates if owner approval has been configured and passed successfully
+| **quality_gate_owner_approval_warn_msgs** | `string` | Alert messages indicating reasons why the gate was not passed or was passed with reservations
+| **quality_gate_code_review** | `boolean` | Indicates if code review has been configured and passed successfully
+| **quality_gate_code_review_warn_msgs** | `string` | Alert messages indicating reasons why the gate was not passed or was passed with reservations
+| **quality_gate_unit_test_pass** | `boolean` | Indicates if unit test has been configured and passed successfully
+| **quality_gate_unit_test_warn_msgs** | `string` | Alert messages indicating reasons why the gate was not passed or was passed with reservations
+| **quality_gate_unit_test_skipped** | `boolean` | Indicates if unit test has been skipped
+| **quality_gate_coverage_pass** | `boolean` | Indicates if coverage has been configured and passed successfully
+| **quality_gate_coverage_warn_msgs** | `string` | Alert messages indicating reasons why the gate was not passed or was passed with reservations
+| **quality_gate_coverage_threshold** | `long` | The minimum acceptable value defined for all repositories (When we have repository criticality, we will have this value different for each criticality)
+| **quality_gate_coverage_value** | `long` | The quality gate coverage actual value
+| **quality_gate_coverage_status** | `string` | Indicates the status of the coverage gate in relation to the current coverage of the default branch and the threshold.<br><br>We currently have 3 statuses:<ul><li>`OK` - Everything as expected (coverage equal to or above the default branch)</li><li>`DECREASING` - Coverage has decreased compared to what we have in the default branch</li><li>`BELOW_THRESHOLD` - It is below the minimum acceptable value</li></ul>
+| **quality_gate_coverage_skipped** | `boolean` | Indicates if coverage has been skipped
+| **quality_gate_static_analysis_pass** | `boolean` | Indicates if static analysis has been configured and passed successfully
+| **quality_gate_static_analysis_warn_msgs** | `string` | Alert messages indicating reasons why the gate was not passed or was passed with reservations
+| **quality_gate_static_analysis_threshold** | `long` | ⚠️ Warning! This metric is wrong! It is the last threshold from a list of static analysis metrics. It must be removed or fixed.
+| **quality_gate_static_analysis_value** | `long` | ⚠️ Warning! This metric is wrong! It is the last value from a list of static analysis metrics. It must be removed or fixed.
+| **quality_gate_static_analysis_status** | `string` | ⚠️ Warning! This metric is wrong! It is the last status from a list of static analysis metrics. It must be removed or fixed.
+| **quality_gate_static_analysis_skipped** | `boolean` | Indicates if static analysis has been skipped
+| **quality_gate_vulnerability_pass** | `boolean` | Indicates if `Security and Code Analysis` has been configured and the vulnerability gate has been passed successfully
+| **quality_gate_vulnerability_warn_msgs** | `string` | Alert messages indicating reasons why the gate was not passed or was passed with reservations
+| **quality_gate_vulnerability_skipped** | `boolean` | Indicates if vulnerability has been skipped
+| **quality_gate_vulnerability_dependabot_alerts** | `long` | Github dependabot alerts for the repository
+| **quality_gate_vulnerability_code_scanning_alerts** | `long` | Github code scanning alerts for the repository
+| **quality_gate_vulnerability_secret_scanning_alerts** | `long` | Github secret scanning alerts for the repository
+| **quality_gate_pass** | `boolean` | Indicates if all quality gates have been passed
+| **quality_gate_skip_lock** | `boolean` | Indicates if pull request locking by not passing quality gates has been skipped
+---
+> Automatically generated from `src/submit_metrics.sh` file, with `scripts/generate_metrics_doc.sh` script.
