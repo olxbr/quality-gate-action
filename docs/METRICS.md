@@ -43,6 +43,5 @@ Definition of metrics sent to Datalake.
 | **quality_gate_vulnerability_secret_scanning_alerts** | `long` | Github secret scanning alerts for the repository
 | **quality_gate_pass** | `boolean` | Indicates if all quality gates have been passed
 | **quality_gate_skip_lock** | `boolean` | Indicates if pull request locking by not passing quality gates has been skipped
-| **JEFF_NEW_COLUMN** | `String` | A beatiful string
 ---
 > Automatically generated from `src/submit_metrics.sh` file, with `scripts/generate_metrics_doc.sh` script.
