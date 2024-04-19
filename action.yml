@@ -18,12 +18,12 @@ inputs:
     description: "The timeout in minutes for the SonarCloud check"
     type: integer
     required: false
-    default: 60
+    default: 45
   unit_test_check_timeout:
     description: "The timeout in minutes for the unit test check"
     type: integer
     required: false
-    default: 60
+    default: 45
   unit_test_init_wait_timeout:
     description: "The wait time in minutes for the unit test init"
     type: integer
