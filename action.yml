@@ -18,17 +18,14 @@ inputs:
     description: "The timeout in minutes for the SonarCloud check"
     type: integer
     required: false
-    default: 45
   unit_test_check_timeout:
     description: "The timeout in minutes for the unit test check"
     type: integer
     required: false
-    default: 45
   unit_test_init_wait_timeout:
     description: "The wait time in minutes for the unit test init"
     type: integer
     required: false
-    default: 30
   gates_to_skip:
     description: "The gates to skip (code_review, coverage, owner_approval, static_analysis, unit_test)"
     type: string
@@ -41,7 +38,6 @@ inputs:
   coverage_threshold:
     description: "The minimum acceptable coverage threshold"
     type: integer
-    default: 30
   skip_quality_gate_lock:
     description: "Skip the Quality Gate Lock"
     type: boolean
@@ -66,10 +62,10 @@ runs:
         echo "PR_NUMBER=${{ github.event.number }}" >> $GITHUB_ENV
         echo "REPOSITORY=${{ github.repository }}" >> $GITHUB_ENV
         echo "SONAR_TOKEN=${{ inputs.sonar_token }}" >> $GITHUB_ENV
-        echo "SONAR_CHECK_TIMEOUT=${{ inputs.sonar_check_timeout }}" >> $GITHUB_ENV
-        echo "UNIT_TEST_CHECK_TIMEOUT=${{ inputs.unit_test_check_timeout }}" >> $GITHUB_ENV
-        echo "UNIT_TEST_INIT_WAIT_TIMEOUT=${{ inputs.unit_test_init_wait_timeout }}" >> $GITHUB_ENV
-        echo "COVERAGE_THRESHOLD=${{ inputs.coverage_threshold }}" >> $GITHUB_ENV
+        echo "SONAR_CHECK_TIMEOUT=${{ inputs.sonar_check_timeout != '' && inputs.sonar_check_timeout || 45 }}" >> $GITHUB_ENV
+        echo "UNIT_TEST_CHECK_TIMEOUT=${{ inputs.unit_test_check_timeout != '' && inputs.unit_test_check_timeout || 45}}" >> $GITHUB_ENV
+        echo "UNIT_TEST_INIT_WAIT_TIMEOUT=${{ inputs.unit_test_init_wait_timeout != '' && inputs.unit_test_init_wait_timeout || 15 }}" >> $GITHUB_ENV
+        echo "COVERAGE_THRESHOLD=${{ inputs.coverage_threshold != '' && inputs.coverage_threshold || 30 }}" >> $GITHUB_ENV
         echo "SKIP_QUALITY_GATE_LOCK=${{ inputs.skip_quality_gate_lock && 'true' || 'false' }}" >> $GITHUB_ENV
 
     - name: "Log Skip Gates Configuration"

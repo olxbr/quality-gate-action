@@ -5,8 +5,6 @@ source "${ACTION_PATH}/src/utils.sh"
 source "${ACTION_PATH}/src/sonarcloud_client.sh"
 
 export SONAR_PROJECT="${REPOSITORY/\//_}"
-export SONAR_CHECK_TIMEOUT="${SONAR_CHECK_TIMEOUT:-60}"
-export COVERAGE_THRESHOLD="${COVERAGE_THRESHOLD:-80}"
 
 # Function to update sonar project key from properties file if exists
 function _update_sonar_project_key() {
