@@ -4,7 +4,6 @@
 source "${ACTION_PATH}"/src/utils.sh
 source "${ACTION_PATH}"/src/github_client.sh
 
-export GH_TOKEN=${GITHUB_TOKEN}
 export REPOSITORY=${GITHUB_REPOSITORY}
 
 # Function to validate if CODEOWNERS file exists
