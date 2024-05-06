@@ -80,7 +80,7 @@ DATA=$(envsubst <<<"$DATA")
 # Send data to endpoint
 CURL_LOG="curl.log"
 CURL_ERR="curl.err"
-CURL_CMD="curl -sv --connect-timeout 5 --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' '$ENDPOINT_URL' -d '$DATA' -o ${CURL_LOG} 2> ${CURL_ERR}"
+CURL_CMD="curl -svL --connect-timeout 5 --write-out '%{http_code}' -X POST -H 'Content-Type: application/json' '$ENDPOINT_URL' -d '$DATA' -o ${CURL_LOG} 2> ${CURL_ERR}"
 
 ## MAIN ##
 function _submit_metrics() {

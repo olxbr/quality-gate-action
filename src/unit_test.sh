@@ -5,7 +5,6 @@ source "${ACTION_PATH}/src/utils.sh"
 source "${ACTION_PATH}/src/github_client.sh"
 
 export UNIT_TEST_STEP_NAME="Quality Gate - Unit Test"
-export UNIT_TEST_CHECK_TIMEOUT="${UNIT_TEST_CHECK_TIMEOUT:-60}"
 
 # Function to get the workflow run ID containing the unit test step
 function _get_workflow_run_id() {
