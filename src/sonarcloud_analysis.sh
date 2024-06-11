@@ -161,7 +161,7 @@ function _check_static_analysis() {
     local static_analysis_pass=true
     local static_analysis_warn_msg=""
     local static_analysis_details=""
-    local static_analysis_metrics_summary=""
+    local static_analysis_metrics_summary="[]"
 
     if [[ $skip_static_analysis == false ]]; then
         _log "${C_WHT}Checking Static Analysis...${C_END}"
@@ -202,6 +202,9 @@ function _check_static_analysis() {
                 metric_value=$(_format_metric_value "$metric_key" "$metric_value")
                 metric_threshold=$(_format_metric_value "$metric_key" "$metric_threshold")
 
+                # Substitute actualValue and errorThreshold with formatted values
+                metric=$(jq --arg mv "$metric_value" --arg mt "$metric_threshold" '.actualValue = $mv | .errorThreshold = $mt' <<<"$metric")
+
                 local log_msg="${C_WHT}Metric:${C_END} ${metric_key}, ${C_WHT}Value:${C_END} ${metric_value}, ${C_WHT}Threshold:${C_END} ${metric_threshold}"
 
                 if [[ $metric_status == "ERROR" ]]; then
@@ -211,18 +214,33 @@ function _check_static_analysis() {
                 else
                     _log "${log_msg}"
                 fi
+
+                local metric_definition=$(jq -r ".[] | select(.key == \"${metric_key}\")" <<<"$METRICS")
+
+                # Create consolidated metric
+                local consolidated_metric=$(jq -n --argjson m "$metric" --argjson md "$metric_definition" \
+                    '{
+                        status: $m.status,
+                        metricKey: $m.metricKey,
+                        name: $md.name,
+                        type: $md.type,
+                        comparator: $m.comparator,
+                        errorThreshold: $m.errorThreshold,
+                        actualValue: $m.actualValue
+                    }')
+
+                # Add consolidated metric to summary
+                static_analysis_metrics_summary=$(jq --argjson cm "$consolidated_metric" '. += [$cm]' <<<"$static_analysis_metrics_summary")
             done
 
             _log debug "${C_WHT}Static Analysis Details:${C_END} ${static_analysis_details}"
+            _log debug "${C_WHT}Static Analysis Metrics Summary:${C_END} ${static_analysis_metrics_summary}"
 
             if [[ -n $static_analysis_details ]]; then
                 static_analysis_details="<details><summary>Details</summary><ul>$static_analysis_details</ul></details>"
                 static_analysis_warn_msg="⚠️ Static Analysis metrics do not comply with the threshold!$static_analysis_details"
                 static_analysis_pass=false
             fi
-
-            static_analysis_metrics_summary=""
-
         else
             _log warn "${C_YEL}Static Analysis metrics not found!${C_END}"
             _insert_warning_message static_analysis_warn_msg "⚠️ Static Analysis metrics not found!"
@@ -236,9 +254,7 @@ function _check_static_analysis() {
     {
         echo "QUALITY_GATE__STATIC_ANALYSIS_PASS=$static_analysis_pass"
         echo "QUALITY_GATE__STATIC_ANALYSIS_WARN_MSGS=$static_analysis_warn_msg"
-
-        #TODO fix this
-        #echo "QUALITY_GATE__STATIC_ANALYSIS_METRICS=$metric_value"
+        echo "QUALITY_GATE__STATIC_ANALYSIS_METRICS=$static_analysis_metrics_summary"
     } >>"$GITHUB_ENV"
 }
 
