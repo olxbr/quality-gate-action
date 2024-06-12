@@ -230,11 +230,11 @@ function _check_static_analysis() {
                     }')
 
                 # Add consolidated metric to summary
-                static_analysis_metrics_summary=$(jq --argjson cm "$consolidated_metric" '. += [$cm]' <<<"$static_analysis_metrics_summary")
+                static_analysis_metrics_summary=$(jq -c --argjson cm "$consolidated_metric" '. += [$cm]' <<<"$static_analysis_metrics_summary")
             done
 
             _log debug "${C_WHT}Static Analysis Details:${C_END} ${static_analysis_details}"
-            _log debug "${C_WHT}Static Analysis Metrics Summary:${C_END} ${static_analysis_metrics_summary}"
+            _log debug "${C_WHT}Static Analysis Metrics Summary:${C_END} $(jq -r <<<"$static_analysis_metrics_summary")"
 
             if [[ -n $static_analysis_details ]]; then
                 static_analysis_details="<details><summary>Details</summary><ul>$static_analysis_details</ul></details>"
