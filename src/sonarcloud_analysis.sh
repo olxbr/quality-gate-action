@@ -221,12 +221,12 @@ function _check_static_analysis() {
                 local consolidated_metric=$(jq -n --argjson m "$metric" --argjson md "$metric_definition" \
                     '{
                         status: $m.status,
-                        metricKey: $m.metricKey,
+                        metric_key: $m.metricKey,
                         name: $md.name,
                         type: $md.type,
                         comparator: $m.comparator,
-                        errorThreshold: $m.errorThreshold,
-                        actualValue: $m.actualValue
+                        error_threshold: $m.errorThreshold,
+                        actual_value: $m.actualValue
                     }')
 
                 # Add consolidated metric to summary
