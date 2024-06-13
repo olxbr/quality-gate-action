@@ -24,7 +24,7 @@ export GATES_TO_SKIP_ARR=$(_convert_to_json_array "${GATES_TO_SKIP:-}")
 
 # Set "empty structure" for static analysis metrics when it's empty because it's required by DataLake
 if [[ -z $QUALITY_GATE__STATIC_ANALYSIS_METRICS || $(jq 'length' <<<"$QUALITY_GATE__STATIC_ANALYSIS_METRICS") -eq 0 ]]; then
-    export QUALITY_GATE__STATIC_ANALYSIS_METRICS='[{"status":"","metric_key":"","name":"","type":"","comparator":"","error_threshold":"","actual_value":""}]"'
+    export QUALITY_GATE__STATIC_ANALYSIS_METRICS='[{"status":"","metric_key":"","name":"","type":"","comparator":"","error_threshold":"","actual_value":""}]'
 fi
 
 ENDPOINT_URL="${GH_METRICS_SERVER_ENDPOINT}/quality-gates/required-workflow"
