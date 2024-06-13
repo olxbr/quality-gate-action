@@ -73,3 +73,15 @@ function _get_coverage_measure() {
     _log debug "${C_WHT}Return of execution:${C_END} ${coverage}"
     echo "$coverage" | jq -r '.component.measures[0].value'
 }
+
+function _get_metrics() {
+    metrics_cmd="curl -s -u '${SONAR_TOKEN}:' \
+        -d 'ps=500' \
+        https://sonarcloud.io/api/metrics/search"
+
+    _log debug "${C_WHT}Executing command:${C_END} ${metrics_cmd}"
+    metrics=$(eval "${metrics_cmd}")
+
+    _log debug "${C_WHT}Return of execution:${C_END} ${metrics}"
+    echo "$metrics" | jq -r '.metrics'
+}

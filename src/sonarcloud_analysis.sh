@@ -6,6 +6,55 @@ source "${ACTION_PATH}/src/sonarcloud_client.sh"
 
 export SONAR_PROJECT="${REPOSITORY/\//_}"
 
+# Function to format metric value
+function _format_metric_value() {
+    local metric_key=$1
+    local metric_value=$2
+    local metric_type=""
+
+    metric_type=$(jq -r ".[] | select(.key == \"${metric_key}\") | .type" <<<"$METRICS")
+
+    case "$metric_type" in
+    "PERCENT")
+        metric_value=$(printf "%.1f" "${metric_value}" | sed 's/\.0*$//')%
+        ;;
+    "RATING")
+        case "$metric_value" in
+        "1")
+            metric_value="A"
+            ;;
+        "2")
+            metric_value="B"
+            ;;
+        "3")
+            metric_value="C"
+            ;;
+        "4")
+            metric_value="D"
+            ;;
+        "5")
+            metric_value="E"
+            ;;
+        esac
+        ;;
+    "WORK_DUR")
+        metric_value="${metric_value}min"
+        ;;
+    esac
+
+    echo "$metric_value"
+}
+
+# Function to get metric name
+function _get_metric_name() {
+    local metric_key=$1
+    local metric_name=""
+
+    metric_name=$(jq -r ".[] | select(.key == \"${metric_key}\") | .name" <<<"$METRICS")
+
+    echo "$metric_name"
+}
+
 # Function to update sonar project key from properties file if exists
 function _update_sonar_project_key() {
     local config_file="sonar-project.properties"
@@ -109,63 +158,103 @@ function _check_coverage() {
 
 # Function to check Static Analysis
 function _check_static_analysis() {
-    local static_analysis_pass=false
+    local static_analysis_pass=true
     local static_analysis_warn_msg=""
+    local static_analysis_details=""
+    local static_analysis_metrics_summary="[]"
 
     if [[ $skip_static_analysis == false ]]; then
         _log "${C_WHT}Checking Static Analysis...${C_END}"
 
+        local project_status=$(_get_project_status "pullRequest=$PR_NUMBER")
+        local project_status_default_branch=$(_get_project_status "branch=$GITHUB_DEFAULT_BRANCH")
+
         local metric_selected='.projectStatus.conditions[] | select(.metricKey != "new_coverage")'
         local static_analysis_metrics=$(
-            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" 2>/dev/null ||
-                jq -er "${metric_selected}" <<<"$PROJECT_STATUS_DEFAULT_BRANCH" 2>/dev/null ||
+            jq -er "${metric_selected}" <<<"$project_status" 2>/dev/null ||
+                jq -er "${metric_selected}" <<<"$project_status_default_branch" 2>/dev/null ||
                 echo ""
         )
         local static_analysis_from=$(
-            jq -er "${metric_selected}" <<<"$PROJECT_STATUS" 2>/dev/null | grep -q '.' &&
-                echo "(🟢 metrics from Pull Request)" ||
-                echo "(🟡 metrics from Default Branch)"
+            jq -er "${metric_selected}" <<<"$project_status" 2>/dev/null | grep -q '.' &&
+                echo "${C_GRE}Metrics from [PULL REQUEST]${C_END}" ||
+                echo "${C_YEL}Metrics from [DEFAULT BRANCH]${C_END}"
         )
+        _log "${static_analysis_from}"
 
         _log debug "${C_WHT}Static Analysis Metrics used:${C_END} ${static_analysis_metrics}"
         if [[ -n "$static_analysis_metrics" && $(jq 'length' <<<"$static_analysis_metrics" | uniq) -gt 0 ]]; then
+
+            # Get metrics definitions
+            export METRICS=$(_get_metrics)
+
             for metric in $(jq -sc '.[]' <<<"$static_analysis_metrics"); do
                 _log debug "${C_WHT}Metric:${C_END} ${metric}"
+
                 local metric_key=$(jq -r '.metricKey' <<<"$metric")
                 local metric_status=$(jq -r '.status' <<<"$metric")
                 local metric_value=$(jq -r '.actualValue' <<<"$metric")
                 local metric_threshold=$(jq -r '.errorThreshold' <<<"$metric")
 
-                _log "${C_WHT}Metric:${C_END} ${metric_key} ${static_analysis_from}"
-                _log "${C_WHT}Value:${C_END} ${metric_value} ${static_analysis_from}"
-                _log "${C_WHT}Threshold:${C_END} ${metric_threshold} ${static_analysis_from}"
+                _log debug "${C_WHT}Metric Value:${C_END} ${metric_value}"
+                _log debug "${C_WHT}Metric Threshold:${C_END} ${metric_threshold}"
+
+                metric_value=$(_format_metric_value "$metric_key" "$metric_value")
+                metric_threshold=$(_format_metric_value "$metric_key" "$metric_threshold")
+
+                # Substitute actualValue and errorThreshold with formatted values
+                metric=$(jq --arg mv "$metric_value" --arg mt "$metric_threshold" '.actualValue = $mv | .errorThreshold = $mt' <<<"$metric")
+
+                local log_msg="${C_WHT}Metric:${C_END} ${metric_key}, ${C_WHT}Value:${C_END} ${metric_value}, ${C_WHT}Threshold:${C_END} ${metric_threshold}"
 
                 if [[ $metric_status == "ERROR" ]]; then
-                    _log warn "${C_YEL}Metric is below threshold!${C_END} ${static_analysis_from}"
-                    _insert_warning_message static_analysis_warn_msg "⚠️ Metric is below threshold! ${static_analysis_from}"
+                    _log warn "${log_msg} ${C_YEL}(Metric does not comply with the threshold!)${C_END}"
+                    metric_name=$(_get_metric_name "$metric_key")
+                    static_analysis_details+="<li>**$metric_name:** Threshold: \`$metric_threshold\`, Value: \`$metric_value\`</li>"
                 else
-                    static_analysis_pass=true
+                    _log "${log_msg}"
                 fi
+
+                local metric_definition=$(jq -r ".[] | select(.key == \"${metric_key}\")" <<<"$METRICS")
+
+                # Create consolidated metric
+                local consolidated_metric=$(jq -n --argjson m "$metric" --argjson md "$metric_definition" \
+                    '{
+                        status: $m.status,
+                        metric_key: $m.metricKey,
+                        name: $md.name,
+                        type: $md.type,
+                        comparator: $m.comparator,
+                        error_threshold: $m.errorThreshold,
+                        actual_value: $m.actualValue
+                    }')
+
+                # Add consolidated metric to summary
+                static_analysis_metrics_summary=$(jq -c --argjson cm "$consolidated_metric" '. += [$cm]' <<<"$static_analysis_metrics_summary")
             done
+
+            _log debug "${C_WHT}Static Analysis Details:${C_END} ${static_analysis_details}"
+            _log debug "${C_WHT}Static Analysis Metrics Summary:${C_END} $(jq -r <<<"$static_analysis_metrics_summary")"
+
+            if [[ -n $static_analysis_details ]]; then
+                static_analysis_details="<details><summary>Details</summary><ul>$static_analysis_details</ul></details>"
+                static_analysis_warn_msg="⚠️ Static Analysis metrics do not comply with the threshold!$static_analysis_details"
+                static_analysis_pass=false
+            fi
         else
             _log warn "${C_YEL}Static Analysis metrics not found!${C_END}"
             _insert_warning_message static_analysis_warn_msg "⚠️ Static Analysis metrics not found!"
+            static_analysis_pass=false
         fi
-
-        _log "${C_WHT}Static Analysis:${C_END} ${static_analysis_pass}"
-
     else
         _log warn "${C_YEL}Static Analysis check skipped!${C_END}"
         _insert_warning_message static_analysis_warn_msg "Static Analysis check skipped!"
-        static_analysis_pass=true
     fi
 
     {
         echo "QUALITY_GATE__STATIC_ANALYSIS_PASS=$static_analysis_pass"
         echo "QUALITY_GATE__STATIC_ANALYSIS_WARN_MSGS=$static_analysis_warn_msg"
-        echo "QUALITY_GATE__STATIC_ANALYSIS_VALUE=$metric_value"
-        echo "QUALITY_GATE__STATIC_ANALYSIS_THRESHOLD=$metric_threshold"
-        echo "QUALITY_GATE__STATIC_ANALYSIS_STATUS=$metric_status"
+        echo "QUALITY_GATE__STATIC_ANALYSIS_METRICS=$static_analysis_metrics_summary"
     } >>"$GITHUB_ENV"
 }
 
@@ -212,9 +301,6 @@ function _check_sonarcloud_analysis() {
             _retry_with_delay _check_sonarcloud_analysis_status "$SONAR_CHECK_TIMEOUT"
 
             if [[ $sonarcloud_analysis_completed ]]; then
-                export PROJECT_STATUS=$(_get_project_status "pullRequest=$PR_NUMBER")
-                export PROJECT_STATUS_DEFAULT_BRANCH=$(_get_project_status "branch=$GITHUB_DEFAULT_BRANCH")
-
                 _check_coverage
                 _check_static_analysis
             else
