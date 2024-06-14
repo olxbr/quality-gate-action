@@ -195,6 +195,22 @@ function _check_static_analysis() {
                 local metric_status=$(jq -r '.status' <<<"$metric")
                 local metric_value=$(jq -r '.actualValue' <<<"$metric")
                 local metric_threshold=$(jq -r '.errorThreshold' <<<"$metric")
+                local metric_definition=$(jq -r ".[] | select(.key == \"${metric_key}\")" <<<"$METRICS")
+
+                # Create consolidated metric
+                local consolidated_metric=$(jq -n --argjson m "$metric" --argjson md "$metric_definition" \
+                    '{
+                        status: $m.status,
+                        metric_key: $m.metricKey,
+                        name: $md.name,
+                        type: $md.type,
+                        comparator: $m.comparator,
+                        error_threshold: $m.errorThreshold,
+                        actual_value: $m.actualValue
+                    }')
+
+                # Add consolidated metric to summary
+                static_analysis_metrics_summary=$(jq -c --argjson cm "$consolidated_metric" '. += [$cm]' <<<"$static_analysis_metrics_summary")
 
                 _log debug "${C_WHT}Metric Value:${C_END} ${metric_value}"
                 _log debug "${C_WHT}Metric Threshold:${C_END} ${metric_threshold}"
@@ -214,23 +230,6 @@ function _check_static_analysis() {
                 else
                     _log "${log_msg}"
                 fi
-
-                local metric_definition=$(jq -r ".[] | select(.key == \"${metric_key}\")" <<<"$METRICS")
-
-                # Create consolidated metric
-                local consolidated_metric=$(jq -n --argjson m "$metric" --argjson md "$metric_definition" \
-                    '{
-                        status: $m.status,
-                        metric_key: $m.metricKey,
-                        name: $md.name,
-                        type: $md.type,
-                        comparator: $m.comparator,
-                        error_threshold: $m.errorThreshold,
-                        actual_value: $m.actualValue
-                    }')
-
-                # Add consolidated metric to summary
-                static_analysis_metrics_summary=$(jq -c --argjson cm "$consolidated_metric" '. += [$cm]' <<<"$static_analysis_metrics_summary")
             done
 
             _log debug "${C_WHT}Static Analysis Details:${C_END} ${static_analysis_details}"
