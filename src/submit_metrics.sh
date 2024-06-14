@@ -23,10 +23,11 @@ export QUALITY_GATE__VULNERABILITY_SECRET_SCANNING_ALERTS=${QUALITY_GATE__VULNER
 export GATES_TO_SKIP_ARR=$(_convert_to_json_array "${GATES_TO_SKIP:-}")
 
 ENDPOINT_URL="${GH_METRICS_SERVER_ENDPOINT}/quality-gates/required-workflow"
-# shellcheck disable=SC2016
+_log debug "Endpoint URL: ${ENDPOINT_URL}"
 
 # CAUTION!
 # Please don't edit the PAYLOAD variable name or delete its comments; they're needed for creating the metrics documentation.
+# shellcheck disable=SC2016
 PAYLOAD='{
     "repository_id": ${GITHUB_REPOSITORY_ID}, ## long | Repository ID
     "repository_name": "${REPOSITORY_NAME}", ## string | Repository name
@@ -70,14 +71,18 @@ PAYLOAD='{
 
 # Remove comments from payload
 DATA=$(echo "$PAYLOAD" | sed 's/##.*//g')
+_log debug "Data payload without comments: $DATA"
 
 # Replace variables in data
 DATA=$(envsubst <<<"$DATA")
+_log debug "Data payload with replaced environment variables: $DATA"
 
 # Remove empty Static Analysis Metrics field if it's empty to be null in DataLake
 if [[ -z $QUALITY_GATE__STATIC_ANALYSIS_METRICS || $(jq 'length' <<<"$QUALITY_GATE__STATIC_ANALYSIS_METRICS") -eq 0 ]]; then
     DATA=$(jq 'del(.quality_gate_static_analysis_metrics)' <<<"$DATA")
 fi
+
+_log debug "Data payload to send to DataLake: $DATA"
 
 # Send data to endpoint
 CURL_LOG="curl.log"
