@@ -71,7 +71,8 @@ function _get_coverage_measure() {
     coverage=$(eval "${coverage_cmd}")
 
     _log debug "${C_WHT}Return of execution:${C_END} ${coverage}"
-    echo "$coverage" | jq -r '.component.measures[0].value'
+    # The command '// ""' returns empty if null value
+    echo "$coverage" | jq -r '.component.measures[0].value // ""'
 }
 
 function _get_metrics() {
