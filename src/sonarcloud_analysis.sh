@@ -318,13 +318,30 @@ function _check_sonarcloud_analysis() {
             _log debug "${C_YEL}SonarCloud Analysis failed!${C_END}"
             _log debug "${C_YEL}$sonarcloud_analysis_warn_msg${C_END}"
 
-            {
-                echo "QUALITY_GATE__COVERAGE_PASS=false"
-                echo "QUALITY_GATE__COVERAGE_WARN_MSGS=$sonarcloud_analysis_warn_msg"
-                echo "QUALITY_GATE__STATIC_ANALYSIS_PASS=false"
-                echo "QUALITY_GATE__STATIC_ANALYSIS_WARN_MSGS=$sonarcloud_analysis_warn_msg"
-            } >>"$GITHUB_ENV"
+            local cover_msg=""
+            local cover_pass=false
 
+            local static_msg=""
+            local static_pass=false
+
+            if [[ "$skip_coverage" == true ]]; then
+                cover_pass=true
+                cover_msg="Coverage check skipped!"
+                _log debug "${C_YEL}$cover_msg${C_END}"
+            fi
+
+            if [[ "$skip_static_analysis" == true ]]; then
+                static_pass=true
+                static_msg="Static Analysis check skipped!"
+                _log debug "${C_YEL}$static_msg${C_END}"
+            fi
+
+            {
+                echo "QUALITY_GATE__COVERAGE_PASS=$cover_pass"
+                echo "QUALITY_GATE__COVERAGE_WARN_MSGS=${cover_msg:-$sonarcloud_analysis_warn_msg}"
+                echo "QUALITY_GATE__STATIC_ANALYSIS_PASS=$static_pass"
+                echo "QUALITY_GATE__STATIC_ANALYSIS_WARN_MSGS=${static_msg:-$sonarcloud_analysis_warn_msg}"
+            } >>"$GITHUB_ENV"
         fi
     else
         _log warn "${C_YEL}SonarCloud Analysis check skipped!${C_END}"
