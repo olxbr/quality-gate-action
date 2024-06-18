@@ -284,6 +284,7 @@ function _check_sonarcloud_analysis_status() {
 
 # Main function to check SonarCloud Analysis
 function _check_sonarcloud_analysis() {
+    local sonarcloud_analysis_warn_msg=""
     skip_coverage=$(_has_gate_to_skip "coverage")
     skip_static_analysis=$(_has_gate_to_skip "static_analysis")
 
@@ -306,14 +307,40 @@ function _check_sonarcloud_analysis() {
                 _check_static_analysis
             else
                 _log warn "${C_YEL}SonarCloud Analysis not completed!${C_END}"
-                _insert_warning_message QUALITY_GATE__SONARCLOUD_WARN_MSGS "⚠️ SonarCloud Analysis not completed!"
+                _insert_warning_message sonarcloud_analysis_warn_msg "⚠️ SonarCloud Analysis not completed!"
+
             fi
         else
+            _insert_warning_message sonarcloud_analysis_warn_msg "$SONARCLOUD_CFGS_WARN_MSGS"
+        fi
+
+        if [[ -n $sonarcloud_analysis_warn_msg ]]; then
+            _log debug "${C_YEL}SonarCloud Analysis failed!${C_END}"
+            _log debug "${C_YEL}$sonarcloud_analysis_warn_msg${C_END}"
+
+            local cover_msg=""
+            local cover_pass=false
+
+            local static_msg=""
+            local static_pass=false
+
+            if [[ "$skip_coverage" == true ]]; then
+                cover_pass=true
+                cover_msg="Coverage check skipped!"
+                _log debug "${C_YEL}$cover_msg${C_END}"
+            fi
+
+            if [[ "$skip_static_analysis" == true ]]; then
+                static_pass=true
+                static_msg="Static Analysis check skipped!"
+                _log debug "${C_YEL}$static_msg${C_END}"
+            fi
+
             {
-                echo "QUALITY_GATE__COVERAGE_PASS=false"
-                echo "QUALITY_GATE__COVERAGE_WARN_MSGS=$SONARCLOUD_CFGS_WARN_MSGS"
-                echo "QUALITY_GATE__STATIC_ANALYSIS_PASS=false"
-                echo "QUALITY_GATE__STATIC_ANALYSIS_WARN_MSGS=$SONARCLOUD_CFGS_WARN_MSGS"
+                echo "QUALITY_GATE__COVERAGE_PASS=$cover_pass"
+                echo "QUALITY_GATE__COVERAGE_WARN_MSGS=${cover_msg:-$sonarcloud_analysis_warn_msg}"
+                echo "QUALITY_GATE__STATIC_ANALYSIS_PASS=$static_pass"
+                echo "QUALITY_GATE__STATIC_ANALYSIS_WARN_MSGS=${static_msg:-$sonarcloud_analysis_warn_msg}"
             } >>"$GITHUB_ENV"
         fi
     else
