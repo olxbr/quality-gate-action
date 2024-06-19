@@ -26,6 +26,7 @@ function _check_quality_gates() {
 
     if [ "$QUALITY_GATE__STATIC_ANALYSIS_PASS" == false ]; then
         _log erro "Static analysis failed!"
+        lock_pull_request=true
     fi
 
     if [ "$QUALITY_GATE__VULNERABILITY_PASS" == false ]; then
