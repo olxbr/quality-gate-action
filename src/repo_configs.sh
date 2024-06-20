@@ -98,19 +98,10 @@ function _check_vulnerability_configs() {
         _log "${C_WHT}Checking Vulnerability Configurations...${C_END}"
 
         is_dependabot_alerts_disabled=$(_is_dependabot_alerts_disabled)
-        is_dependabot_security_updates_disabled=true
 
         if [[ $is_dependabot_alerts_disabled == true ]]; then
             _log warn "${C_YEL}Dependabot alerts is disabled!${C_END}"
             _insert_warning_message vulnerability_warn_msg "⚠️ Dependabot alerts is disabled!"
-            vulnerability_pass=false
-        else
-            is_dependabot_security_updates_disabled=$(_is_dependabot_security_updates_disabled)
-        fi
-
-        if [[ $is_dependabot_security_updates_disabled == true ]]; then
-            _log warn "${C_YEL}Dependabot security updates is disabled!${C_END}"
-            _insert_warning_message vulnerability_warn_msg "⚠️ Dependabot security updates is disabled!"
             vulnerability_pass=false
         fi
 

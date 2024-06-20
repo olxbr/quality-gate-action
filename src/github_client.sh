@@ -64,20 +64,6 @@ function _is_dependabot_alerts_disabled() {
     echo "$disabled"
 }
 
-function _is_dependabot_security_updates_disabled() {
-    local disabled=false
-
-    is_disabled=$(_gh_client \
-        "/repos/$REPOSITORY/automated-security-fixes" |
-        jq -r '.enabled | not')
-
-    if [ "$is_disabled" = "true" ]; then
-        disabled=true
-    fi
-
-    echo "$disabled"
-}
-
 function _is_github_advanced_security_disabled() {
     local disabled=false
 
