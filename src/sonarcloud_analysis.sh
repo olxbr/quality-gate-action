@@ -310,7 +310,7 @@ function _check_sonarcloud_analysis() {
 
             if [[ $sonarcloud_analysis_completed == true ]]; then
                 _check_coverage
-                #_check_static_analysis
+                _check_static_analysis
             else
                 _log warn "${C_YEL}SonarCloud Analysis not completed!${C_END}"
                 _insert_warning_message sonarcloud_analysis_warn_msg "⚠️ SonarCloud Analysis not completed!"
