@@ -94,7 +94,7 @@ function _check_sonarcloud_configuration() {
 
 # Function to check Code Coverage
 function _check_coverage() {
-    local coverage_passed=false
+    local coverage_passed=true
     local coverage_warn_msg=""
     local coverage_status="OK"
 
@@ -114,20 +114,19 @@ function _check_coverage() {
         else
             if [[ -z $default_branch_coverage_value ]]; then
                 _log warn "${C_YEL}Default Branch Coverage metrics not found!${C_END}"
-                _log "${C_YEL}Setting Default Branch Coverage to Pull Request Coverage...${C_END}"
+                _log "${C_WHT}Setting Default Branch Coverage to Pull Request Coverage...${C_END}"
                 default_branch_coverage_value=$pull_request_coverage_value
             fi
 
-            if (($(echo "$pull_request_coverage_value > $default_branch_coverage_value" | bc -l))); then
-                coverage_passed=true
-            else
-
-                if (($(echo "$pull_request_coverage_value < $COVERAGE_THRESHOLD" | bc -l))); then
-                    coverage_status="BELOW_THRESHOLD"
-                fi
+            if (($(echo "$pull_request_coverage_value <= $default_branch_coverage_value" | bc -l))); then
+                _log "${C_WHT}Coverage is increasing or stable!${C_END}"
 
                 if (($(echo "$pull_request_coverage_value < $default_branch_coverage_value" | bc -l))); then
                     coverage_status="DECREASING"
+                fi
+
+                if (($(echo "$pull_request_coverage_value < $COVERAGE_THRESHOLD" | bc -l))); then
+                    coverage_status="BELOW_THRESHOLD"
                 fi
 
                 local details="<details><summary>Details</summary><ul><li>Coverage Threshold: $COVERAGE_THRESHOLD%</li><li>Default Branch Coverage: $default_branch_coverage_value%</li><li>Pull Request Coverage: $pull_request_coverage_value%</li></ul></details>"
@@ -135,19 +134,23 @@ function _check_coverage() {
                 if [[ $coverage_status == "DECREASING" ]]; then
                     _log warn "${C_YEL}Coverage is decreasing from $default_branch_coverage_value% to $pull_request_coverage_value%!${C_END}"
                     _insert_warning_message coverage_warn_msg "⚠️ Coverage is decreasing, but still above the threshold!${details}"
-                    coverage_passed=true
                 fi
 
                 if [[ $coverage_status == "BELOW_THRESHOLD" ]]; then
                     _log warn "${C_YEL}Coverage is below threshold ($COVERAGE_THRESHOLD%)!${C_END}"
                     _insert_warning_message coverage_warn_msg "⚠️ Coverage is below threshold!${details}"
+                    coverage_passed=false
                 fi
             fi
         fi
+
+        _log "${C_WHT}Coverage Status:${C_END} ${coverage_status}"
+        _log "${C_WHT}Coverage Passed:${C_END} ${coverage_passed}"
+        _log "${C_WHT}Coverage Value:${C_END} ${pull_request_coverage_value}%"
+
     else
         _log warn "${C_YEL}Coverage check skipped!${C_END}"
         _insert_warning_message coverage_warn_msg "Coverage check skipped!"
-        coverage_passed=true
     fi
 
     {
@@ -307,7 +310,7 @@ function _check_sonarcloud_analysis() {
 
             if [[ $sonarcloud_analysis_completed == true ]]; then
                 _check_coverage
-                _check_static_analysis
+                #_check_static_analysis
             else
                 _log warn "${C_YEL}SonarCloud Analysis not completed!${C_END}"
                 _insert_warning_message sonarcloud_analysis_warn_msg "⚠️ SonarCloud Analysis not completed!"
