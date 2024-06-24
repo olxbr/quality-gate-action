@@ -96,6 +96,7 @@ function _check_sonarcloud_configuration() {
 function _check_coverage() {
     local coverage_passed=false
     local coverage_warn_msg=""
+    local coverage_status="OK"
 
     if [[ $skip_coverage == false ]]; then
         _log "${C_WHT}Checking Coverage...${C_END}"
@@ -104,29 +105,31 @@ function _check_coverage() {
         local pull_request_coverage_value=$(_get_coverage_measure "pullRequest=$PR_NUMBER")
         local default_branch_coverage_value=$(_get_coverage_measure "branch=$GITHUB_DEFAULT_BRANCH")
 
-        _log "${C_WHT}Pull Request Coverage:${C_END} ${pull_request_coverage_value}%"
-        _log "${C_WHT}Default Branch Coverage:${C_END} ${default_branch_coverage_value}%"
+        _log "${C_WHT}Pull Request Coverage:${C_END} ${pull_request_coverage_value}"
+        _log "${C_WHT}Default Branch Coverage:${C_END} ${default_branch_coverage_value}"
 
-        if [[ -z $pull_request_coverage_value || -z $default_branch_coverage_value ]]; then
-            _log warn "${C_YEL}Coverage metrics not found!${C_END}"
-            _insert_warning_message coverage_warn_msg "⚠️ Coverage metrics not found!"
+        if [[ -z $pull_request_coverage_value ]]; then
+            _log warn "${C_YEL}Pull Request Coverage metrics not found!${C_END}"
+            _insert_warning_message coverage_warn_msg "⚠️ Pull Request Coverage metrics not found!"
         else
-            local coverage_value=$pull_request_coverage_value
-            local coverage_status="OK"
+            if [[ -z $default_branch_coverage_value ]]; then
+                _log warn "${C_YEL}Default Branch Coverage metrics not found!${C_END}"
+                _log "${C_YEL}Setting Default Branch Coverage to Pull Request Coverage...${C_END}"
+                default_branch_coverage_value=$pull_request_coverage_value
+            fi
 
-            # Check if the coverage is decreasing
-            if (($(echo "$pull_request_coverage_value < $default_branch_coverage_value" | bc -l))); then
-                coverage_status="DECREASING"
+            if (($(echo "$pull_request_coverage_value > $default_branch_coverage_value" | bc -l))); then
+                coverage_passed=true
+            else
 
-                # Check if the coverage is below the threshold
                 if (($(echo "$pull_request_coverage_value < $COVERAGE_THRESHOLD" | bc -l))); then
                     coverage_status="BELOW_THRESHOLD"
                 fi
-            fi
 
-            if [[ $coverage_status == "OK" ]]; then
-                coverage_passed=true
-            else
+                if (($(echo "$pull_request_coverage_value < $default_branch_coverage_value" | bc -l))); then
+                    coverage_status="DECREASING"
+                fi
+
                 local details="<details><summary>Details</summary><ul><li>Coverage Threshold: $COVERAGE_THRESHOLD%</li><li>Default Branch Coverage: $default_branch_coverage_value%</li><li>Pull Request Coverage: $pull_request_coverage_value%</li></ul></details>"
 
                 if [[ $coverage_status == "DECREASING" ]]; then
@@ -150,7 +153,7 @@ function _check_coverage() {
     {
         echo "QUALITY_GATE__COVERAGE_PASS=$coverage_passed"
         echo "QUALITY_GATE__COVERAGE_WARN_MSGS=$coverage_warn_msg"
-        echo "QUALITY_GATE__COVERAGE_VALUE=$coverage_value"
+        echo "QUALITY_GATE__COVERAGE_VALUE=$pull_request_coverage_value"
         echo "QUALITY_GATE__COVERAGE_THRESHOLD=$COVERAGE_THRESHOLD"
         echo "QUALITY_GATE__COVERAGE_STATUS=$coverage_status"
     } >>"$GITHUB_ENV"
