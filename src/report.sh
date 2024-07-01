@@ -61,7 +61,7 @@ function _log_results() {
 
 # Function to write GitHub Actions summary
 function _write_github_actions_summary() {
-    _log "${C_WHT}Writing GitHub Actions Summary...${C_END}"
+    _log "Writing GitHub Actions Summary..."
 
     report=${REPORT_TEMPLATE}
     report="${report@Q}"
@@ -75,23 +75,23 @@ function _write_github_actions_summary() {
 # Function to post report as PR comment
 function _post_pr_comment() {
     if [ -n "$PR_NUMBER" ]; then
-        _log "${C_WHT}Posting PR comment...${C_END}"
-        _log "${C_WHT}PR Number:${C_END} ${PR_NUMBER}"
+        _log "Posting PR comment..."
+        _log "PR Number:${C_END} ${PR_NUMBER}"
 
         report=$(envsubst <<<"${REPORT_TEMPLATE}")
         comment_id=$(_get_pr_report_comment_id)
 
-        _log "${C_WHT}PR Comment ID:${C_END} ${comment_id}"
+        _log "PR Comment ID:${C_END} ${comment_id}"
 
         if [ -n "$comment_id" ]; then
-            _log "${C_WHT}Deleting an existing PR comment...${C_END}"
+            _log "Deleting an existing PR comment..."
             _delete_pr_report_comment "$comment_id"
         fi
 
-        _log "${C_WHT}Creating PR comment...${C_END}"
+        _log "Creating PR comment..."
         _create_pr_report_comment "$report"
     else
-        _log warn "${C_YEL}Not a PR, so no comment will be posted!${C_END}"
+        _log warn "Not a PR, so no comment will be posted!"
     fi
 }
 

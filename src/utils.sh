@@ -9,6 +9,7 @@ export C_BLU=$ESC_SEQ'1;34m'
 export C_RED=$ESC_SEQ'1;31m'
 export C_WHT=$ESC_SEQ'1;37m'
 export C_WHT_NO_BOLD=$ESC_SEQ'0;37m'
+export C_YEL_NO_BOLD=$ESC_SEQ'0;33m'
 
 export E_GRE='\xE2\x9C\x85'
 export E_YEL='\xE2\x9A\xA0'
@@ -23,21 +24,21 @@ function _log() {
 
     case $1 in
     erro)
-        logLevel="${C_RED}[ERRO]${C_END}"
+        logLevel="${C_RED}[ERRO]"
         msg="${msg#erro*\ }"
         ;;
     warn)
-        logLevel="${C_YEL}[WARN]${C_END}"
+        logLevel="${C_YEL}[WARN]"
         msg="${msg#warn*\ }"
         ;;
     debug)
-        logLevel="${C_YEL}[DEBUG]${C_END}"
+        logLevel="${C_YEL_NO_BOLD}[DEBUG]"
         msg="${msg#debug*\ }"
         [[ -n "$RUNNER_DEBUG" ]] &&
             output=/dev/stderr ||
             output=/dev/null
         ;;
-    *) logLevel="${C_WHT}[INFO]${C_END}" ;;
+    *) logLevel="${C_WHT}[INFO]" ;;
     esac
 
     echo -e "$(date +"%d-%b-%Y %H:%M:%S") ${logLevel} - ${msg##*( )}${C_END}" >$output

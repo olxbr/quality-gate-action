@@ -4,7 +4,7 @@
 source "${ACTION_PATH}"/src/utils.sh
 
 function _check_quality_gates() {
-    _log "${C_WHT}Checking Quality Gates...${C_END}"
+    _log "Checking Quality Gates..."
     local lock_pull_request=false
 
     if [ "$QUALITY_GATE__UNIT_TEST_PASS" = false ]; then
@@ -34,7 +34,7 @@ function _check_quality_gates() {
     fi
 
     if [ "$SKIP_QUALITY_GATE_LOCK" = true ]; then
-        _log warn "${C_YEL}Skipping Quality Gate Locks...${C_END}"
+        _log warn "Skipping Quality Gate Locks..."
     else
         if [ "$lock_pull_request" = true ]; then
             echo "::error::Pull Request is locked! Please fix the issues and try again."
