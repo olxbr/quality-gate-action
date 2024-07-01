@@ -21,13 +21,13 @@ function _check_owner_approval() {
     required_owner_approval_warn_msg=""
 
     if [[ $skip_owner_approval == false ]]; then
-        _log "${C_WHT}Checking Owner Approval...${C_END}"
+        _log "Checking Owner Approval..."
 
         is_codeowners_file_exists=$(_validate_codeowners)
         is_required_code_owner_review=$(jq -sr 'any(.[]; .require_code_owner_review == true)' <<<"$rules")
 
         if [[ $is_codeowners_file_exists == false ]]; then
-            _log warn "${C_YEL}CODEOWNERS file not found!${C_END}"
+            _log warn "CODEOWNERS file not found!"
             _insert_warning_message required_owner_approval_warn_msg "⚠️ CODEOWNERS file not found!"
         fi
 
@@ -36,15 +36,15 @@ function _check_owner_approval() {
                 is_required_owner_approval=true
             fi
         else
-            _log warn "${C_YEL} [Require review from Code Owners] is unchecked!${C_END}"
+            _log warn "[Require review from Code Owners] is unchecked!"
             _insert_warning_message required_owner_approval_warn_msg "⚠️ **Require review from Code Owners** is unchecked!"
         fi
 
-        _log "${C_WHT}Required Owner Approval:${C_END} ${is_required_owner_approval}"
-        _log "${C_WHT}CODEOWNERS file exists:${C_END} $is_codeowners_file_exists"
+        _log "Required Owner Approval:${C_END} ${is_required_owner_approval}"
+        _log "CODEOWNERS file exists:${C_END} $is_codeowners_file_exists"
 
     else
-        _log warn "${C_YEL}Owner Approval check skipped!${C_END}"
+        _log warn "Owner Approval check skipped!"
         _insert_warning_message required_owner_approval_warn_msg "Owner Approval check skipped!"
         is_required_owner_approval=true
     fi
@@ -61,18 +61,18 @@ function _check_code_review() {
     local required_code_review_warn_msg=""
 
     if [[ $skip_code_review == false ]]; then
-        _log "${C_WHT}Checking Code Review...${C_END}"
+        _log "Checking Code Review..."
 
         is_required_code_review=$(jq -sr 'any(.[]; .required_approving_review_count > 0)' <<<"$rules")
         if [[ $is_required_code_review == false ]]; then
-            _log warn "${C_YEL} [Required approvals] are less than 0!${C_END}"
+            _log warn "[Required approvals] are less than 0!"
             _insert_warning_message required_code_review_warn_msg "⚠️ **Required approvals** are less than 0!"
         fi
 
-        _log "${C_WHT}Required Code Review:${C_END} ${is_required_code_review}"
+        _log "Required Code Review:${C_END} ${is_required_code_review}"
 
     else
-        _log warn "${C_YEL}Code Review check skipped!${C_END}"
+        _log warn "Code Review check skipped!"
         _insert_warning_message required_code_review_warn_msg "Code Review check skipped!"
         is_required_code_review=true
     fi
@@ -95,12 +95,12 @@ function _check_vulnerability_configs() {
     local total_secret_scanning_alerts=0
 
     if [[ $skip_vulnerability == false ]]; then
-        _log "${C_WHT}Checking Vulnerability Configurations...${C_END}"
+        _log "Checking Vulnerability Configurations..."
 
         is_dependabot_alerts_disabled=$(_is_dependabot_alerts_disabled)
 
         if [[ $is_dependabot_alerts_disabled == true ]]; then
-            _log warn "${C_YEL}Dependabot alerts is disabled!${C_END}"
+            _log warn "Dependabot alerts is disabled!"
             _insert_warning_message vulnerability_warn_msg "⚠️ Dependabot alerts is disabled!"
             vulnerability_pass=false
         fi
@@ -109,7 +109,7 @@ function _check_vulnerability_configs() {
         is_secret_scanning_disabled=true
 
         if [[ $is_github_advanced_security_disabled == true ]]; then
-            _log warn "${C_YEL}GitHub Advanced Security is disabled!${C_END}"
+            _log warn "GitHub Advanced Security is disabled!"
             _insert_warning_message vulnerability_warn_msg "⚠️ GitHub Advanced Security is disabled!"
             vulnerability_pass=false
         else
@@ -117,16 +117,16 @@ function _check_vulnerability_configs() {
         fi
 
         if [[ $is_secret_scanning_disabled == true ]]; then
-            _log warn "${C_YEL}Secret scanning is disabled!${C_END}"
+            _log warn "Secret scanning is disabled!"
             _insert_warning_message vulnerability_warn_msg "⚠️ Secret scanning is disabled!"
             vulnerability_pass=false
         fi
 
-        _log "${C_WHT}Checking Vulnerability Alerts...${C_END}"
+        _log "Checking Vulnerability Alerts..."
 
         if [[ $is_dependabot_alerts_disabled == false ]]; then
             dependabot_alerts=$(_get_dependabot_alerts_count_by_severity)
-            _log debug "${C_WHT}[Dependabot Alerts] Result:${C_END} $dependabot_alerts"
+            _log debug "[Dependabot Alerts] Result:${C_END} $dependabot_alerts"
 
             if [[ -n $dependabot_alerts ]]; then
                 total_dependabot_alerts=$(jq -r '[.[].count] | add' <<<"$dependabot_alerts")
@@ -134,15 +134,15 @@ function _check_vulnerability_configs() {
                 has_critical_alerts=$(jq -r 'any(.[]; .severity == "critical")' <<<"$dependabot_alerts")
                 vulnerability_total_count=$((vulnerability_total_count + total_dependabot_alerts))
 
-                _log "${C_WHT}[Dependabot Alerts] Total:${C_END} $total_dependabot_alerts"
-                _log "${C_WHT}[Dependabot Alerts] Content:${C_END} $dependabot_alerts_content"
+                _log "[Dependabot Alerts] Total:${C_END} $total_dependabot_alerts"
+                _log "[Dependabot Alerts] Content:${C_END} $dependabot_alerts_content"
                 vulnerability_alert_details+="<li>**Dependabot Alerts:** $dependabot_alerts_content</li>"
             fi
         fi
 
         if [[ $is_github_advanced_security_disabled == false ]]; then
             code_scanning_alerts=$(_get_code_scanning_alerts_count_by_severity)
-            _log debug "${C_WHT}[Code Scanning Alerts] Result:${C_END} $code_scanning_alerts"
+            _log debug "[Code Scanning Alerts] Result:${C_END} $code_scanning_alerts"
 
             if [[ -n $code_scanning_alerts ]]; then
                 total_code_scanning_alerts=$(jq -r '[.[].count] | add' <<<"$code_scanning_alerts")
@@ -150,15 +150,15 @@ function _check_vulnerability_configs() {
                 has_critical_alerts=$(jq -r 'any(.[]; .severity == "critical")' <<<"$code_scanning_alerts")
                 vulnerability_total_count=$((vulnerability_total_count + total_code_scanning_alerts))
 
-                _log "${C_WHT}[Code Scanning Alerts] Total:${C_END} $total_code_scanning_alerts"
-                _log "${C_WHT}[Code Scanning Alerts] Content:${C_END} $code_scanning_alerts_content"
+                _log "[Code Scanning Alerts] Total:${C_END} $total_code_scanning_alerts"
+                _log "[Code Scanning Alerts] Content:${C_END} $code_scanning_alerts_content"
                 vulnerability_alert_details+="<li>**Code Scanning Alerts:** $code_scanning_alerts_content</li>"
             fi
         fi
 
         if [[ $is_secret_scanning_disabled == false ]]; then
             secret_scanning_alerts=$(_get_secret_scanning_alerts_count)
-            _log debug "${C_WHT}[Secret Scanning Alerts] Result:${C_END} $secret_scanning_alerts"
+            _log debug "[Secret Scanning Alerts] Result:${C_END} $secret_scanning_alerts"
 
             if [[ -n $secret_scanning_alerts ]]; then
                 total_secret_scanning_alerts=$secret_scanning_alerts
@@ -166,25 +166,25 @@ function _check_vulnerability_configs() {
                 has_critical_alerts=true
                 vulnerability_total_count=$((vulnerability_total_count + secret_scanning_alerts))
 
-                _log "${C_WHT}[Secret Scanning Alerts] Total:${C_END} $total_secret_scanning_alerts"
-                _log "${C_WHT}[Secret Scanning Alerts] Content:${C_END} $secret_scanning_alerts_content"
+                _log "[Secret Scanning Alerts] Total:${C_END} $total_secret_scanning_alerts"
+                _log "[Secret Scanning Alerts] Content:${C_END} $secret_scanning_alerts_content"
                 vulnerability_alert_details+="<li>**Secret Scanning Alerts (critical):** $secret_scanning_alerts_content</li>"
             fi
         fi
 
     else
-        _log warn "${C_YEL}Vulnerability check skipped!${C_END}"
+        _log warn "Vulnerability check skipped!"
         _insert_warning_message vulnerability_warn_msg "Vulnerability check skipped!"
     fi
 
     if [[ -n $vulnerability_alert_details ]]; then
         if [[ $has_critical_alerts == true ]]; then
-            _log warn "${C_YEL}Critical alerts found, resolve them to proceed!${C_END}"
+            _log warn "Critical alerts found, resolve them to proceed!"
             _insert_warning_message vulnerability_warn_msg "⚠️ Critical alerts found, resolve them to proceed!"
             vulnerability_pass=false
         fi
 
-        _log "${C_WHT}Vulnerability Total Count:${C_END} $vulnerability_total_count"
+        _log "Vulnerability Total Count:${C_END} $vulnerability_total_count"
         msg="⚠️ Security \`$vulnerability_total_count\`<details><summary>Details</summary><ul>$vulnerability_alert_details</ul></details>"
         vulnerability_warn_msg+="<br>$msg"
     fi
@@ -207,11 +207,11 @@ function _check_repo_configs() {
     echo "QUALITY_GATE__VULNERABILITY_SKIPPED=$skip_vulnerability" >>"$GITHUB_ENV"
 
     if [[ $skip_owner_approval == false || $skip_code_review == false || $skip_vulnerability == false ]]; then
-        _log "${C_WHT}Checking Repository Configurations...${C_END}"
-        _log "${C_WHT}Repository:${C_END} ${REPOSITORY}"
-        _log "${C_WHT}Default Branch:${C_END} ${GITHUB_DEFAULT_BRANCH}"
-        _log "${C_WHT}Pull Request Number:${C_END} ${PR_NUMBER}"
-        _log "${C_WHT}Pull Request Head SHA:${C_END} ${PR_HEAD_SHA}"
+        _log "Checking Repository Configurations..."
+        _log "Repository:${C_END} ${REPOSITORY}"
+        _log "Default Branch:${C_END} ${GITHUB_DEFAULT_BRANCH}"
+        _log "Pull Request Number:${C_END} ${PR_NUMBER}"
+        _log "Pull Request Head SHA:${C_END} ${PR_HEAD_SHA}"
 
         ruleset_ids=$(_get_ruleset_ids)
         rules=$(_get_rules "$ruleset_ids")
@@ -221,7 +221,7 @@ function _check_repo_configs() {
             _check_code_review
         else
             message="No rules found for repository!"
-            _log warn "${C_YEL}${message}${C_END}"
+            _log warn "${message}"
             {
                 echo "QUALITY_GATE__CODE_REVIEW_PASS=false"
                 echo "QUALITY_GATE__CODE_REVIEW_WARN_MSGS=⚠️ $message"
@@ -233,7 +233,7 @@ function _check_repo_configs() {
         _check_vulnerability_configs
 
     else
-        _log warn "${C_YEL}Repository Configurations check skipped!${C_END}"
+        _log warn "Repository Configurations check skipped!"
         {
             echo "QUALITY_GATE__CODE_REVIEW_PASS=true"
             echo "QUALITY_GATE__CODE_REVIEW_WARN_MSGS=Code Review check skipped!"

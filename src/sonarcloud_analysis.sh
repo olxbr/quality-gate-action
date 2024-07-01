@@ -70,20 +70,20 @@ function _update_sonar_project_key() {
 
 # Function to check SonarCloud Token and Component
 function _check_sonarcloud_configuration() {
-    _log "${C_WHT}Checking SonarCloud Configuration...${C_END}"
-    _log "${C_WHT}SonarCloud Project:${C_END} ${SONAR_PROJECT}"
+    _log "Checking SonarCloud Configuration..."
+    _log "SonarCloud Project:${C_END} ${SONAR_PROJECT}"
 
     local sonarcloud_warn_msg=""
     local sonarcloud_configs_ok=true
 
     if [[ $(_is_token_valid) == true ]]; then
         if [[ $(_is_sonarcloud_component_exists) == false ]]; then
-            _log warn "${C_YEL}SonarCloud component ($SONAR_PROJECT) not found!${C_END}"
+            _log warn "SonarCloud component ($SONAR_PROJECT) not found!"
             _insert_warning_message sonarcloud_warn_msg "⚠️ SonarCloud component ($SONAR_PROJECT) not found!"
             sonarcloud_configs_ok=false
         fi
     else
-        _log warn "${C_YEL}SonarCloud token is invalid!${C_END}"
+        _log warn "SonarCloud token is invalid!"
         _insert_warning_message sonarcloud_warn_msg "⚠️ SonarCloud token is invalid!"
         sonarcloud_configs_ok=false
     fi
@@ -99,27 +99,27 @@ function _check_coverage() {
     local coverage_status="OK"
 
     if [[ $skip_coverage == false ]]; then
-        _log "${C_WHT}Checking Coverage...${C_END}"
-        _log "${C_WHT}Threshold:${C_END} ${COVERAGE_THRESHOLD}%"
+        _log "Checking Coverage..."
+        _log "Threshold:${C_END} ${COVERAGE_THRESHOLD}%"
 
         local pull_request_coverage_value=$(_get_coverage_measure "pullRequest=$PR_NUMBER")
         local default_branch_coverage_value=$(_get_coverage_measure "branch=$GITHUB_DEFAULT_BRANCH")
 
-        _log "${C_WHT}Pull Request Coverage:${C_END} ${pull_request_coverage_value}"
-        _log "${C_WHT}Default Branch Coverage:${C_END} ${default_branch_coverage_value}"
+        _log "Pull Request Coverage:${C_END} ${pull_request_coverage_value}"
+        _log "Default Branch Coverage:${C_END} ${default_branch_coverage_value}"
 
         if [[ -z $pull_request_coverage_value ]]; then
-            _log warn "${C_YEL}Pull Request Coverage metrics not found!${C_END}"
+            _log warn "Pull Request Coverage metrics not found!"
             _insert_warning_message coverage_warn_msg "⚠️ Pull Request Coverage metrics not found!"
         else
             if [[ -z $default_branch_coverage_value ]]; then
-                _log warn "${C_YEL}Default Branch Coverage metrics not found!${C_END}"
-                _log "${C_WHT}Setting Default Branch Coverage to Pull Request Coverage...${C_END}"
+                _log warn "Default Branch Coverage metrics not found!"
+                _log "Setting Default Branch Coverage to Pull Request Coverage..."
                 default_branch_coverage_value=$pull_request_coverage_value
             fi
 
             if (($(echo "$pull_request_coverage_value <= $default_branch_coverage_value" | bc -l))); then
-                _log "${C_WHT}Coverage is increasing or stable!${C_END}"
+                _log "Coverage is increasing or stable!"
 
                 if (($(echo "$pull_request_coverage_value < $default_branch_coverage_value" | bc -l))); then
                     coverage_status="DECREASING"
@@ -132,24 +132,24 @@ function _check_coverage() {
                 local details="<details><summary>Details</summary><ul><li>Coverage Threshold: $COVERAGE_THRESHOLD%</li><li>Default Branch Coverage: $default_branch_coverage_value%</li><li>Pull Request Coverage: $pull_request_coverage_value%</li></ul></details>"
 
                 if [[ $coverage_status == "DECREASING" ]]; then
-                    _log warn "${C_YEL}Coverage is decreasing from $default_branch_coverage_value% to $pull_request_coverage_value%!${C_END}"
+                    _log warn "Coverage is decreasing from $default_branch_coverage_value% to $pull_request_coverage_value%!"
                     _insert_warning_message coverage_warn_msg "⚠️ Coverage is decreasing, but still above the threshold!${details}"
                 fi
 
                 if [[ $coverage_status == "BELOW_THRESHOLD" ]]; then
-                    _log warn "${C_YEL}Coverage is below threshold ($COVERAGE_THRESHOLD%)!${C_END}"
+                    _log warn "Coverage is below threshold ($COVERAGE_THRESHOLD%)!"
                     _insert_warning_message coverage_warn_msg "⚠️ Coverage is below threshold!${details}"
                     coverage_passed=false
                 fi
             fi
         fi
 
-        _log "${C_WHT}Coverage Status:${C_END} ${coverage_status}"
-        _log "${C_WHT}Coverage Passed:${C_END} ${coverage_passed}"
-        _log "${C_WHT}Coverage Value:${C_END} ${pull_request_coverage_value}%"
+        _log "Coverage Status:${C_END} ${coverage_status}"
+        _log "Coverage Passed:${C_END} ${coverage_passed}"
+        _log "Coverage Value:${C_END} ${pull_request_coverage_value}%"
 
     else
-        _log warn "${C_YEL}Coverage check skipped!${C_END}"
+        _log warn "Coverage check skipped!"
         _insert_warning_message coverage_warn_msg "Coverage check skipped!"
     fi
 
@@ -170,7 +170,7 @@ function _check_static_analysis() {
     local static_analysis_metrics_summary="[]"
 
     if [[ $skip_static_analysis == false ]]; then
-        _log "${C_WHT}Checking Static Analysis...${C_END}"
+        _log "Checking Static Analysis..."
 
         local project_status=$(_get_project_status "pullRequest=$PR_NUMBER")
         local project_status_default_branch=$(_get_project_status "branch=$GITHUB_DEFAULT_BRANCH")
@@ -188,14 +188,14 @@ function _check_static_analysis() {
         )
         _log "${static_analysis_from}"
 
-        _log debug "${C_WHT}Static Analysis Metrics used:${C_END} ${static_analysis_metrics}"
+        _log debug "Static Analysis Metrics used:${C_END} ${static_analysis_metrics}"
         if [[ -n "$static_analysis_metrics" && $(jq 'length' <<<"$static_analysis_metrics" | uniq) -gt 0 ]]; then
 
             # Get metrics definitions
             export METRICS=$(_get_metrics)
 
             for metric in $(jq -sc '.[]' <<<"$static_analysis_metrics"); do
-                _log debug "${C_WHT}Metric:${C_END} ${metric}"
+                _log debug "Metric:${C_END} ${metric}"
 
                 local metric_key=$(jq -r '.metricKey' <<<"$metric")
                 local metric_status=$(jq -r '.status' <<<"$metric")
@@ -218,8 +218,8 @@ function _check_static_analysis() {
                 # Add consolidated metric to summary
                 static_analysis_metrics_summary=$(jq -c --argjson cm "$consolidated_metric" '. += [$cm]' <<<"$static_analysis_metrics_summary")
 
-                _log debug "${C_WHT}Metric Value:${C_END} ${metric_value}"
-                _log debug "${C_WHT}Metric Threshold:${C_END} ${metric_threshold}"
+                _log debug "Metric Value:${C_END} ${metric_value}"
+                _log debug "Metric Threshold:${C_END} ${metric_threshold}"
 
                 metric_value=$(_format_metric_value "$metric_key" "$metric_value")
                 metric_threshold=$(_format_metric_value "$metric_key" "$metric_threshold")
@@ -238,8 +238,8 @@ function _check_static_analysis() {
                 fi
             done
 
-            _log debug "${C_WHT}Static Analysis Details:${C_END} ${static_analysis_details}"
-            _log debug "${C_WHT}Static Analysis Metrics Summary:${C_END} $(jq -r <<<"$static_analysis_metrics_summary")"
+            _log debug "Static Analysis Details:${C_END} ${static_analysis_details}"
+            _log debug "Static Analysis Metrics Summary:${C_END} $(jq -r <<<"$static_analysis_metrics_summary")"
 
             if [[ -n $static_analysis_details ]]; then
                 static_analysis_details="<details><summary>Details</summary><ul>$static_analysis_details</ul></details>"
@@ -247,12 +247,12 @@ function _check_static_analysis() {
                 static_analysis_pass=false
             fi
         else
-            _log warn "${C_YEL}Static Analysis metrics not found!${C_END}"
+            _log warn "Static Analysis metrics not found!"
             _insert_warning_message static_analysis_warn_msg "⚠️ Static Analysis metrics not found!"
             static_analysis_pass=false
         fi
     else
-        _log warn "${C_YEL}Static Analysis check skipped!${C_END}"
+        _log warn "Static Analysis check skipped!"
         _insert_warning_message static_analysis_warn_msg "Static Analysis check skipped!"
     fi
 
@@ -274,15 +274,15 @@ function _check_sonarcloud_analysis_status() {
         local commit_sha=$(jq -r '.commit.sha' <<<"$pull_request_infos")
 
         if [[ $commit_sha == "$PR_HEAD_SHA" ]]; then
-            _log "${C_WHT}SonarCloud Analysis completed!${C_END}"
+            _log "SonarCloud Analysis completed!"
             sonarcloud_analysis_completed=true
             succeeded=true
 
         else
-            _log "${C_WHT}SonarCloud Analysis not completed yet!${C_END}"
+            _log "SonarCloud Analysis not completed yet!"
         fi
     else
-        _log "${C_WHT}SonarCloud Analysis not found yet!${C_END}"
+        _log "SonarCloud Analysis not found yet!"
     fi
 
     $succeeded
@@ -312,7 +312,7 @@ function _check_sonarcloud_analysis() {
                 _check_coverage
                 _check_static_analysis
             else
-                _log warn "${C_YEL}SonarCloud Analysis not completed!${C_END}"
+                _log warn "SonarCloud Analysis not completed!"
                 _insert_warning_message sonarcloud_analysis_warn_msg "⚠️ SonarCloud Analysis not completed!"
 
             fi
@@ -321,8 +321,8 @@ function _check_sonarcloud_analysis() {
         fi
 
         if [[ -n $sonarcloud_analysis_warn_msg ]]; then
-            _log debug "${C_YEL}SonarCloud Analysis failed!${C_END}"
-            _log debug "${C_YEL}$sonarcloud_analysis_warn_msg${C_END}"
+            _log debug "SonarCloud Analysis failed!"
+            _log debug "$sonarcloud_analysis_warn_msg"
 
             local cover_msg=""
             local cover_pass=false
@@ -333,13 +333,13 @@ function _check_sonarcloud_analysis() {
             if [[ "$skip_coverage" == true ]]; then
                 cover_pass=true
                 cover_msg="Coverage check skipped!"
-                _log debug "${C_YEL}$cover_msg${C_END}"
+                _log debug "$cover_msg"
             fi
 
             if [[ "$skip_static_analysis" == true ]]; then
                 static_pass=true
                 static_msg="Static Analysis check skipped!"
-                _log debug "${C_YEL}$static_msg${C_END}"
+                _log debug "$static_msg"
             fi
 
             {
@@ -350,7 +350,7 @@ function _check_sonarcloud_analysis() {
             } >>"$GITHUB_ENV"
         fi
     else
-        _log warn "${C_YEL}SonarCloud Analysis check skipped!${C_END}"
+        _log warn "SonarCloud Analysis check skipped!"
         {
             echo "QUALITY_GATE__COVERAGE_PASS=true"
             echo "QUALITY_GATE__COVERAGE_WARN_MSGS=Coverage check skipped!"

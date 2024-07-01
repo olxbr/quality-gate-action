@@ -8,16 +8,16 @@ export UNIT_TEST_STEP_NAME="Quality Gate - Unit Test"
 
 # Function to get the workflow run ID containing the unit test step
 function _get_workflow_run_id() {
-    _log "${C_WHT}Getting Workflow Run ID...${C_END}"
+    _log "Getting Workflow Run ID..."
     local succeeded=false
 
     workflow_run_ids=$(_get_workflow_run_ids)
-    _log debug "${C_WHT}Found this list of Workflow Run IDs:${C_END} ${workflow_run_ids}"
+    _log debug "Found this list of Workflow Run IDs:${C_END} ${workflow_run_ids}"
 
     for id in $(jq -c '.[]' <<<"$workflow_run_ids"); do
-        _log debug "${C_WHT}Checking Workflow Run ID:${C_END} ${id}"
+        _log debug "Checking Workflow Run ID:${C_END} ${id}"
         if [[ -n "$(_get_quality_gate_unit_test_step "$id")" ]]; then
-            _log "${C_WHT}Workflow Run ID:${C_END} ${id}"
+            _log "Workflow Run ID:${C_END} ${id}"
             workflow_run_id=$id
             succeeded=true
             break
@@ -28,11 +28,11 @@ function _get_workflow_run_id() {
 }
 
 function _check_unit_test_status() {
-    _log "${C_WHT}Waiting for Unit Test...${C_END}"
+    _log "Waiting for Unit Test..."
     local succeeded=false
 
     quality_gate_step=$(_get_quality_gate_unit_test_step "$workflow_run_id")
-    _log debug "${C_WHT}Quality Gate Step:${C_END} ${quality_gate_step}"
+    _log debug "Quality Gate Step:${C_END} ${quality_gate_step}"
 
     status=$(jq -r '.status' <<<"$quality_gate_step" | uniq)
     conclusion=$(jq -r '.conclusion' <<<"$quality_gate_step" | uniq)
@@ -40,40 +40,40 @@ function _check_unit_test_status() {
     if [[ $status == "completed" ]]; then
         succeeded=true
         if [[ $conclusion == "success" ]]; then
-            _log "${C_WHT}Unit Test completed successfully!${C_END}"
+            _log "Unit Test completed successfully!"
             is_unit_tests_pass=true
         else
             message="Unit Test Failed!"
-            _log warn "${C_YEL}${message}${C_END}"
+            _log warn "${message}"
             _insert_warning_message unit_tests_warn_msg "⚠️ ${message}"
 
-            _log "${C_WHT}Quality Gate Step Status:${C_END} ${status}"
-            _log "${C_WHT}Quality Gate Step Conclusion:${C_END} ${conclusion}"
+            _log "Quality Gate Step Status:${C_END} ${status}"
+            _log "Quality Gate Step Conclusion:${C_END} ${conclusion}"
         fi
     else
-        _log "${C_WHT}Unit Test not completed yet!${C_END}"
+        _log "Unit Test not completed yet!"
     fi
 
     $succeeded
 }
 
 function _check_unit_test_step() {
-    _log "${C_WHT}Checking if ($UNIT_TEST_STEP_NAME) step is present in files...${C_END}"
+    _log "Checking if ($UNIT_TEST_STEP_NAME) step is present in files..."
     is_grep_found_step_name=$(grep -qr "name:.*${UNIT_TEST_STEP_NAME}" ${GITHUB_WORKSPACE}/.github/* && echo true || echo false)
 
     if [[ $is_grep_found_step_name == true ]]; then
-        _log "${C_WHT}Step name ($UNIT_TEST_STEP_NAME) found in workflow directory [.github/]!${C_END}"
+        _log "Step name ($UNIT_TEST_STEP_NAME) found in workflow directory [.github/]!"
     else
-        _log warn "${C_YEL}Step name ($UNIT_TEST_STEP_NAME) not found in any file in workflow directory [.github/]!${C_END}"
+        _log warn "Step name ($UNIT_TEST_STEP_NAME) not found in any file in workflow directory [.github/]!"
 
-        _log "${C_WHT}Searching for referenced workflows...${C_END}"
+        _log "Searching for referenced workflows..."
         referenced_workflows=$(grep -hoPr '(?<=uses: ).*olxbr.*.github/workflows.*' ${GITHUB_WORKSPACE}/.github/* || true | uniq)
 
         if [[ -n "$referenced_workflows" ]]; then
             _log debug "Referenced workflows: ${referenced_workflows}"
 
             for workflow in $referenced_workflows; do
-                _log "${C_WHT}Checking referenced workflow:${C_END} ${workflow}"
+                _log "Checking referenced workflow:${C_END} ${workflow}"
 
                 repo=$(echo "$workflow" | awk -F '/.github/' '{print $1}')
                 file=".github/$(echo "$workflow" | awk -F '/.github/' '{print $2}' | awk -F '@' '{print $1}')"
@@ -88,13 +88,13 @@ function _check_unit_test_step() {
                 if [[ -n "$content_file" ]]; then
                     is_grep_found_step_name=$(grep -q "name:.*${UNIT_TEST_STEP_NAME}" <<<"$content_file" && echo true || echo false)
                     if [[ $is_grep_found_step_name == true ]]; then
-                        _log "${C_WHT}Step name ($UNIT_TEST_STEP_NAME) found in referenced workflow!${C_END}"
+                        _log "Step name ($UNIT_TEST_STEP_NAME) found in referenced workflow!"
                         break
                     fi
                 fi
             done
         else
-            _log warn "${C_YEL}No referenced workflows found!${C_END}"
+            _log warn "No referenced workflows found!"
         fi
     fi
 
@@ -113,7 +113,7 @@ function _check_unit_test() {
     unit_tests_warn_msg=""
 
     if [[ $skip_unit_tests == true ]]; then
-        _log warn "${C_YEL}Unit Test check skipped!${C_END}"
+        _log warn "Unit Test check skipped!"
         _insert_warning_message unit_tests_warn_msg "Unit Test check skipped!"
         is_unit_tests_pass=true
 
@@ -122,8 +122,8 @@ function _check_unit_test() {
         _check_unit_test_step
 
         if [[ $is_grep_found_step_name == true ]]; then
-            _log "${C_WHT}Checking Unit Test...${C_END}"
-            _log "${C_WHT}PR_HEAD_SHA:${C_END} ${PR_HEAD_SHA}"
+            _log "Checking Unit Test..."
+            _log "PR_HEAD_SHA:${C_END} ${PR_HEAD_SHA}"
 
             workflow_run_id=""
             _retry_with_delay _get_workflow_run_id "$UNIT_TEST_INIT_WAIT_TIMEOUT"
@@ -132,17 +132,17 @@ function _check_unit_test() {
                 _retry_with_delay _check_unit_test_status "$UNIT_TEST_CHECK_TIMEOUT"
                 if [[ "$status" != "completed" ]]; then
                     message="Unit Test check is not completed!"
-                    _log warn "${C_YEL}${message}${C_END}"
+                    _log warn "${message}"
                     _insert_warning_message unit_tests_warn_msg "⚠️ ${message}"
                 fi
             else
                 message="Step name ($UNIT_TEST_STEP_NAME) not found in these workflows executions. Check if the workflow is running in the correct PR event."
-                _log warn "${C_YEL}${message}${C_END}"
+                _log warn "${message}"
                 _insert_warning_message unit_tests_warn_msg "⚠️ ${message}"
             fi
         else
             message="Step name ($UNIT_TEST_STEP_NAME) not found in any file in workflow directory (.github) or referenced workflows!"
-            _log warn "${C_YEL}${message}${C_END}"
+            _log warn "${message}"
             _insert_warning_message unit_tests_warn_msg "⚠️ ${message}"
         fi
     fi

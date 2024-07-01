@@ -1,9 +1,9 @@
 #!/bin/bash
 
 function _gh_client() {
-    _log debug "${C_WHT}Executing command:${C_END}" gh api "$@"
+    _log debug "Executing command:${C_END}" gh api "$@"
     result=$(gh api -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" "$@")
-    _log debug "${C_WHT}Result from Github API:${C_END} ${result}"
+    _log debug "Result from Github API:${C_END} ${result}"
     echo "$result"
 }
 
@@ -12,7 +12,7 @@ function _get_ruleset_ids() {
         /repos/"$REPOSITORY"/rulesets |
         jq -r '[.[] | select(.enforcement == "active") | .id] | join(",")' |
         grep -v '^null$')
-    _log debug "${C_WHT}Ruleset IDs actived:${C_END} ${ruleset_ids}"
+    _log debug "Ruleset IDs actived:${C_END} ${ruleset_ids}"
     echo "$ruleset_ids"
 }
 
@@ -25,7 +25,7 @@ function _get_rules() {
             jq -r ".[] | select(.type == \"pull_request\" and (.ruleset_id == ($ruleset_ids) )) | .parameters" |
             grep -v '^null$')
 
-        _log debug "${C_WHT}Rules found for id ${ruleset_ids}:${C_END} ${rules}"
+        _log debug "Rules found for id ${ruleset_ids}:${C_END} ${rules}"
         echo "$rules"
     fi
 }
